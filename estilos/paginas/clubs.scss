@@ -1,0 +1,424 @@
+@function getRemSize($sizePx) {
+    @return ($sizePx / 16px) * 1rem;
+}
+@media (max-width: 1000px) {
+    .clubs-container-list {
+        display: none !important;
+    }
+}
+.clubs-container-list {
+    min-width: getRemSize(250px);
+    max-width: getRemSize(300px);
+    overflow-x: hidden;
+}
+.clubs {
+    &-container {
+        display: flex;
+        width: 100vw;
+
+        height: 100%;
+        flex-grow: 1;
+        flex-direction: column;
+        .caontlist {
+            display: flex;
+            padding: getRemSize(50px) getRemSize(150px);
+            width: fit-content;
+            max-width: 100vw !important;
+            @media (max-width: 500px) {
+                padding: getRemSize(50px) getRemSize(15px);
+            }
+        }
+        &-list {
+            display: flex;
+            flex-direction: column;
+            gap: getRemSize(15px);
+            width: getRemSize(300px);
+            overflow-y: auto;
+            color: black;
+            &-hijo {
+                padding: getRemSize(10px);
+                width: getRemSize(270px);
+                border-top: 1px solid black;
+            }
+        }
+        &-center {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: getRemSize(10px);
+            max-width: calc(4 * 399px);
+            width: 100%;
+            color: black;
+            padding: getRemSize(10px) getRemSize(5px) getRemSize(10px) getRemSize(15px);
+
+            &-hijo {
+                box-shadow: 0 3px 7px 0px rgba(0, 0, 0, 0.35);
+                width: 100%;
+                max-width: calc(100vw - 250px);
+
+                height: getRemSize(200px);
+                display: flex;
+                .seccion-1 {
+                    display: flex;
+                    gap: getRemSize(20px);
+                    justify-content: space-around;
+                    flex-direction: column;
+                    height: 100%;
+                    flex-grow: 1;
+                    width: 22%;
+                    padding: getRemSize(10px);
+                    .club {
+                        position: relative;
+                        width: 100%;
+                        display: flex;
+                        gap: getRemSize(20px);
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        height: calc(getRemSize(600px) * 0.24);
+                        img {
+                            width: 80%;
+                            height: calc(calc(getRemSize(600px) * 0.22) * 0.8);
+                        }
+                        .ans-club {
+                            position: absolute;
+                            display: flex;
+                            width: calc(calc(getRemSize(600px) * 0.22) * 0.8) !important;
+
+                            height: calc(getRemSize(600px) * 0.24);
+                            padding-top: getRemSize(6px);
+                            .relativo {
+                                height: calc(getRemSize(600px) * 0.24);
+                                position: relative;
+                                display: flex;
+                                width: 100%;
+                                flex-grow: 1;
+                                .simg {
+                                    border-radius: getRemSize(10px);
+                                    width: calc(calc(getRemSize(600px) * 0.22) * 0.8);
+                                    height: calc(calc(getRemSize(600px) * 0.22) * 0.8);
+                                }
+                                .seccion-1-1 {
+                                    width: getRemSize(30px);
+                                    height: getRemSize(30px);
+                                    display: flex;
+                                    position: absolute;
+                                    top: 2px;
+                                    right: 0;
+                                }
+                                .seccion-1-4 {
+                                    width: getRemSize(25px);
+                                    height: getRemSize(25px);
+                                    display: flex;
+                                    position: absolute;
+                                    top: 2px;
+                                    right: 0;
+                                }
+                                .seccion-1-2 {
+                                    width: getRemSize(60px);
+                                    height: getRemSize(60px);
+                                    position: absolute;
+                                    top: 5px;
+                                    left: -12px;
+                                }
+                                .seccion-1-3 {
+                                    width: getRemSize(30px);
+                                    height: getRemSize(30px);
+                                    position: absolute;
+                                    bottom: 2px;
+                                    right: 2px;
+                                }
+                            }
+                        }
+                    }
+                }
+                .seccion-3 {
+                    display: flex;
+                    gap: getRemSize(20px);
+                    justify-content: space-around;
+                    flex-direction: column;
+                    width: 22%;
+                    height: 100%;
+                    flex-grow: 1;
+                    .flex-colunn {
+                        display: flex;
+                        flex-grow: 1;
+                        gap: getRemSize(20px);
+                        justify-content: space-around;
+                        flex-direction: column;
+                        height: 100%;
+                        img {
+                            height: getRemSize(70px);
+                            width: getRemSize(70px);
+                        }
+                    }
+                }
+                .seccion-2 {
+                    display: flex;
+                    gap: getRemSize(20px);
+                    justify-content: space-around;
+                    flex-direction: column;
+                    align-items: center;
+                    h1 {
+                        color: #232d41;
+
+                        text-align: center;
+                    }
+                    p {
+                        font-weight: 900;
+                        color: #797c82;
+                        text-align: left !important;
+                        display: block;
+                        margin-block-start: 1em;
+                        margin-block-end: 1em;
+                        margin-inline-start: 0px;
+                        margin-inline-end: 0px;
+                        unicode-bidi: isolate;
+                    }
+                    width: 56%;
+                    height: 100%;
+                    flex-grow: 1;
+                }
+            }
+            &-hijo-flex-row {
+                display: flex;
+                flex-direction: row;
+                box-shadow: 0 3px 7px 0px rgba(0, 0, 0, 0.35);
+                width: getRemSize(800px);
+                height: fit-content;
+                padding: 0 getRemSize(20px) getRemSize(20px);
+                .texto {
+                    img {
+                        width: getRemSize(250px);
+                        height: auto;
+                    }
+                }
+            }
+        }
+    }
+}
+@media (max-height: 600px) {
+    .clubs-container-list {
+        display: none !important;
+    }
+    .clubs-container-center {
+        display: flex;
+        flex-wrap: wrap;
+        flex-grow: 1;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.625rem;
+        width: 100% !important;
+        max-width: 100% !important;
+        color: black;
+        padding: 0.625rem getRemSize(15px) 0.625rem getRemSize(15px) !important;
+    }
+    .clubs-container .caontlist {
+        padding: getRemSize(15px) getRemSize(15px) !important;
+    }
+}
+@media (max-width: 600px) {
+    .tabla-descargas {
+        padding-left: 5vw !important;
+        padding-right: 5vw !important;
+        div,
+        span,
+        p,
+        h1 {
+            flex-wrap: wrap;
+            max-width: 90vw !important;
+        }
+    }
+    .historia-shadow {
+        max-width: 100vw !important;
+        width: 100vw !important;
+    }
+
+    .clubs-container-center-hijo {
+        box-shadow: 0 3px 7px 0px rgba(0, 0, 0, 0.35);
+        width: 100%;
+        height: min-content;
+        display: flex;
+        flex-wrap: wrap;
+        .seccion-1 {
+            display: flex;
+            gap: getRemSize(20px);
+            justify-content: space-around;
+            flex-direction: column;
+            height: 100%;
+            flex-grow: 1;
+            width: 33%;
+            padding: getRemSize(10px);
+            .club {
+                position: relative;
+                width: 100%;
+                display: flex;
+                gap: getRemSize(20px);
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: calc(100vw * 0.24);
+                img {
+                    width: 80%;
+                    height: calc(calc(100vw * 0.33) * 0.8);
+                }
+                .ans-club {
+                    position: absolute;
+                    display: flex;
+                    width: calc(calc(100vw * 0.33) * 0.8) !important;
+
+                    height: calc(100vw * 0.24);
+                    padding-top: getRemSize(6px);
+                    .relativo {
+                        height: calc(100vw * 0.24);
+                        position: relative;
+                        display: flex;
+                        width: 100%;
+                        flex-grow: 1;
+                        .seccion-1-1 {
+                            width: getRemSize(30px);
+                            height: getRemSize(30px);
+                            display: flex;
+                            position: absolute;
+                            top: 2px;
+                            right: 0;
+                        }
+
+                        .seccion-1-4 {
+                            display: flex;
+                            position: absolute;
+                            top: 2px;
+                            right: 0;
+                        }
+                        .seccion-1-2 {
+                            width: getRemSize(60px);
+                            height: getRemSize(60px);
+                            position: absolute;
+                            top: 5px;
+                            left: -12px;
+                        }
+                        .seccion-1-3 {
+                            width: getRemSize(30px);
+                            height: getRemSize(30px);
+                            position: absolute;
+                            bottom: 2px;
+                            right: 2px;
+                        }
+                    }
+                }
+            }
+        }
+        .seccion-3 {
+            display: flex;
+            gap: getRemSize(20px);
+            justify-content: space-around;
+            flex-direction: column;
+            width: 40%;
+            height: 100%;
+            flex-grow: 1;
+            .flex-colunn {
+                display: flex;
+                flex-grow: 1;
+                gap: getRemSize(20px);
+                justify-content: space-around;
+                flex-direction: column;
+                height: 100%;
+                img {
+                    height: getRemSize(70px);
+                    width: getRemSize(70px);
+                }
+            }
+        }
+        .seccion-2 {
+            display: flex;
+            gap: getRemSize(20px);
+            justify-content: space-around;
+            flex-direction: column;
+            align-items: center;
+            h1 {
+                color: #232d41;
+
+                text-align: center;
+            }
+            p {
+                font-weight: 900;
+                color: #797c82;
+                text-align: left !important;
+                display: block;
+                margin-block-start: 1em;
+                margin-block-end: 1em;
+                margin-inline-start: 0px;
+                margin-inline-end: 0px;
+                unicode-bidi: isolate;
+            }
+            width: 67%;
+            height: 100%;
+            flex-grow: 1;
+        }
+    }
+}
+.seccion-1-4 {
+    margin-top: getRemSize(4px);
+    width: getRemSize(60px) !important;
+    height: getRemSize(60px) !important;
+    @media (max-width: 600px) {
+        margin-top: getRemSize(-1px);
+
+        width: getRemSize(30px) !important;
+        height: getRemSize(30px) !important;
+    }
+    display: flex;
+}
+.calificacion {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    gap: getRemSize(10px);
+    align-items: center;
+    p {
+        font-weight: 900;
+        color: #797c82;
+        text-align: left !important;
+        display: block;
+        margin-block-start: 1em;
+        margin-block-end: 1em;
+        margin-inline-start: 0px;
+        margin-inline-end: 0px;
+        unicode-bidi: isolate;
+    }
+}
+.imagen-casino-torneo {
+    height: getRemSize(70px);
+    width: auto;
+}
+.select-page {
+    display: flex;
+    color: black;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    .pagina-select {
+        display: flex;
+        border: 1px solid black;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        width: getRemSize(50px);
+        height: getRemSize(50px);
+        flex-wrap: wrap;
+        cursor: pointer;
+    }
+    .pagina-select:hover {
+        transition: 1000ms;
+        background-color: blue !important;
+        color: white;
+    }
+    .pagina-select-selected {
+        background-color: green;
+        color: white;
+    }
+}
+.brdr10 {
+    border-radius: getRemSize(10px);
+}

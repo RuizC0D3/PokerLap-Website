@@ -1,0 +1,206 @@
+@function getRemSize($sizePx) {
+  @return ($sizePx / 16px) * 1rem;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("https://fonts.gstatic.com/s/poppins/v21/pxiByp8kv8JHgFVrLDD4Z1JlFc-K.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Rocas";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/f/rocas.ttf") format("woff2");
+}
+/*
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Poppins";
+ 
+}
+*/
+@import "plantilla/plantilla", "atajos", "componentes/comnponentes", "paginas/paginas",
+  "componentes/paginador/paginadores.scss";
+body,
+.home {
+  display: flex;
+  width: 100vw;
+  flex-grow: 1;
+  position: relative;
+}
+.flex-row {
+  display: flex;
+}
+.ocult {
+  visibility: hidden !important;
+}
+.hide {
+  display: none !important;
+}
+.page-head-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex-grow: 1;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: getRemSize(60px);
+  height: getRemSize(300px);
+  background-color: #1b2936;
+  gap: getRemSize(20px);
+  color: white;
+  font-size: getRemSize(25px);
+  letter-spacing: -0.6px;
+  line-height: 1;
+  margin-bottom: 0.45em;
+  text-transform: capitalize;
+  .flex-row {
+    gap: getRemSize(20px);
+    font-size: getRemSize(18px);
+    align-items: center;
+  }
+  .page-back {
+    cursor: pointer;
+    &:hover {
+      transition: 700ms;
+      color: #972e2a;
+    }
+  }
+  .page-item {
+    color: #972e2a;
+    font-weight: 800;
+    font-size: getRemSize(22px);
+    word-break: break-all;
+    word-wrap: break-word;
+  }
+}
+.example-map {
+  width: getRemSize(300px);
+  height: getRemSize(300px);
+  max-width: 40vw;
+  max-height: 40vw;
+  /* ._rlayers_RLayer,
+  ._rlayers_RStyle {
+    width: getRemSize(300px);
+    height: getRemSize(300px);
+  } */
+}
+.abshare {
+  color: white;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background-color: black;
+  padding: getRemSize(20px);
+  gap: getRemSize(10px);
+  z-index: 100;
+}
+.close-btn {
+  border-radius: 50%;
+  background-color: transparent;
+  border: none !important;
+}
+.save {
+  background-color: transparent;
+  color: white;
+  font-weight: 900;
+  border: 2px solid rgb(230, 238, 230);
+  font-size: getRemSize(15px);
+}
+.close {
+  margin-left: getRemSize(20px);
+  color: white;
+  border-radius: 50%;
+  border: none !important;
+  background-color: transparent;
+}
+
+@font-face {
+  font-family: "mandaka";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("/mandaka.ttf") format("woff2");
+}
+.color-poker {
+  font-family: "mandaka";
+  color: #972e2a !important;
+  font-weight: 500 !important;
+  text-align: center;
+  width: fit-content;
+}
+.fts-xs {
+  font-size: getRemSize(20px);
+  @media (max-width: 500px) {
+    font-size: getRemSize(17px);
+  }
+  @media (max-width: 400px) {
+    max-width: getRemSize(150px);
+  }
+}
+.minW-100 {
+  width: getRemSize(100px);
+  @media (max-width: 400px) {
+    width: getRemSize(60px) !important;
+    max-width: getRemSize(60px) !important;
+  }
+}
+@media (max-width: 400px) {
+  .torneo-torneo {
+    padding-top: getRemSize(50px) !important;
+    max-width: 100vw !important;
+
+    .datos {
+      gap: getRemSize(10px) !important;
+    }
+    max-width: 100vw !important;
+  }
+  .caontlist {
+    max-width: 100vw !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .color-poker {
+    margin-top: getRemSize(10px);
+    margin-bottom: getRemSize(10px) !important;
+  }
+}
+.clubs-container-center-hijo-flex-row {
+  overflow-x: hidden !important;
+  @media (max-width: 400px) {
+    .torneo-casino {
+      padding-left: getRemSize(15px) !important;
+    }
+    padding: 0 !important;
+    h2 {
+      text-align: center;
+    }
+  }
+}
+.fondopoker {
+  height: 100vh !important;
+  width: 100vw !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: black;
+  background-image: url("/images/logoblancoTRANS.png");
+  background-size: 50vh auto;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.rocasF{
+  font-family: 'Rocas';
+}

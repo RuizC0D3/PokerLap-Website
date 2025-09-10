@@ -1,0 +1,137 @@
+@function getRemSize($sizePx) {
+    @return ($sizePx / 16px) * 1rem;
+}
+.sobreNosotros {
+    &-container {
+        display: flex;
+        flex-direction: column;
+        width: 100vw;
+        height: 100%;
+        flex-grow: 1;
+    }
+    &-introduccion {
+        display: flex;
+        justify-content: center;
+        padding: getRemSize(150px) getRemSize(75px);
+        background-color: #efefef;
+        align-items: center;
+        color: black;
+        @media (max-width: 750px) {
+            flex-direction: column !important;
+            img {
+                max-width: 90vw !important;
+            }
+        }
+        .textos {
+            display: flex;
+            flex-direction: column;
+            gap: getRemSize(70px);
+            padding-left: getRemSize(60px);
+            .titulo {
+                span {
+                    font-size: getRemSize(20px);
+
+                    /*                     padding-bottom: getRemSize(10px);
+ */
+                }
+                p {
+                    padding-top: getRemSize(10px);
+                    font-size: getRemSize(60px);
+                    font-weight: 600;
+                }
+            }
+            .contenido {
+                p {
+                    max-width: getRemSize(550px);
+                    display: block;
+                    margin-block-start: 1em;
+                    margin-block-end: 1em;
+                    margin-inline-start: 0px;
+                    margin-inline-end: 0px;
+                    unicode-bidi: isolate;
+                    line-height: 1.5rem;
+                    margin-bottom: 1.5em;
+                    margin-block-end: 1em;
+                    margin-inline-start: 0px;
+                    margin-inline-end: 0px;
+                    unicode-bidi: isolate;
+                    color: #4a4d53;
+                }
+            }
+        }
+    }
+    &-funciones {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+
+        justify-content: center;
+        padding: getRemSize(150px) getRemSize(75px);
+        background-color: #1f232b;
+        align-items: center;
+        color: white;
+        .textos {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            align-items: center;
+            gap: getRemSize(22px);
+        }
+        &-grid {
+            padding-top: getRemSize(70px);
+            display: flex;
+            width: 100%;
+            flex-grow: 1;
+            flex-wrap: wrap;
+            max-width: calc(390px * 3) !important;
+
+            &-hijo {
+                max-width: getRemSize(380px) !important;
+                display: flex;
+                height: getRemSize(250px);
+                justify-content: center;
+                padding: getRemSize(55px) getRemSize(40px) getRemSize(35px) getRemSize(40px);
+                gap: getRemSize(20px);
+                border: 0.5px solid gray;
+
+                img {
+                    width: getRemSize(65px);
+                    height: getRemSize(65px);
+                }
+                .texto {
+                    display: flex;
+                    flex-direction: column;
+                    padding: 0 getRemSize(15px);
+                    p {
+                        color: #797c82;
+                        text-align: left !important;
+                        display: block;
+                        margin-block-start: 1em;
+                        margin-block-end: 1em;
+                        margin-inline-start: 0px;
+                        margin-inline-end: 0px;
+                        unicode-bidi: isolate;
+                    }
+                }
+            }
+            &-hijo1,
+            &-hijo0,
+            &-hijo2 {
+                border-top: none !important;
+            }
+            &-hijo5,
+            &-hijo3,
+            &-hijo4 {
+                border-bottom: none !important;
+            }
+            &-hijo3,
+            &-hijo0 {
+                border-left: none !important;
+            }
+            &-hijo2,
+            &-hijo5 {
+                border-right: none !important;
+            }
+        }
+    }
+}

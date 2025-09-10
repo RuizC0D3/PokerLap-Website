@@ -1,0 +1,5 @@
+@function getRemSize($sizePx) {
+    @return ($sizePx / 16px) * 1rem;
+  }
+
+@import "./premiacion/premiacion", "./fichas/fichas", "./estructura/estructura";

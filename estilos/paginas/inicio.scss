@@ -1,0 +1,383 @@
+@function getRemSize($sizePx) {
+    @return ($sizePx / 16px) * 1rem;
+}
+.inicio {
+    &-container {
+        display: flex;
+        width: 100vw;
+        height: 100%;
+        flex-grow: 1;
+        min-height: 100vh !important;
+        position: relative;
+    }
+    &-backimage {
+        display: flex;
+        width: 100vw;
+        height: 100%;
+        flex-grow: 1;
+        min-height: 100vh !important;
+        position: absolute;
+        background-color: rgb(2, 2, 22);
+        opacity: 0.668;
+    }
+
+    &-items {
+        padding-top: getRemSize(100px);
+        padding-left: getRemSize(300px);
+        display: flex;
+        width: 100vw;
+        height: 100%;
+        flex-grow: 1;
+        align-items: center;
+        min-height: 100vh !important;
+        background: url("/multimedia/landing/background.jpg");
+        @media (max-width: 500px) {
+            padding-top: getRemSize(100px);
+            padding-left: getRemSize(3px) !important;
+            padding-right: getRemSize(3px) !important;
+            .caontlist {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+            .texto {
+                padding-left: getRemSize(20px);
+                display: flex;
+                flex-direction: column;
+                flex-grow: 1;
+                justify-content: space-between;
+                h1 {
+                    font-size: getRemSize(55px);
+                    font-weight: 300;
+                }
+                p {
+                    font-size: getRemSize(20px);
+                }
+            }
+        }
+
+        &-seccion-carrusel {
+            &-father {
+                padding: getRemSize(15px) getRemSize(15px) getRemSize(45px) getRemSize(15px);
+                display: flex;
+                @media (max-width: 500px) {
+                    flex-direction: column;
+                }
+                height: 100%;
+                flex-grow: 1;
+            }
+            z-index: 100;
+            .botones {
+                margin-top: getRemSize(35px);
+                display: flex;
+                gap: getRemSize(20px);
+                button {
+                    color: black;
+                    border-radius: 5em;
+                    border-width: 2px;
+                    font-size: 16px;
+                    font-weight: 300;
+                    line-height: 1;
+                    margin-bottom: 4px;
+                    min-width: 170px;
+                    padding: 10px 35px;
+                    text-align: center;
+                    text-transform: capitalize;
+                    white-space: pre-wrap;
+                    background-color: transparent;
+                    background-color: #a53024;
+                    margin-bottom: 0;
+                    min-width: 130px;
+                    padding: 15px 28px;
+                    cursor: pointer;
+                    &:hover {
+                        transition: 400ms;
+                        transform: scale(1.1);
+                        background-color: transparent;
+                        border: 1.4px solid #a53024;
+                        color: white;
+                    }
+                }
+                .botones-aprende {
+                    background-color: transparent !important;
+                    color: white;
+                    border: 1px solid white;
+                    &:hover {
+                        transition: 400ms;
+                        transform: scale(1.1);
+                        border: 1px solid #161515;
+
+                        background-color: white !important;
+                        color: black;
+                    }
+                }
+            }
+
+            &-item {
+                padding: getRemSize(5px);
+            }
+        }
+    }
+}
+#map-google {
+    width: getRemSize(250px) !important;
+    height: getRemSize(250px) !important;
+}
+
+@media (max-width: 500px) {
+    .caontlist {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .clubs-valores-hijo,
+    .clubs-container-center-hijo-flex-row {
+        flex-direction: column !important;
+        height: fit-content !important;
+        max-height: 100vh !important;
+        overflow-y: auto;
+    }
+    .clubs-container-center {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        flex-wrap: wrap;
+        .torneo-container {
+            flex-wrap: wrap;
+            max-height: 100vh;
+            height: fit-content !important;
+            max-width: 100vw;
+        }
+        .torneo-casino {
+            display: flex;
+            width: 100%;
+            gap: getRemSize(1px);
+            flex-direction: row;
+            .torneo-casino-club {
+                img {
+                    height: 40vw !important;
+                    max-height: 40vw !important;
+                    width: 40vw !important;
+                    max-width: 40vw !important;
+                }
+            }
+        }
+    }
+    .clubs-container-center-hijo-flex-row {
+        width: 100vw !important;
+        max-width: 100vw !important;
+    }
+    #map-google {
+        width: 40vw !important;
+        height: 40vw !important;
+    }
+}
+@media (max-width: 1400px) {
+    .clubs-container-center {
+        .torneo-container {
+            flex-direction: column-reverse;
+        }
+    }
+    .clubs-container-center-hijo {
+        max-width: 95vw !important;
+        flex-wrap: wrap;
+    }
+    .clubs-container,
+    .caontlist {
+        padding-left: getRemSize(4px) !important;
+        padding-right: getRemSize(4px) !important;
+    }
+}
+.seccion-3-xs {
+    display: flex;
+}
+@media (max-width: 600px) {
+    .clubs-valores-hijo121212 {
+        flex-direction: column !important;
+        flex-wrap: wrap;
+        max-width: 95vw;
+        gap: getRemSize(4px);
+        max-height: getRemSize(300px) !important;
+    }
+    .seccion-2,
+    .seccion-3,
+    .seccion-1 {
+        gap: getRemSize(4px) !important;
+    }
+    .seccion-3 {
+        display: none;
+    }
+}
+@media (min-width: 600px) {
+    .seccion-3-xs {
+        display: none !important;
+    }
+    .landing-container {
+        padding-top: getRemSize(200px) !important;
+    }
+}
+@media (max-width: 600px) {
+    .landing-container {
+        padding-top: getRemSize(100px) !important;
+    }
+}
+@media (min-width: 600px) {
+    .landing-container {
+        padding-top: 0 !important;
+    }
+}
+.lang-fixed {
+    position: fixed;
+    display: flex;
+    gap: getRemSize(15px);
+    flex-wrap: wrap;
+    background-color: #161515;
+    border-radius: 14px;
+}
+.get-app {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: red;
+    opacity: 0.8;
+    color: white;
+    font-weight: 900;
+    display: flex;
+    width: 100vw;
+    height: getRemSize(40px);
+    font-size: getRemSize(25px);
+    justify-content: space-evenly;
+    align-items: center;
+    flex-grow: 1;
+    z-index: 999999999;
+    .save {
+        background-color: transparent;
+        color: white;
+        font-weight: 900;
+        border: none;
+        font-size: getRemSize(15px);
+    }
+    .close {
+        margin-left: getRemSize(20px);
+        color: white;
+        border-radius: 50%;
+        border: none !important;
+        background-color: transparent;
+    }
+}
+   
+.torneo-container {
+    @media (max-width: 500px) {
+        flex-wrap: wrap;
+        max-height: 100% !important;
+        height: fit-content !important;
+        max-width: 100vw;
+        display: flex;
+        flex-direction: column;
+        .torin {
+            display: flex;
+            width: 100%;
+            flex-grow: 1;
+            max-width: 95vw !important;
+        
+            /* .main {
+                background-color: var(--bgColor) !important;
+                background-size: cover;
+                display: flex;
+                flex-direction: column;
+                width: 100vw;
+                min-height: 100vh;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+                max-width: 100vw;
+                max-height: 100vh;
+                overflow-y: auto;
+                max-width: 100vw;
+                max-height: 100vh;
+                overflow: hidden;
+            } */
+            .menu-interactivo {
+                max-width: 95vw !important;
+            }
+            .tableinter {
+                max-height: calc(100vh - 400px);
+                overflow-y: auto;
+                padding: getRemSize(20px);
+                position: relative;
+                thead {
+                    position: absolute;
+                    top: 0;
+                    left: getRemSize(20px);
+                    background-color: black;
+                    color: white;
+                    th {
+                        font-weight: 900;
+                        color: white;
+                    }
+                }
+                tbody {
+                    margin-top: getRemSize(80px);
+                }
+                th,
+                td {
+                    min-width: calc(100vw / 5.5) !important;
+                    width: calc(100vw / 5.5) !important;
+                    max-width: calc(100vw / 5.5) !important;
+                }
+            }
+            .opciones {
+                display: flex;
+                justify-content: center;
+                height: getRemSize(100px);
+                width: 95vw;
+                max-width: 95vw;
+                .opcion {
+                    height: calc(95vw / 4);
+                    width: calc(95vw / 4.3);
+                    max-width: calc(95vw / 4.3);
+                    border: 1px solid gray;
+                    cursor: pointer;
+                    display: flex;
+                    flex-direction: column;
+                    gap: getRemSize(10px);
+                    padding: getRemSize(10px);
+                    font-weight: 900;
+
+                    svg {
+                        height: calc(95vw / 5);
+                        width: calc(95vw / 5);
+                    }
+                    background-color: white;
+                }
+                .opcions {
+                    background-color: rgb(84, 84, 163);
+                    color: white;
+                    font-weight: 900;
+                    svg {
+                        fill: white;
+                    }
+                }
+            }
+            .seccion-uno {
+                .dato {
+                    display: flex;
+                    justify-content: space-between;
+                    width: 90vw;
+                    margin: 0;
+                    padding: getRemSize(5px);
+                }
+            }
+            .seccion-dos {
+                .titulo-seccion {
+                    font-weight: 600;
+                    font-size: getRemSize(24px);
+                }
+                .posicion {
+                    display: flex;
+                    width: 90vw;
+                    gap: getRemSize(20px);
+                }
+            }
+        }
+    }
+}

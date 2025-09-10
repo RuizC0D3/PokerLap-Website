@@ -1,0 +1,70 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+@font-face {        
+    font-family: fichas;
+    src: url(/f/rocas.ttf);
+}
+
+@font-face {
+    font-family: Bebas;
+    src: url(/f/bebas.ttf);
+}
+
+@font-face {
+    font-family: letras;
+    src: url(/f/DIN-Bold.TTF);
+}
+
+.main {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: black;
+    position: relative;
+}
+
+.bgwhite {
+    background-color: white !important;
+    color: black;
+}
+
+.list-canvas {
+    background-color: black;
+    background-image: url(/images/pkrlap.png);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 50vh 50vh;
+}
+
+.mas-h {
+    position: absolute;
+    top: 0;
+    width: 100vw;
+    height: calc(100vw * .5625);
+}
+
+.mas-w-h {
+    height: 100vh;
+    width: calc(100vh * 1.75);
+    position: absolute;
+    top: 0;
+}
+
+.imagenLogoClub {
+    border-radius: 14px;
+}
+
+.letrae {
+    font-family: fichas;
+    color: blue;
+    font-size: 50px;
+}
+.z-alto{
+    z-index: 1000;
+}

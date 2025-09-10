@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas List</title>
+    <link rel="stylesheet" type="text/css" href="./estilos.css">
+    <style>
+        @font-face {
+            font-family: fichas;
+            src: url(/f/rocas.ttf);
+        }
+
+        @font-face {
+            font-family: Bebas;
+            src: url(/f/bebas.ttf);
+        }
+    </style>
+</head>
+<script src="./js/fullScreen.js">  </script>
+
+<body class="main" id="mainDiv" onclick="FullScreenReq()">
+
+    <canvas class="list-canvas" id="list-canvas"></canvas>
+    <script type="text/javascript" src="./js/FontLoader.js"></script>
+    <script type="text/javascript" src="./js/mqttws31.min.js"></script>
+    <script type="text/javascript" src="./js/canvas.js"></script>
+    <script type="text/javascript" src="./js/canvasd.js"></script>
+    <script>
+        var fontLoader = new FontLoader(["Bebas", "fichas"], {
+            "fontLoaded": function (font) {
+                // One of the fonts was loaded
+                console.log("font loaded: " + font.family);
+            },
+            "complete": function (error) {
+                if (error !== null) {
+                    // Reached the timeout but not all fonts were loaded
+                    console.log(error.message);
+                    console.log(error.notLoadedFonts);
+                } else {
+                    // All fonts were loaded
+                    console.log("all fonts were loaded");
+                    const querysGetstart = () => {
+                        var querystringaas = window.location.search
+                        var paramsas = new URLSearchParams(querystringaas)
+                        var queryaaa = {
+                            torneo: paramsas.get('ID_Torneo')
+                        }
+                        if (isNaN(parseInt(queryaaa.torneo))) {
+                            MainJs();
+                        } else {
+                            MainJsLi(parseInt(queryaaa.torneo))
+                        }
+                    }
+                    querysGetstart()
+
+                }
+            }
+        }, 3000);
+        fontLoader.loadFonts();
+    </script>
+</body>
+
+</html>

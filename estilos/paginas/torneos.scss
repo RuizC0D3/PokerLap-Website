@@ -1,0 +1,476 @@
+@function getRemSize($sizePx) {
+    @return ($sizePx / 16px) * 1rem;
+}
+.torneos {
+    &-container {
+        display: flex;
+        width: 100vw;
+        height: 100%;
+        flex-grow: 1;
+        flex-direction: column;
+        position: relative;
+        flex-wrap: wrap;
+        max-width: 100vw;
+    }
+}
+.torneoShare {
+    position: absolute;
+    top: getRemSize(10px);
+    left: getRemSize(10px);
+    z-index: 100000000;
+}
+.torneo {
+    &-container {
+        display: flex;
+        width: 100vw;
+        height: 100%;
+        flex-grow: 1;
+        flex-wrap: wrap;
+        max-width: 100vw;
+        @media (max-height: 500px) {
+            align-items: center !important;
+        }
+    }
+    &-casino {
+        position: relative;
+        width: getRemSize(300px);
+    }
+    &-torneo {
+        &-xs {
+            /*             box-shadow: 0 3px 7px 0px rgba(0, 0, 0, 0.35);
+ */
+            width: getRemSize(480px);
+            max-width: 90vw;
+            height: getRemSize(670px);
+            overflow: auto;
+            @media (max-width: 450px) {
+                max-width: 100vw;
+                width: 100vw;
+                margin-left: getRemSize(-20px);
+            }
+            @media (max-width: 400px) {
+                margin-left: getRemSize(-10px);
+            }
+        }
+
+        display: flex;
+        width: 100%;
+        flex-direction: column;
+        flex-grow: 1;
+        padding: getRemSize(30px) getRemSize(25px);
+        padding-top: getRemSize(80px) !important;
+        .imagen-casino-torneo {
+            background-color: transparent !important;
+            border-radius: 8px;
+        }
+        align-items: center;
+        h1 {
+            text-align: center;
+            padding: getRemSize(10px) 0;
+        }
+        .datos {
+            display: flex;
+            width: 100%;
+            flex-direction: column;
+            gap: getRemSize(50px);
+            .dato {
+                display: flex;
+                width: 100%;
+                padding-right: getRemSize(30px);
+                padding-left: getRemSize(15px);
+                @media (max-width: 470px) {
+                    padding-right: getRemSize(25px);
+                    padding-left: getRemSize(10px);
+                }
+                justify-content: space-between;
+                font-weight: 900;
+                color: #797c82;
+                text-align: left !important;
+                margin-left: 1em;
+                margin-right: 1em;
+                unicode-bidi: isolate;
+            }
+        }
+    }
+    &-casino-club {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: getRemSize(30px);
+        width: getRemSize(300px) !important;
+        img,
+        .pokermap {
+            width: getRemSize(300px);
+            height: auto;
+        }
+    }
+}
+.torneo-torneo {
+    background-image: url("/multimedia/fondotorneo.png") !important;
+    background-size: cover;
+    padding-top: getRemSize(22px);
+    padding-bottom: getRemSize(22px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-right: getRemSize(40px);
+    @media (max-width: 450px) {
+        padding-top: getRemSize(100px) !important;
+        background-size: contain;
+        background-repeat: no-repeat;
+        justify-content: flex-start;
+    }
+}
+.torContainer {
+    /*     background-image: url("/multimedia/fondotorneomadera.png") !important;
+ */
+    background-size: cover;
+    .hover:hover {
+        background-color: transparent !important;
+    }
+    .clubinfo {
+        @media (max-width: 450px) {
+            margin-top: getRemSize(35px) !important;
+            max-width: 100vw !important;
+        }
+        display: flex;
+        flex-direction: column-reverse;
+        align-items: center;
+        justify-content: center;
+        padding: getRemSize(20px) getRemSize(20px) 0 getRemSize(20px);
+        gap: getRemSize(10px);
+        width: 30rem;
+        max-width: 90vw;
+        background-color: white;
+        flex-wrap: wrap;
+        p {
+            color: #972e2a !important;
+            font-size: getRemSize(17px);
+            font-weight: 800;
+            border-radius: getRemSize(15px);
+            padding: getRemSize(3px) getRemSize(5px);
+            margin: 0 !important;
+        }
+    }
+    .simg {
+        width: getRemSize(100px) !important;
+        height: getRemSize(100px) !important;
+        border-radius: getRemSize(15px);
+    }
+}
+.torContainer {
+    @media (min-width: 500px) {
+        padding-bottom: getRemSize(100px) !important;
+        .clubinfo p {
+            font-size: getRemSize(20px);
+        }
+    }
+    @media (min-width: 1200px) {
+        padding-bottom: getRemSize(200px) !important;
+        .clubinfo p {
+            font-size: getRemSize(22px);
+        }
+    }
+}
+@import "./vistas.scss";
+.torin {
+    display: flex;
+    width: 100%;
+    flex-grow: 1;
+    max-width: getRemSize(600px);
+
+    /* .main {
+        background-color: var(--bgColor) !important;
+        background-size: cover;
+        display: flex;
+        flex-direction: column;
+        width: 100vw;
+        min-height: 100vh;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        max-width: 100vw;
+        max-height: 100vh;
+        overflow-y: auto;
+        max-width: 100vw;
+        max-height: 100vh;
+        overflow: hidden;
+    } */
+    .menu-interactivo {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        flex-grow: 1;
+        max-width: getRemSize(600px);
+        height: 100%;
+        align-items: center;
+        text-align: center;
+        border-radius: 10px;
+        gap: getRemSize(5px);
+
+        .tiempo {
+            margin-top: getRemSize(10px);
+            max-width: getRemSize(400px);
+            max-height: getRemSize(125px);
+            height: 100%;
+            width: 100%;
+            min-height: getRemSize(100px);
+            display: flex;
+            flex-direction: column;
+            background-color: #972e2a;
+            border-radius: 10px;
+            flex-grow: 1;
+            align-items: center;
+            justify-content: center;
+            gap: getRemSize(10px);
+
+            .temporizador {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: getRemSize(10px);
+                align-items: center;
+                justify-content: center;
+            }
+            .text-tiempo {
+                font-weight: 900;
+                color: white;
+                font-size: getRemSize(15px);
+            }
+        }
+        .opciones {
+            display: flex;
+            justify-content: center;
+            height: getRemSize(100px);
+            width: getRemSize(400px);
+            max-width: 95vw;
+            border-radius: 8px;
+            border: 1px solid #972e2a;
+            .opcion {
+                height: getRemSize(100px);
+                width: getRemSize(120px);
+                max-width: calc(95vw / 4);
+                cursor: pointer;
+                display: flex;
+                flex-direction: column;
+                gap: getRemSize(10px);
+                padding: getRemSize(10px);
+                font-weight: 900;
+
+                svg,
+                span {
+                    fill: #972e2a;
+                    color: #972e2a;
+
+                    height: getRemSize(85px);
+                    width: getRemSize(85px);
+                }
+                .rocasF {
+                    margin-top: getRemSize(-4px);
+                }
+                @media (max-width: 400px) {
+                    padding: 0 !important;
+                    .rocasF {
+                        margin-top: getRemSize(-1px);
+                    }
+                }
+                background-color: white;
+            }
+            .opcions {
+                background-color: #972e2a;
+                color: white;
+                font-weight: 900;
+                svg,
+                span {
+                    fill: white;
+                    color: white;
+                }
+            }
+        }
+        .vistas {
+            border-radius: 8px;
+            border: 1px solid #972e2a;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .confirmacion {
+        }
+    }
+    .mtfichas {
+        margin-top: getRemSize(-10px);
+    }
+}
+.tableinter {
+    max-height: calc(100vh - 400px);
+    @media (max-height: 700px) {
+        max-height: getRemSize(400px);
+    }
+    overflow-y: auto;
+    padding: getRemSize(20px);
+    position: relative;
+    thead {
+        position: absolute;
+        top: 0;
+        left: getRemSize(20px);
+        background-color: black;
+        color: white;
+        th {
+            font-weight: 900;
+            color: white;
+        }
+    }
+    tbody {
+        margin-top: getRemSize(80px);
+    }
+    th,
+    td {
+        min-width: getRemSize(100px) !important;
+        width: getRemSize(100px) !important;
+        max-width: getRemSize(100px) !important;
+    }
+}
+.premiacion {
+    .seccion-uno {
+        .dato {
+            display: flex;
+            justify-content: space-between;
+            width: getRemSize(390px);
+            margin: 0;
+            padding: getRemSize(5px);
+        }
+    }
+    .seccion-dos {
+        display: flex;
+        flex-direction: column;
+        max-height: 30vh;
+        overflow-y: auto;
+        padding-top: getRemSize(10px);
+        border-top: 1px solid #972e2a;
+        width: 100%;
+        .titulo-seccion {
+            font-weight: 600;
+            font-size: getRemSize(24px);
+            padding-bottom: getRemSize(10px);
+            color: #972e2a;
+        }
+        .posicion {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            border-bottom: 0.5px solid #972e2a;
+            padding-top: getRemSize(4px);
+            padding-bottom: getRemSize(4px);
+        }
+        .pf {
+            font-weight: 700;
+        }
+    }
+    .listaP {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        padding: getRemSize(5px) getRemSize(15px) getRemSize(5px) getRemSize(5px);
+    }
+}
+.bgcolor-poker {
+    background-color: #972e2a;
+    color: white;
+    font-weight: 700;
+}
+.temporizador {
+    font-size: getRemSize(45px);
+    color: white;
+    font-weight: 700;
+    position: relative;
+}
+.tiempo-d {
+    display: flex;
+    flex-grow: 1;
+    width: 100%;
+    max-width: getRemSize(70px);
+    height: getRemSize(70px);
+    justify-content: center;
+    align-items: center;
+    span {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        justify-content: center;
+        align-items: center;
+        flex-grow: 1;
+        height: getRemSize(45px);
+        &:first-child {
+            font-size: getRemSize(25px);
+            height: getRemSize(25px);
+            text-transform: capitalize;
+        }
+    }
+}
+.tiempo-d-off,
+.tiempo-d-off span,
+.tiempo-d-off span span {
+    transition: 1200ms ease-in-out;
+    color: gray;
+    opacity: 0.6;
+    transform: scale(0.85);
+}
+.tiempo-d-off-1 {
+    position: absolute;
+    left: getRemSize(5px);
+}
+.tiempo-d-off-2 {
+    position: absolute;
+    left: getRemSize(50px);
+}
+.dosp {
+    display: flex;
+    height: 100%;
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: getRemSize(75px);
+    font-size: getRemSize(45px);
+    padding: 0 getRemSize(3px);
+}
+.reglas {
+    display: flex;
+    flex-direction: column;
+    min-height: getRemSize(200px);
+    padding: getRemSize(20px);
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+}
+.listav {
+    color: white;
+    border-radius: 5em;
+    border-width: 2px;
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 1;
+    margin-bottom: 4px;
+    min-width: 170px;
+    padding: 10px 35px;
+    text-align: center;
+    text-transform: capitalize;
+    white-space: pre-wrap;
+    background-color: transparent;
+    border-color: #a53024;
+    color: #a53024;
+    margin-bottom: 0;
+    min-width: 130px;
+    padding: 10px 28px;
+    cursor: pointer;
+    &:hover {
+        transition: 400ms;
+        transform: scale(1.1);
+        background-color: #a53024;
+        color: black;
+    }
+}
+.wtdPxDecena-15ss {
+    max-width: getRemSize(150px) !important;
+}
