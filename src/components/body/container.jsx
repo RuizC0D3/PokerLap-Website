@@ -49,11 +49,13 @@ const Container = (props) => {
                 </>
             }
             {
-                opt === 6 && <> <UserInfoVista logout={logout} />
+                opt === 6 && <>
+                    <TiendaVista setOpt={setOpt} lang={languageSelected} />
                 </>
             }
             {
-                opt === 7 && <> <TiendaVista opt={opt} setOpt={setOpt} />
+                opt === 6 && <> 
+                    <UserInfoVista logout={logout} />
                 </>
             }
             {
