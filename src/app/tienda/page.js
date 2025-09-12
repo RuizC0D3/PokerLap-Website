@@ -16,9 +16,9 @@ export const metadata = {
 
 export default function Page() {
   return (
-    <main className="main">
-      {/* IMPORTANTE: el índice de la pestaña (ver paso 2) */}
-      <PreLanding seccion={6} club={false} delact={false} />
+      <main className="main">
+      <PreLanding seccion={6} />
     </main>
   )
 }
+

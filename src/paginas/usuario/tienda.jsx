@@ -1,545 +1,477 @@
-
 'use client'
 
-
-const TiendaVista = (props) => {
-    const { setOpt = console.log, lang = 'es' } = props
-
-    return (
-        <>
-
-
-
-            <section id="eltop" rel="nofollow" className="ls s-py-xl-150 s-py-lg-130 s-py-md-90 s-py-60 c-gutter-30">
-                <div id="#eltop" className="container">
-                    <div id="tab-eltop" className="row">
-
-
-                        <main id="#tab-eltop" className="col-lg-7 col-xl-9">
-                            <div className="product type-product ">
-
-                                <div className="images" data-columns="4">
-                                    <figure>
-                                        <div data-thumb="images/gallery/square/01.jpg">
-                                            <a >
-                                                <img src="images/gallery/square/01.jpg" alt="" data-caption="" data-src="images/gallery/square/01.jpg" data-large_image="images/gallery/square/01.jpg" data-large_image_width="1000" data-large_image_height="1000" />
-                                            </a>
-                                        </div>
-                                        <div data-thumb="images/gallery/square/02.jpg">
-                                            <a >
-                                                <img src="images/gallery/square/02.jpg" alt="" data-caption="" data-src="images/gallery/square/02.jpg" data-large_image="images/gallery/square/02.jpg" data-large_image_width="1000" data-large_image_height="1000" />
-                                            </a>
-                                        </div>
-                                        <div data-thumb="images/gallery/square/03.jpg">
-                                            <a >
-                                                <img src="images/gallery/square/03.jpg" alt="" data-caption="" data-src="images/gallery/square/03.jpg" data-large_image="images/gallery/square/03.jpg" data-large_image_width="1000" data-large_image_height="1000" />
-                                            </a>
-                                        </div>
-                                        <div data-thumb="images/gallery/square/04.jpg">
-                                            <a >
-                                                <img src="images/gallery/square/04.jpg" alt="" data-caption="" data-src="images/gallery/square/04.jpg" data-large_image="images/gallery/square/04.jpg" data-large_image_width="1000" data-large_image_height="1000" />
-                                            </a>
-                                        </div>
-
-
-                                    </figure>
-                                </div>
-
-                                <div className="summary entry-summary">
-
-                                    <h1 className="product_title entry-title">Lorem ipsum dolor sit amet.</h1>
-                                    <div className="woocommerce-product-rating">
-                                        <div className="star-rating">
-                                            <span >Rated <strong className="rating">4.33</strong> out of 5 based on <span className="rating">3</span> customer ratings</span>
-                                        </div>
-
-                                        <a href="#reviews" className="woocommerce-review-link" rel="nofollow">(<span className="count">3</span> customer
-                                            reviews)</a>
-                                    </div>
-
-
-                                    <div>
-                                        <p>From seamless airport transportation to 420-friendly hotel amenities, we’ll make sure you’re equipped with all the goods. </p>
-                                    </div>
-
-                                    <form>
-
-
-                                        <div className="single_variation_wrap">
-                                            <div>
-                                                <div className="quantity">
-                                                    <input type="number" className="input-text qty text" step="1" min="1" max="500" name="quantity" value="1" title="Qty" size="4" />
-
-                                                </div>
-
-                                                <button type="submit" className="single_add_to_cart_button button alt">Add to cart</button>
-                                            </div>
-                                        </div>
-
-
-                                    </form>
-                                    <p className="price">
-                                        <span>
-                                            <span>$</span>20.00
-                                        </span>
-                                    </p>
-
-
-                                </div>
-
-                                <div className="woocommerce-tabs wc-tabs-wrapper">
-
-                                    <ul className="tabs wc-tabs" role="tablist">
-                                        <li className="description_tab" id="tab-title-description" role="tab" aria-controls="tab-description">
-                                            <a href="#tab-description">Description</a>
-                                        </li>
-                                        <li className="additional_information_tab active" id="tab-title-additional_information" role="tab" aria-controls="tab-additional_information">
-                                            <a href="#tab-additional_information">Additional information</a>
-                                        </li>
-                                        <li className="reviews_tab" id="tab-title-reviews" role="tab" aria-controls="tab-reviews">
-                                            <a href="#tab-reviews">Reviews (3)</a>
-                                        </li>
-                                    </ul>
-
-                                    <div className="panel wc-tab" id="tab-description" role="tabpanel" aria-labelledby="tab-title-description">
-
-                                        <h2>Description</h2>
-
-                                        <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-                                            Vestibulum
-                                            tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam
-                                            egestas
-                                            semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo.</p>
-                                    </div>
-                                    <div className="panel wc-tab" id="tab-additional_information" role="tabpanel" aria-labelledby="tab-title-additional_information">
-
-                                        <h2>Additional information</h2>
-
-                                        <table className="shop_attributes">
-
-
-                                            <tbody>
-                                                <tr>
-                                                    <th>Color</th>
-                                                    <td>
-                                                        <p>Blue</p>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Size</th>
-                                                    <td>
-                                                        <p>X Small, Small, Medium, Large, X Large, XX Large, XXX Large</p>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div className="panel wc-tab" id="tab-reviews" role="tabpanel" aria-labelledby="tab-title-reviews">
-                                        <div id="reviews">
-                                            <div id="comments">
-                                                <h2>3 reviews for <span>Ship Your Idea</span>
-                                                </h2>
-
-
-                                                <ol className="commentlist">
-                                                    <li className="comment even thread-even depth-1" id="li-comment-34">
-
-                                                        <div id="comment-34" className="comment_container">
-
-                                                            <img alt="" src="http://2.gravatar.com/avatar/babdd787a9577a0e615246ac79cf2826?s=60&amp;d=mm&amp;r=g" srcset="http://2.gravatar.com/avatar/babdd787a9577a0e615246ac79cf2826?s=120&amp;d=mm&amp;r=g 2x" className="avatar avatar-60 photo" height="60" width="60" />
-                                                            <div className="comment-text">
-
-                                                                <div className="star-rating">
-                                                                    <span >Rated <strong
-                                                                        className="rating">4</strong> out of 5</span>
-                                                                </div>
-                                                                <p className="meta">
-                                                                    <strong>James
-                                                                        Koster</strong> <span>–</span>
-                                                                    <time datetime="2013-06-07T11:43:13+00:00">June 7, 2013
-                                                                    </time>
-                                                                </p>
-
-                                                                <div className="description">
-                                                                    <p>Nice T-shirt, I got one in black. Goes with
-                                                                        anything!</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                    <li className="comment odd alt thread-odd thread-alt depth-1" id="li-comment-35">
-
-                                                        <div id="comment-35" className="comment_container">
-
-                                                            <img alt="" src="http://0.gravatar.com/avatar/f0cde930b42c79145194679d5b6e3b1d?s=60&amp;d=mm&amp;r=g" srcset="http://0.gravatar.com/avatar/f0cde930b42c79145194679d5b6e3b1d?s=120&amp;d=mm&amp;r=g 2x" className="avatar avatar-60 photo" height="60" width="60" />
-                                                            <div className="comment-text">
-
-                                                                <div className="star-rating">
-                                                                    <span >Rated <strong
-                                                                        className="rating">4</strong> out of 5</span>
-                                                                </div>
-                                                                <p className="meta">
-                                                                    <strong>Cobus
-                                                                        Bester</strong> <span>–</span>
-                                                                    <time datetime="2013-06-07T11:55:15+00:00">June 7, 2013
-                                                                    </time>
-                                                                </p>
-
-                                                                <div className="description">
-                                                                    <p>Very comfortable shirt, and I love the graphic!</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                    <li className="comment even thread-even depth-1" id="li-comment-36">
-
-                                                        <div id="comment-36" className="comment_container">
-
-                                                            <img alt="" src="http://1.gravatar.com/avatar/7a6df00789e50714fcde1b759befcc84?s=60&amp;d=mm&amp;r=g" srcset="http://1.gravatar.com/avatar/7a6df00789e50714fcde1b759befcc84?s=120&amp;d=mm&amp;r=g 2x" className="avatar avatar-60 photo" height="60" width="60" />
-                                                            <div className="comment-text">
-
-                                                                <div className="star-rating">
-                                                                    <span >Rated <strong
-                                                                        className="rating">5</strong> out of 5</span>
-                                                                </div>
-                                                                <p className="meta">
-                                                                    <strong>Stuart</strong>
-                                                                    <span>–</span>
-                                                                    <time datetime="2013-06-07T13:02:14+00:00">June 7, 2013
-                                                                    </time>
-                                                                </p>
-
-                                                                <div className="description">
-                                                                    <p>Great T-shirt quality, Great Design and Great
-                                                                        Service.</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                </ol>
-
-
-                                            </div>
-
-
-                                            <div id="review_form_wrapper">
-                                                <div id="review_form">
-                                                    <div id="respond" className="comment-respond">
-
-                                                        <form action="/" method="post" id="commentform" className="comment-form" novalidate="">
-                                                            <p className="comment-notes">
-                                                                <span id="email-notes">Your email address will not be published.</span>
-                                                                Required fields are marked <span className="required">*</span>
-                                                            </p>
-
-                                                            <p className="comment-form-author">
-                                                                <label for="author">Name <span className="required">*</span>
-                                                                </label>
-                                                                <input id="author" name="author" type="text" value="" size="30" aria-required="true" required="" placeholder="Name" />
-                                                            </p>
-                                                            <p className="comment-form-email">
-                                                                <label for="email66">Email <span className="required">*</span>
-                                                                </label> <input id="email66" name="email" type="email" value="" size="30" aria-required="true" required="" placeholder="Email" />
-                                                            </p>
-                                                            <p className="comment-form-comment">
-                                                                <label for="comment">Your review <span className="required">*</span>
-                                                                </label>
-                                                                <textarea id="comment" name="comment" cols="45" rows="8" aria-required="true" placeholder="Your review"></textarea>
-                                                            </p>
-
-                                                            <p className="form-submit">
-                                                                <input name="submit" type="submit" id="submit" className="submit" value="Submit" />
-
-                                                            </p>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-
-                                            <div className="clear">
-
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-
-
-                                <section className="related products">
-
-
-                                    <ul className="products">
-
-                                        <li className="product">
-                                            <a className="woocommerce-LoopProduct-link" >
-                                                <div className="img-wrap">
-                                                    <img src="images/gallery/square/03.jpg" alt="" />
-                                                </div>
-                                                <h2>Lorem ipsum dolor</h2>
-                                                <div className="star-rating">
-                                                    <span >Rated <strong className="rating">3.00</strong> out of 5</span>
-                                                </div>
-                                                <span className="price">
-                                                    <span>
-                                                        <span>$</span>35.00
-                                                    </span>
-                                                </span>
-                                            </a>
-                                            <a rel="nofollow" className="button product_type_simple add_to_cart_button">Add to cart</a>
-                                        </li>
-
-
-                                        <li className="product">
-                                            <a className="woocommerce-LoopProduct-link" >
-                                                <div className="img-wrap">
-                                                    <img src="images/gallery/square/04.jpg" alt="" />
-                                                </div>
-                                                <h2>Lorem ipsum dolor</h2>
-                                                <div className="star-rating">
-                                                    <span >Rated <strong className="rating">5.00</strong> out of 5</span>
-                                                </div>
-                                                <span className="price">
-                                                    <span>
-                                                        <span>$</span>20.00
-                                                    </span>
-                                                </span>
-                                            </a>
-                                            <a rel="nofollow" className="button product_type_simple add_to_cart_button">Add to cart</a>
-                                        </li>
-
-
-                                        <li className="product">
-                                            <a className="woocommerce-LoopProduct-link" >
-                                                <div className="img-wrap">
-                                                    <img src="images/gallery/square/05.jpg" alt="" />
-                                                </div>
-                                                <h2>Lorem ipsum dolor</h2>
-                                                <div className="star-rating">
-                                                    <span >Rated <strong className="rating">4.00</strong> out of 5</span>
-                                                </div>
-                                                <span className="price">
-                                                    <span>
-                                                        <span>$</span>35.00
-                                                    </span>
-                                                </span>
-                                            </a>
-                                            <a rel="nofollow" className="button product_type_simple add_to_cart_button">Add to cart</a>
-                                        </li>
-
-
-                                        <li className="product">
-                                            <a className="woocommerce-LoopProduct-link" >
-                                                <div className="img-wrap">
-                                                    <img src="images/gallery/square/06.jpg" alt="" />
-                                                </div>
-                                                <h2>Lorem ipsum dolor</h2>
-                                                <div className="star-rating">
-                                                    <span >Rated <strong className="rating">4.67</strong> out of 5</span>
-                                                </div>
-                                                <span className="price">
-                                                    <span>
-                                                        <span>$</span>35.00
-                                                    </span>
-                                                </span>
-                                            </a>
-                                            <a rel="nofollow" className="button product_type_simple add_to_cart_button">Add to cart</a>
-                                        </li>
-
-                                        <li className="product">
-                                            <a className="woocommerce-LoopProduct-link" >
-                                                <div className="img-wrap">
-                                                    <img src="images/gallery/square/07.jpg" alt="" />
-                                                </div>
-                                                <h2>Lorem ipsum dolor</h2>
-                                                <div className="star-rating">
-                                                    <span >Rated <strong className="rating">4.50</strong> out of 5</span>
-                                                </div>
-                                                <span className="price">
-                                                    <span>
-                                                        <span>$</span>20.00
-                                                    </span>
-                                                </span>
-                                            </a>
-                                            <a rel="nofollow" className="button product_type_simple add_to_cart_button">Add to cart</a>
-                                        </li>
-
-
-                                        <li className="product">
-                                            <a className="woocommerce-LoopProduct-link" >
-                                                <div className="img-wrap">
-                                                    <img src="images/gallery/square/08.jpg" alt="" />
-                                                </div>
-                                                <h2>Lorem ipsum dolor</h2>
-                                                <div className="star-rating">
-                                                    <span >Rated <strong className="rating">2.00</strong> out of 5</span>
-                                                </div>
-                                                <span className="price">
-                                                    <del>
-                                                        <span>
-                                                            <span>$</span>15.00
-                                                        </span>
-                                                    </del>
-                                                    <ins>
-                                                        <span>
-                                                            <span>$</span>12.00
-                                                        </span>
-                                                    </ins>
-                                                </span>
-                                            </a>
-                                            <a rel="nofollow" className="button product_type_simple add_to_cart_button">Add to cart</a>
-                                        </li>
-
-
-                                        <li className="product">
-                                            <a className="woocommerce-LoopProduct-link" >
-                                                <div className="img-wrap">
-                                                    <img src="images/gallery/square/09.jpg" alt="" />
-                                                </div>
-                                                <h2>Lorem ipsum dolor</h2>
-                                                <div className="star-rating">
-                                                    <span >Rated <strong className="rating">4.33</strong> out of 5</span>
-                                                </div>
-                                                <span className="price">
-                                                    <span>
-                                                        <span>$</span>20.00
-                                                    </span>
-                                                </span>
-                                            </a>
-                                            <a rel="nofollow" className="button product_type_simple add_to_cart_button">Add to cart</a>
-                                        </li>
-
-
-                                    </ul>
-
-                                </section>
-
-
-                            </div>
-
-
-                        </main>
-
-                        <aside className="col-lg-5 col-xl-3">
-                            <div className="ls ms px-20 py-40">
-                                <div className="widget widget_product_search">
-
-                                    <h3 className="widget-title">Search</h3>
-
-                                    <form role="search" className="woocommerce-product-search" action="/">
-
-                                        <label className="screen-reader-text" for="woocommerce-product-search-field-widget">
-                                            Search for:
-                                        </label>
-
-                                        <input type="search" id="woocommerce-product-search-field-widget" className="search-field" placeholder="Search" value="" name="search" />
-                                        <input type="submit" value="Search" />
-                                    </form>
-                                </div>
-                            </div>
-
-
-                            <div className="widget woocommerce widget_product_categories">
-                                <h3 className="widget-title">Categories</h3>
-                                <ul className="product-categories">
-
-                                    <li className="cat-item">
-                                        <a href="#eltop" onClick={(e) => {
-                                            e.preventDefault(); setTimeout(() => {
-                                                setOpt(8)
-                                            }, 1000);
-                                        }}>Planes</a>
-                                        <span className="count">(1)</span>
-                                    </li>
-                                </ul>
-                            </div>
-
-
-                            <div className="widget woocommerce widget_top_rated_products">
-                                <h3 className="widget-title">Top Products</h3>
-                                <ul className="product_list_widget">
-                                    {/*   <li>
-                                        <a >
-                                            <img src="images/gallery/square/01.jpg" alt="" />
-                                            <span className="product-title">Ninja Silhouette</span>
-                                        </a>
-                                        <div className="star-rating">
-                                            <span >Rated
-                                                <strong className="rating">5.00 </strong>
-                                                out of 5
-                                            </span>
-                                        </div>
-                                        <span className="woocommerce-Price-amount amount">
-                                            <span className="woocommerce-Price-currencySymbol">$</span>
-                                            20.00
-                                        </span>
-                                    </li> */}
-
-
-                                </ul>
-                            </div>
-
-
-                            <div className="widget woocommerce widget_price_filter">
-
-                                <h3 className="widget-title">Price Filter</h3>
-
-                                <form method="get" action="/">
-                                    <div className="price_slider_wrapper">
-                                        <div className="price_slider ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all">
-                                            <div className="ui-slider-range ui-widget-header ui-corner-all" >
-
-                                            </div>
-                                            <span className="ui-slider-handle ui-state-default ui-corner-all" tabindex="0" >
-
-                                            </span>
-                                            <span className="ui-slider-handle ui-state-default ui-corner-all" tabindex="0" >
-
-                                            </span>
-                                        </div>
-                                        <div className="price_slider_amount">
-                                            <input type="text" id="min_price" name="min_price" value="" data-min="20" placeholder="Min price" />
-                                            <input type="text" id="max_price" name="max_price" value="" data-max="30" placeholder="Max price" />
-                                            <button type="submit" className="button">Filter</button>
-                                            <div className="price_label" >
-                                                Price: <span className="from">$21</span> - <span className="to">$28</span>
-                                            </div>
-
-                                            <div className="clear"></div>
-
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-
-
-                            <div className="widget woocommerce widget_product_tag_cloud">
-
-                                <h3 className="widget-title">Price Filter</h3>
-                                <a >Planes</a>
-
-                                <div className="tagcloud">
-                                    <a href="#eltop" onClick={(e) => {
-                                        e.preventDefault(); setTimeout(() => {
-                                            setOpt(8)
-                                        }, 1000);
-                                    }} className="tag-cloud-link" aria-label="album (1 product)">
-                                        Planes
-                                    </a>
-
-                                </div>
-                            </div>
-
-
-                        </aside>
-
-
+import '../../../estilos/styles.scss'
+import PageHead from '../../components/body/pageHead'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { CATALOGO } from '../../lib/catalogo'
+
+/** ====== Catálogo desde API (fallback a CATALOGO) ====== */
+const API_CATALOG = process.env.NEXT_PUBLIC_CATALOG_URL || null
+
+const fmtCOP = (n) =>
+  (n ?? 0).toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 })
+const fmtUSD = (n) =>
+  (n ?? 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
+
+async function loadCatalogWithFallback(signal) {
+  if (!API_CATALOG) return CATALOGO
+  try {
+    const r = await fetch(API_CATALOG, { signal })
+    if (!r.ok) throw new Error('bad status')
+    const data = await r.json()
+    if (!Array.isArray(data) || data.length === 0) return CATALOGO
+    return data.map((x, i) => ({
+      id: String(x.id ?? `p-${i}`),
+      name: x.name ?? 'Plan',
+      description: x.description ?? '',
+      amountCop: Number(x.amountCop ?? x.amount_cop ?? 0),
+      amountUsd: Number(x.amountUsd ?? x.amount_usd ?? 0),
+      features: Array.isArray(x.features) ? x.features : undefined,
+      theme: x.theme ?? null, // opcional: 'navy' | 'yellow' | 'teal' | 'soft'
+    }))
+  } catch {
+    return CATALOGO
+  }
+}
+
+/** ====== Temas visuales ====== */
+const THEMES = {
+  navy:  { bg:'#272b40', fg:'#fff',  accent:'#ffffff', pill:'#ffffff' },
+  yellow:{ bg:'#f0d426', fg:'#111', accent:'#111111', pill:'#111111' },
+  teal:  { bg:'#0c9e98', fg:'#111', accent:'#111111', pill:'#111111' },
+  soft:  { bg:'#e9eee9', fg:'#111', accent:'#111111', pill:'#111111' },
+}
+const THEME_ORDER = ['navy','yellow','teal','soft']
+const pickTheme = (idx, theme) => THEMES[theme] || THEMES[THEME_ORDER[idx % THEME_ORDER.length]]
+
+/** ====== Portal (overlay full-screen seguro) ====== */
+function Portal({ children }) {
+  const [node, setNode] = useState(null)
+  useEffect(() => {
+    let el = document.getElementById('tienda-modal-root')
+    if (!el) {
+      el = document.createElement('div')
+      el.id = 'tienda-modal-root'
+      document.body.appendChild(el)
+    }
+    setNode(el)
+    return () => { /* lo dejamos creado para próximos usos */ }
+  }, [])
+  if (!node) return null
+  return createPortal(children, node)
+}
+
+/** ====== Modal de checkout (resumen + método de pago) ====== */
+function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
+  const [method, setMethod] = useState('bold')
+  const [selected, setSelected] = useState(null)
+
+  const lines = useMemo(() => {
+    const map = new Map(items.map(p => [p.id, p]))
+    return cart.map(c => (map.get(c.id) ? { ...c, plan: map.get(c.id) } : null)).filter(Boolean)
+  }, [cart, items])
+
+  useEffect(() => {
+    if (!open) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    if (!selected && lines.length) setSelected(lines[0].id)
+    return () => { document.body.style.overflow = prev }
+  }, [open, lines, selected])
+
+  const totalCop = useMemo(() => lines.reduce((a, it) => a + it.plan.amountCop * it.qty, 0), [lines])
+  const totalUsd = useMemo(() => lines.reduce((a, it) => a + it.plan.amountUsd * it.qty, 0), [lines])
+
+  const pagar = async () => {
+    if (!selected) return
+    try {
+      const url = method === 'bold' ? '/api/bold/create-link' : '/api/commerce/create-charge'
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planId: selected }),
+      })
+      const d = await r.json()
+      if (!r.ok || !d?.url) throw new Error(d?.error || 'No se pudo crear el checkout')
+      window.location.href = d.url
+    } catch (e) {
+      alert(e?.message || 'Error al iniciar el pago (¿keys configuradas?)')
+    }
+  }
+
+  if (!open) return null
+
+  return (
+    <Portal>
+      <div className="tiendaCheckoutOverlay" role="dialog" aria-modal="true" onClick={onClose}>
+        <div className="tiendaCheckout" onClick={(e) => e.stopPropagation()}>
+          <h3 className="tiendaCheckout-title">Resumen del carrito</h3>
+
+          {lines.length === 0 ? (
+            <p>Tu carrito está vacío.</p>
+          ) : (
+            <>
+              <div className="tiendaCheckout-list">
+                {lines.map((it) => (
+                  <div className={`tiendaCheckout-row ${selected === it.id ? 'is-active' : ''}`} key={it.id}>
+                    <label className="tiendaCheckout-radio">
+                      <input
+                        type="radio"
+                        name="toPay"
+                        checked={selected === it.id}
+                        onChange={() => setSelected(it.id)}
+                      />
+                    </label>
+
+                    <div className="tiendaCheckout-info">
+                      <strong>{it.plan.name}</strong>
+                      <small>{fmtCOP(it.plan.amountCop)} · {fmtUSD(it.plan.amountUsd)}</small>
                     </div>
 
-                </div>
-            </section>
-        </>
+                    <div className="tiendaCheckout-qty">
+                      <button onClick={() => onDec(it.id)} disabled={it.qty <= 1}>−</button>
+                      <span>{it.qty}</span>
+                      <button onClick={() => onInc(it.id)}>+</button>
+                    </div>
 
-    )
+                    <button className="tiendaCheckout-remove" title="Quitar" onClick={() => onRemove(it.id)}>×</button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="tiendaCheckout-totals">
+                <span>Total (COP): <b>{fmtCOP(totalCop)}</b></span>
+                <span>Total (USD): <b>{fmtUSD(totalUsd)}</b></span>
+              </div>
+
+              <div className="tiendaCheckout-method">
+                <span>Método de pago:</span>
+                <label className={`method-btn ${method === 'bold' ? 'selected' : ''}`}>
+                  <input type="radio" name="method" checked={method === 'bold'} onChange={() => setMethod('bold')} />
+                  Bold (COP)
+                </label>
+                <label className={`method-btn ${method === 'coinbase' ? 'selected' : ''}`}>
+                  <input type="radio" name="method" checked={method === 'coinbase'} onChange={() => setMethod('coinbase')} />
+                  Coinbase (Cripto)
+                </label>
+              </div>
+
+              <div className="tiendaCheckout-actions">
+                <button className="btn btn-secondary" onClick={onClose}>Seguir comprando</button>
+                <button className="btn btn-primary" onClick={pagar}>Pagar</button>
+              </div>
+            </>
+          )}
+        </div>
+
+        <style jsx>{`
+          .tiendaCheckoutOverlay{
+            position:fixed; inset:0; width:100vw; height:100vh;
+            background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center;
+            z-index:2147483647;
+          }
+          .tiendaCheckout{
+            width:100%; max-width:760px; max-height:80vh; overflow:auto;
+            background:#fff; color:#111; border-radius:18px; padding:18px;
+            box-shadow:0 10px 30px rgba(0,0,0,.25);
+          }
+          .tiendaCheckout-title{ margin:6px 0 14px; font-size:22px; font-weight:800; }
+          .tiendaCheckout-list{ display:grid; gap:10px; margin-bottom:12px; }
+          .tiendaCheckout-row{
+            display:grid; grid-template-columns:auto 1fr auto auto; gap:10px; align-items:center;
+            border:1px solid rgba(0,0,0,.08); border-radius:10px; padding:10px 12px;
+          }
+          .tiendaCheckout-row.is-active{ border-color:#111; box-shadow:0 6px 16px rgba(0,0,0,.06); }
+          .tiendaCheckout-radio{ display:flex; align-items:center; }
+          .tiendaCheckout-info small{ opacity:.7; display:block; }
+          .tiendaCheckout-qty{ display:flex; align-items:center; gap:8px; }
+          .tiendaCheckout-qty button {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            border: 1.5px solid #111;
+            background: #111;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.18s, color 0.18s, border-color 0.18s;
+          }
+          .tiendaCheckout-qty button:hover:not(:disabled) {
+            background: #222;
+            color: #272b40;
+            border-color: #272b40;
+          }
+          .tiendaCheckout-qty button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #eee;
+            color: #aaa;
+            border-color: #ccc;
+          }
+          .tiendaCheckout-remove {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            border: 1.5px solid #111;
+            background: #111;
+            color: #fff;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.18s, color 0.18s, border-color 0.18s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .tiendaCheckout-remove:hover {
+            background: #222;
+            color: #ffd700;
+            border-color: #ffd700;
+          }
+          .tiendaCheckout-totals{ display:flex; gap:16px; justify-content:flex-end; margin:8px 0 12px; }
+          .tiendaCheckout-method{ display:flex; align-items:center; gap:14px; margin-bottom:12px; }
+          .method-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f6f6f6;
+          }
+          .method-btn:hover {
+            background: #e0e0e0;
+            border-color: #111;
+          }
+          .method-btn.selected {
+            background: #111;
+            color: #fff;
+            border-color: #111;
+          }
+          .method-btn input[type="radio"] {
+            accent-color: #111;
+            margin-right: 6px;
+          }
+          .btn{ padding:10px 12px; border-radius:12px; border:1px solid rgba(0,0,0,.12); cursor:pointer; }
+          .btn-primary{ background:#111; color:#fff; border-color:#111; }
+          .btn-secondary{ background:#f6f6f6; color:#111; }
+        `}</style>
+      </div>
+    </Portal>
+  )
 }
-export default TiendaVista
+
+/** ====== Tarjeta con estética ====== */
+function PrettyPlanCard({ plan, idx, onAdd }) {
+  const theme = pickTheme(idx, plan.theme)
+
+  const isFree = (plan.amountUsd === 0 && plan.amountCop === 0)
+  const big = isFree ? 'FREE' : (plan.amountUsd > 0 ? `${plan.amountUsd}` : `${Math.round(plan.amountCop/1000)}k`)
+  const currency = isFree ? '' : (plan.amountUsd > 0 ? 'USD' : 'COP')
+
+  const feats = Array.isArray(plan.features) && plan.features.length
+    ? plan.features
+    : (plan.description ? [plan.description] : [])
+
+  return (
+    <article
+      className="pretty-card"
+      style={{ '--bg': theme.bg, '--fg': theme.fg, '--accent': theme.accent, '--pill': theme.pill }}
+    >
+      <div className="pc-head">
+        <span className="pc-line" />
+        <div className="pc-stars">★{idx % 2 ? '★' : ''}</div>
+      </div>
+
+      <h3 className="pc-title">{plan.name}</h3>
+      {plan.description && <p className="pc-sub">{plan.description}</p>}
+
+      <div className="pc-price">
+        <span className="pc-price-big">{big}</span>
+        {!isFree && <span className="pc-currency">{currency}</span>}
+      </div>
+
+      <ul className="pc-feats">
+        {feats.map((t, i) => <li key={i}>{t}</li>)}
+      </ul>
+
+      <button className="pc-cta" onClick={() => onAdd(plan.id)}>Agregar al carrito</button>
+
+      <style jsx>{`
+        .pretty-card{
+          background:var(--bg);
+          color:var(--fg);
+          border-radius:28px;
+          padding:26px 22px;
+          display:flex; flex-direction:column; justify-content:flex-start;
+          box-shadow:0 10px 26px rgba(0,0,0,.20);
+          transition:transform .18s ease, box-shadow .18s ease;
+        }
+        .pretty-card:hover{ transform:translateY(-4px); box-shadow:0 16px 36px rgba(0,0,0,.50); }
+
+        .pc-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+        .pc-line{ display:block; width:42px; height:3px; background:var(--fg); opacity:.5; border-radius:2px; }
+        .pc-stars{ letter-spacing:6px; opacity:.9; }
+
+        .pc-title{ font-size:28px; line-height:1.1; margin:0 0 8px; font-weight:800; }
+        .pc-sub{ margin:0 0 18px; opacity:.85; }
+
+        .pc-price{ display:flex; align-items:flex-start; gap:6px; margin-bottom:14px; }
+        .pc-price-big{ font-size:70px; line-height:.9; font-weight:700; letter-spacing:1px; }
+        .pc-currency{ font-weight:700; margin-top:10px; }
+
+        .pc-feats{ margin:8px 0 18px; padding:0 0 0 16px; display:grid; gap:8px; }
+        .pc-feats li{ padding-left:6px; }
+
+        .pc-cta{
+          margin-top:auto;
+          background:#fff; color:#111; border:1px solid rgba(0,0,0,.12);
+          border-radius:16px; padding:14px 12px; font-weight:700;
+          cursor:pointer;
+        }
+        /* contraste para fondos claros/oscures */
+        :global(.pretty-card[style*="#e9eee9"]) .pc-cta{ background:#111; color:#fff; border-color:#111; }
+      `}</style>
+    </article>
+  )
+}
+
+/** ====== Grid de planes (renderiza N tarjetas) ====== */
+function PlansGrid({ items, onAdd }) {
+  return (
+    <div className="plans-grid">
+      {items.map((p, i) => (
+        <PrettyPlanCard key={p.id} plan={p} idx={i} onAdd={onAdd} />
+      ))}
+
+      <style jsx>{`
+      .plans-grid{
+        width:100%;
+        display:grid;
+        gap:24px;
+        /* columnas responsivas: tantas como quepan */
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        align-items: stretch;
+      }
+
+      /* Si quieres forzar más columnas en pantallas grandes */
+      @media (min-width: 1200px){
+        .plans-grid{ grid-template-columns: repeat(3, 1fr); }
+      }
+      @media (min-width: 1500px){
+        .plans-grid{ grid-template-columns: repeat(4, 1fr); }
+      }
+    `}</style>
+
+    </div>
+  )
+}
+
+/** ====== Página TIENDA (header + grid + carrito + modal) ====== */
+export default function TiendaVista({ lang = 'es', setOpt = () => {} }) {
+  const [items, setItems] = useState(CATALOGO)
+  const [cart, setCart] = useState([]) // [{id, qty}]
+  const [open, setOpen] = useState(false)
+
+  // Cargar catálogo API (fallback)
+  useEffect(() => {
+    const controller = new AbortController()
+    loadCatalogWithFallback(controller.signal).then(setItems)
+    return () => controller.abort()
+  }, [])
+
+  // Persistencia carrito
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('pokerlap_cart')
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed)) setCart(parsed.filter(x => x && x.id && x.qty > 0))
+      }
+    } catch {}
+  }, [])
+  useEffect(() => {
+    try { localStorage.setItem('pokerlap_cart', JSON.stringify(cart)) } catch {}
+  }, [cart])
+
+  const add = useCallback((id) => {
+    setCart((prev) => {
+      const i = prev.findIndex(x => x.id === id)
+      if (i >= 0) { const next=[...prev]; next[i]={...next[i], qty: next[i].qty+1}; return next }
+      return [...prev, { id, qty:1 }]
+    })
+  }, [])
+  const inc    = useCallback((id) => setCart((p)=>p.map(x=>x.id===id?{...x,qty:x.qty+1}:x)), [])
+  const dec    = useCallback((id) => setCart((p)=>p.map(x=>x.id===id?{...x,qty:Math.max(1,x.qty-1)}:x)), [])
+  const remove = useCallback((id) => setCart((p)=>p.filter(x=>x.id!==id)), [])
+  const clear  = useCallback(() => setCart([]), [])
+
+  // Totales
+  const mapItems = useMemo(() => new Map(items.map(p => [p.id, p])), [items])
+  const itemsCount = useMemo(() => cart.reduce((a,b)=>a+b.qty,0), [cart])
+  const totalCop = useMemo(() => cart.reduce((a,it)=>a + (mapItems.get(it.id)?.amountCop||0)*it.qty,0), [cart,mapItems])
+  const totalUsd = useMemo(() => cart.reduce((a,it)=>a + (mapItems.get(it.id)?.amountUsd||0)*it.qty,0), [cart,mapItems])
+
+  return (
+    <div className="descargas-container">
+      <PageHead lang={lang} setOpt={setOpt} page={'Tienda'} />
+
+      <div className="tabla-descargas">
+        <h5 className="mb-10 mt-10">Elige el plan que más te convenga</h5>
+
+        <PlansGrid items={items} onAdd={add} />
+
+        {/* Barra de carrito full-width */}
+        <div className="cart-bar-row">
+          <div className="cart-bar">
+            <div className="cart-summary">
+              <span>Carrito: <b>{itemsCount}</b> {itemsCount === 1 ? 'ítem' : 'ítems'}</span>
+              <span> · Total: <b>{fmtCOP(totalCop)}</b> / <b>{fmtUSD(totalUsd)}</b></span>
+            </div>
+            <div className="cart-actions">
+              <button className="btn btn-secondary" onClick={clear} disabled={cart.length === 0}>Vaciar</button>
+              <button className="btn btn-primary" onClick={() => setOpen(true)} disabled={cart.length === 0}>Ir a pagar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal */}
+      <CheckoutModal
+        open={open}
+        onClose={() => setOpen(false)}
+        items={items}
+        cart={cart}
+        onInc={inc}
+        onDec={dec}
+        onRemove={remove}
+      />
+
+      <style jsx>{`
+        .cart-bar-row{
+          grid-column:1 / -1;
+          width:100%;
+        }
+        .cart-bar{
+          width:100%; box-sizing:border-box;
+          position:sticky; bottom:0;
+          display:flex; align-items:center; justify-content:space-between;
+          gap:12px; margin-top:20px; padding:10px 12px;
+          background:#fff; color:#111; border:1px solid rgba(0,0,0,.08); border-radius:12px;
+          box-shadow:0 6px 16px rgba(0,0,0,.06);
+        }
+        .cart-summary{ font-size:14px; }
+        .cart-actions{ display:flex; gap:10px; }
+        .btn{ padding:10px 12px; border-radius:12px; border:1px solid rgba(0,0,0,.12); cursor:pointer; }
+        .btn-primary{ background:#111; color:#fff; border-color:#111; }
+        .btn-secondary{ background:#f6f6f6; color:#111; }
+        .btn:disabled{ opacity:.6; cursor:not-allowed; }
+      `}</style>
+    </div>
+  )
+
+}

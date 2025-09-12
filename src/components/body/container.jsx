@@ -50,11 +50,11 @@ const Container = (props) => {
             }
             {
                 opt === 6 && <>
-                    <TiendaVista setOpt={setOpt} lang={languageSelected} />
+                    <TiendaVista opt={opt} setOpt={setOpt} />
                 </>
             }
             {
-                opt === 6 && <> 
+                opt === 7 && <> 
                     <UserInfoVista logout={logout} />
                 </>
             }

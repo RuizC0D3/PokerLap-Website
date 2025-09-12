@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import { useState } from "react"
-import PageHead from "../../components/body/pageHead"
+    import PageHead from "../../components/body/pageHead"
 
 const Descargas = (props) => {
     const { setOpt = console.log, lang = 'es' } = props
