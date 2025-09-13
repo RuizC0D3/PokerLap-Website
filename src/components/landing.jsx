@@ -12,8 +12,8 @@ import Image from "next/image"
 import { FormatEnc } from "../funciones/formatEnc";
 import { TorneoBlamnco, TorneoRocas } from "../paginas/torneos/torneoInteractivo/modelos/opciones";
 
-/* const Socket = io('wss://wm.pkti.me GET /index.js HTTP/1.1')
- */let socket
+/* const Socket = io('wss://wm.pkti.me GET /index.js HTTP/1.1')*/
+let socket
 let init = false
 
 const defUser = { codigo: '', idUser: false, usuario: "", email: "", passwordRepeat: "", password: "", machineId: "ABC", tipoDispositivo: "" }

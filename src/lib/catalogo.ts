@@ -37,3 +37,5 @@ export const CATALOGO: Plan[] = [
 export function getPlanById(id: string) {
   return CATALOGO.find(p => p.id === id) || null;
 }
+
+/* https://api.pkti.me/tienda */

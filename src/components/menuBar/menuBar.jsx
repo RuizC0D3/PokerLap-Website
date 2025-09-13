@@ -169,7 +169,6 @@ const MenuBar = (props) => {
                 )}
 
                 <div className="menu-lang">
-                  {/* Selector de idioma (mantengo banderas existentes) */}
                   <div
                     onClick={(e) => { e.preventDefault(); setLangOpen(!langOpen) }}
                     className="menu-menu-idioma"
@@ -179,16 +178,18 @@ const MenuBar = (props) => {
                     {langOpen && (
                       <div className="lang-fixed">
                         {Languages.map((keyS, iS) => (
-                          <Image
-                            onClick={(e) => { e.preventDefault(); setLanguageSelected(keyS); setLangOpen(false) }}
-                            key={`img-lang-${iS}`}
-                            id={`img-lang-${iS}`}
-                            src={`/lang/${keyS}.png`}
-                            className="hover"
-                            width={30}
-                            height={30}
-                            alt={`lang-${keyS}`}
-                          />
+                          <button
+                            key={`lang-btn-${iS}`}
+                            className={`lang-btn${lang === keyS ? ' selected' : ''}`}
+                            aria-selected={lang === keyS}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setLanguageSelected(keyS);
+                              setLangOpen(false);
+                            }}
+                          >
+                            {keyS.toUpperCase()}
+                          </button>
                         ))}
                       </div>
                     )}
@@ -220,11 +221,40 @@ const MenuBar = (props) => {
           height: 17px;
           margin-right: 8px;
         }
-        /* Si tus clases actuales pintan el texto en blanco, los íconos heredan ese color automáticamente */
-        /* Si quieres color específico para iconos del menú:
-        .menu-menu-secciones-hijo .menu-icon { color: #fff; }
-        .menu-menu-abs .menu-icon { color: #fff; }
-        */
+        .lang-fixed {
+          padding: 16px 12px;
+          background: #fff;
+          border-radius: 12px;
+          box-shadow: 0 4px 18px rgba(0,0,0,0.10);
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          min-width: 120px;
+          align-items: center;
+          border: 1px solid #eee;
+        }
+        .lang-btn {
+          width: 100%;
+          text-align: center;
+          font-size: 15px;
+          font-weight: 500;
+          border-radius: 8px;
+          border: 1px solid #111;
+          background: #fff;
+          color: #111;
+          cursor: pointer;
+          transition: background 0.18s, color 0.18s;
+          padding: 6px 0;
+          margin: 0;
+        }
+        .lang-btn:hover, .lang-btn:focus {
+          background: #111;
+          color: #fff;
+        }
+        .lang-btn[aria-selected="true"], .lang-btn.selected {
+          background: #111;
+          color: #fff;
+        }
       `}</style>
     </>
   )
