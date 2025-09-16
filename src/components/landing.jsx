@@ -1,5 +1,6 @@
 'use client'
-import { useState, useEffect } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { useSearchParams } from 'next/navigation'
 import Container from "./body/container"
 import MenuBar from "./menuBar/menuBar"
 import io from "socket.io-client";
@@ -138,6 +139,7 @@ const LandingSelect = (props) => {
         getElenemnt();
 /*         getElenemnta();
  */        getElenemntaa()
+ 
     }
     const getLanguageAndApp = async () => {
 

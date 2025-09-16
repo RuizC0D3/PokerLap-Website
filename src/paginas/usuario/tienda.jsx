@@ -1,10 +1,64 @@
 'use client'
 
 import '../../../estilos/styles.scss'
+import { useSearchParams } from 'next/navigation'
 import PageHead from '../../components/body/pageHead'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { CATALOGO } from '../../lib/catalogo'
+
+const API_TIENDA_URL = '/api/tienda'  // ← usa el proxy local
+
+async function fetchPlanesPorClub({ i, signal }) {
+  if (!i) return []
+
+  const res = await fetch(API_TIENDA_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ i: Number(i) }),
+    signal,
+  })
+  if (!res.ok) throw new Error(`status ${res.status}`)
+  const data = await res.json()
+
+  const arr =
+    Array.isArray(data) ? data :
+    Array.isArray(data?.planes) ? data.planes :
+    Array.isArray(data?.items)  ? data.items  :
+    Array.isArray(data?.data)   ? data.data   : []
+
+  return arr.map((x, idx) => ({
+    id: String(x.id ?? x.ID ?? `p-${idx}`),
+    name: x.name ?? x.nombre ?? 'Plan',
+    description: x.description ?? x.descripcion ?? '',
+    amountCop: Number(x.amountCop ?? x.cop ?? x.precioCop ?? 0),
+    amountUsd: Number(x.amountUsd ?? x.usd ?? x.precioUsd ?? 0),
+    features: Array.isArray(x.features) ? x.features : undefined,
+  }))
+}{
+    // 1) POST como en Postman
+  try {
+    const res = await fetch(API_TIENDA_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ i: Number(i) }),
+      signal,
+    })
+    if (!res.ok) throw new Error(`POST status ${res.status}`)
+    const data = await res.json()
+    const out = normalize(data)
+    if (out.length) return out
+  } catch (e) {
+    console.warn('[Tienda] POST falló, probando GET…', e)
+  }
+
+  // 2) GET de fallback
+  const url = `${API_TIENDA_URL}?i=${encodeURIComponent(i)}`
+  const res2 = await fetch(url, { method: 'GET', headers: { 'Accept': 'application/json' }, signal })
+  if (!res2.ok) throw new Error(`GET status ${res2.status}`)
+  const data2 = await res2.json()
+  return normalize(data2)
+}
 
 /** ====== Catálogo desde API (fallback a CATALOGO) ====== */
 const API_CATALOG = process.env.NEXT_PUBLIC_CATALOG_URL || null
@@ -373,16 +427,42 @@ function PlansGrid({ items, onAdd }) {
 
 /** ====== Página TIENDA (header + grid + carrito + modal) ====== */
 export default function TiendaVista({ lang = 'es', setOpt = () => {} }) {
+  // catálogo local de arranque
   const [items, setItems] = useState(CATALOGO)
-  const [cart, setCart] = useState([]) // [{id, qty}]
+
+  // ✅ Aquí SÍ va:
+  const searchParams = useSearchParams()
+  const iParam = searchParams?.get('i') ?? process.env.NEXT_PUBLIC_TIENDA_CLUB_ID ?? null
+  const [loadingApi, setLoadingApi] = useState(false)
+  const [errorApi, setErrorApi] = useState(null)
+  const [cart, setCart] = useState([])
   const [open, setOpen] = useState(false)
 
-  // Cargar catálogo API (fallback)
   useEffect(() => {
-    const controller = new AbortController()
-    loadCatalogWithFallback(controller.signal).then(setItems)
-    return () => controller.abort()
-  }, [])
+    if (!iParam) {
+      console.log('[Tienda] Sin iParam; usando CATALOGO local.')
+      return
+    }
+    const ctrl = new AbortController()
+    setLoadingApi(true); setErrorApi(null)
+    console.log('[Tienda] Cargando planes para i =', iParam, 'URL =', API_TIENDA_URL)
+
+    fetchPlanesPorClub({ i: iParam, signal: ctrl.signal })
+      .then((arr) => {
+        console.log('[Tienda] Planes API:', arr)
+        if (arr.length) setItems(arr)  // sobreescribe con API
+      })
+      .catch((err) => {
+        console.error('[Tienda] API error:', err)
+        setErrorApi('No se pudo cargar la tienda de este club')
+      })
+      .finally(() => setLoadingApi(false))
+
+    return () => ctrl.abort()
+  }, [iParam])
+
+{loadingApi && <p style={{ margin: '8px 0' }}>Cargando planes del club…</p>}
+{errorApi &&   <p style={{ margin: '8px 0', color: '#b00' }}>{errorApi}</p>}
 
   // Persistencia carrito
   useEffect(() => {
