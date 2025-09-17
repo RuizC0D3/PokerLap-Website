@@ -1,5 +1,16 @@
 "use client";
 
+function saveTextEnc(token) {
+  if (!token) return
+  try {
+    localStorage.setItem('pkti_textEnc', token)
+    document.cookie = `pkti_textEnc=${encodeURIComponent(token)}; path=/; max-age=2592000`
+    console.log('[Landing] textEnc guardado:', token.slice(0, 16) + '...')
+  } catch (e) {
+    console.warn('[Landing] No pude guardar textEnc:', e)
+  }
+}
+
 import { useEffect, useState } from "react";
 import { setCookie, deleteCookie, getCookie } from "cookies-next";
 

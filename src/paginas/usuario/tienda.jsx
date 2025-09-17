@@ -7,89 +7,123 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { CATALOGO } from '../../lib/catalogo'
 
-const API_TIENDA_URL = '/api/tienda'  // ← usa el proxy local
-
-async function fetchPlanesPorClub({ i, signal }) {
-  if (!i) return []
-
-  const res = await fetch(API_TIENDA_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({ i: Number(i) }),
-    signal,
-  })
-  if (!res.ok) throw new Error(`status ${res.status}`)
-  const data = await res.json()
-
-  const arr =
-    Array.isArray(data) ? data :
-    Array.isArray(data?.planes) ? data.planes :
-    Array.isArray(data?.items)  ? data.items  :
-    Array.isArray(data?.data)   ? data.data   : []
-
-  return arr.map((x, idx) => ({
-    id: String(x.id ?? x.ID ?? `p-${idx}`),
-    name: x.name ?? x.nombre ?? 'Plan',
-    description: x.description ?? x.descripcion ?? '',
-    amountCop: Number(x.amountCop ?? x.cop ?? x.precioCop ?? 0),
-    amountUsd: Number(x.amountUsd ?? x.usd ?? x.precioUsd ?? 0),
-    features: Array.isArray(x.features) ? x.features : undefined,
-  }))
-}{
-    // 1) POST como en Postman
-  try {
-    const res = await fetch(API_TIENDA_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ i: Number(i) }),
-      signal,
-    })
-    if (!res.ok) throw new Error(`POST status ${res.status}`)
-    const data = await res.json()
-    const out = normalize(data)
-    if (out.length) return out
-  } catch (e) {
-    console.warn('[Tienda] POST falló, probando GET…', e)
-  }
-
-  // 2) GET de fallback
-  const url = `${API_TIENDA_URL}?i=${encodeURIComponent(i)}`
-  const res2 = await fetch(url, { method: 'GET', headers: { 'Accept': 'application/json' }, signal })
-  if (!res2.ok) throw new Error(`GET status ${res2.status}`)
-  const data2 = await res2.json()
-  return normalize(data2)
-}
-
-/** ====== Catálogo desde API (fallback a CATALOGO) ====== */
-const API_CATALOG = process.env.NEXT_PUBLIC_CATALOG_URL || null
+/* =========================
+ * Config
+ * ========================= */
+const API_TIENDA_URL = '/api/tienda' // proxy local (sin CORS)
 
 const fmtCOP = (n) =>
   (n ?? 0).toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 })
 const fmtUSD = (n) =>
   (n ?? 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
 
-async function loadCatalogWithFallback(signal) {
-  if (!API_CATALOG) return CATALOGO
-  try {
-    const r = await fetch(API_CATALOG, { signal })
-    if (!r.ok) throw new Error('bad status')
-    const data = await r.json()
-    if (!Array.isArray(data) || data.length === 0) return CATALOGO
-    return data.map((x, i) => ({
-      id: String(x.id ?? `p-${i}`),
-      name: x.name ?? 'Plan',
-      description: x.description ?? '',
-      amountCop: Number(x.amountCop ?? x.amount_cop ?? 0),
-      amountUsd: Number(x.amountUsd ?? x.amount_usd ?? 0),
-      features: Array.isArray(x.features) ? x.features : undefined,
-      theme: x.theme ?? null, // opcional: 'navy' | 'yellow' | 'teal' | 'soft'
-    }))
-  } catch {
-    return CATALOGO
+/* =========================
+ * Utils normalización
+ * ========================= */
+function findArrayDeep(obj, seen = new Set()) {
+  if (!obj || typeof obj !== 'object') return null
+  if (seen.has(obj)) return null
+  seen.add(obj)
+  if (Array.isArray(obj) && obj.length && typeof obj[0] === 'object') return obj
+  const keys = ['planes','productos','items','data','result','results','records','rows','list','payload','response','content']
+  for (const k of keys) {
+    const v = obj[k]
+    if (Array.isArray(v) && v.length && typeof v[0] === 'object') return v
+    if (v && typeof v === 'object') {
+      if (Array.isArray(v.items) && v.items.length) return v.items
+      if (Array.isArray(v.data)  && v.data.length)  return v.data
+    }
+  }
+  for (const v of Object.values(obj)) {
+    const found = findArrayDeep(v, seen)
+    if (found) return found
+  }
+  return null
+}
+function firstNumber(...vals) {
+  for (const x of vals) {
+    if (x == null) continue
+    if (typeof x === 'number' && Number.isFinite(x)) return x
+    if (typeof x === 'string') {
+      const n = Number(x.replace(/[^\d.-]/g, ''))
+      if (Number.isFinite(n)) return n
+    }
+  }
+  return 0
+}
+function toPlan(x, idx) {
+  return {
+    id: String(x.id ?? x.ID ?? x.codigo ?? `p-${idx}`),
+    name: x.name ?? x.nombre ?? x.titulo ?? x.plan ?? 'Plan',
+    description: x.description ?? x.descripcion ?? x.detalle ?? '',
+    amountCop: firstNumber(x.amountCop, x.precioCop, x.cop, x.precio_cop, x.precio, x.valor, x.monto, x.amount, x.total, x.costo),
+    amountUsd: firstNumber(x.amountUsd, x.precioUsd, x.usd, x.precio_usd, x.price_usd, x.us_price),
+    features: Array.isArray(x.features) ? x.features : undefined,
   }
 }
 
-/** ====== Temas visuales ====== */
+/* =========================
+ * Fetch planes
+ * ========================= */
+async function fetchPlanesPorClub({ i, textEncFromUrl, signal }) {
+  if (!i) return []
+
+  // 1) Prioriza ?textEnc= de la URL para pruebas rápidas
+  // 2) Luego localStorage (guardado en Landing)
+  const textEnc =
+    textEncFromUrl ||
+    (typeof window !== 'undefined'
+      ? (localStorage.getItem('pkti_textEnc') || localStorage.getItem('textEnc') || undefined)
+      : undefined)
+
+  const payload = textEnc ? { i: Number(i), textEnc } : { i: Number(i) }
+  console.log('[Tienda] payload →', { ...payload, textEnc: payload.textEnc ? payload.textEnc.slice(0, 12) + '…' : undefined })
+
+  // 1) POST
+  let res
+  try {
+    res = await fetch(API_TIENDA_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(payload),
+      signal,
+    })
+  } catch (e) {
+    if (e?.name === 'AbortError') {
+      console.warn('[Tienda] fetch abortado por hot-reload (ok)')
+      return []
+    }
+    console.error('[Tienda] fetch error:', e)
+    return []
+  }
+
+  let raw = await res.clone().text()
+  if (!res.ok || !raw) {
+    console.warn('[Tienda] POST no-OK, probando GET…', res.status, raw?.slice(0, 80))
+    // 2) GET fallback (por si upstream solo lee query)
+    const qs = new URLSearchParams({ i: String(i) })
+    if (textEnc) qs.set('textEnc', textEnc)
+    const r2 = await fetch(`${API_TIENDA_URL}?${qs.toString()}`, { method: 'GET', signal })
+    raw = await r2.text()
+    if (!r2.ok) {
+      console.error('[Tienda] GET también falló:', r2.status, raw?.slice(0, 120))
+      return []
+    }
+  }
+
+  if (typeof window !== 'undefined' && !window.__tienda_dump) {
+    window.__tienda_dump = true
+    console.debug('[Tienda] RAW API:', raw.slice(0, 300))
+  }
+
+  let data; try { data = JSON.parse(raw) } catch { data = raw }
+  const arr = Array.isArray(data) ? data : (findArrayDeep(data) || [])
+  return arr.map(toPlan)
+}
+
+/* =========================
+ * Temas UI
+ * ========================= */
 const THEMES = {
   navy:  { bg:'#272b40', fg:'#fff',  accent:'#ffffff', pill:'#ffffff' },
   yellow:{ bg:'#f0d426', fg:'#111', accent:'#111111', pill:'#111111' },
@@ -99,7 +133,9 @@ const THEMES = {
 const THEME_ORDER = ['navy','yellow','teal','soft']
 const pickTheme = (idx, theme) => THEMES[theme] || THEMES[THEME_ORDER[idx % THEME_ORDER.length]]
 
-/** ====== Portal (overlay full-screen seguro) ====== */
+/* =========================
+ * Portal Modal
+ * ========================= */
 function Portal({ children }) {
   const [node, setNode] = useState(null)
   useEffect(() => {
@@ -110,13 +146,14 @@ function Portal({ children }) {
       document.body.appendChild(el)
     }
     setNode(el)
-    return () => { /* lo dejamos creado para próximos usos */ }
   }, [])
   if (!node) return null
   return createPortal(children, node)
 }
 
-/** ====== Modal de checkout (resumen + método de pago) ====== */
+/* =========================
+ * Modal Checkout
+ * ========================= */
 function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
   const [method, setMethod] = useState('bold')
   const [selected, setSelected] = useState(null)
@@ -220,96 +257,20 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
         </div>
 
         <style jsx>{`
-          .tiendaCheckoutOverlay{
-            position:fixed; inset:0; width:100vw; height:100vh;
-            background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center;
-            z-index:2147483647;
-          }
-          .tiendaCheckout{
-            width:100%; max-width:760px; max-height:80vh; overflow:auto;
-            background:#fff; color:#111; border-radius:18px; padding:18px;
-            box-shadow:0 10px 30px rgba(0,0,0,.25);
-          }
+          .tiendaCheckoutOverlay{ position:fixed; inset:0; width:100vw; height:100vh; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; z-index:2147483647; }
+          .tiendaCheckout{ width:100%; max-width:760px; max-height:80vh; overflow:auto; background:#fff; color:#111; border-radius:18px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
           .tiendaCheckout-title{ margin:6px 0 14px; font-size:22px; font-weight:800; }
           .tiendaCheckout-list{ display:grid; gap:10px; margin-bottom:12px; }
-          .tiendaCheckout-row{
-            display:grid; grid-template-columns:auto 1fr auto auto; gap:10px; align-items:center;
-            border:1px solid rgba(0,0,0,.08); border-radius:10px; padding:10px 12px;
-          }
+          .tiendaCheckout-row{ display:grid; grid-template-columns:auto 1fr auto auto; gap:10px; align-items:center; border:1px solid rgba(0,0,0,.08); border-radius:10px; padding:10px 12px; }
           .tiendaCheckout-row.is-active{ border-color:#111; box-shadow:0 6px 16px rgba(0,0,0,.06); }
           .tiendaCheckout-radio{ display:flex; align-items:center; }
           .tiendaCheckout-info small{ opacity:.7; display:block; }
           .tiendaCheckout-qty{ display:flex; align-items:center; gap:8px; }
-          .tiendaCheckout-qty button {
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            border: 1.5px solid #111;
-            background: #111;
-            color: #fff;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.18s, color 0.18s, border-color 0.18s;
-          }
-          .tiendaCheckout-qty button:hover:not(:disabled) {
-            background: #222;
-            color: #272b40;
-            border-color: #272b40;
-          }
-          .tiendaCheckout-qty button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: #eee;
-            color: #aaa;
-            border-color: #ccc;
-          }
-          .tiendaCheckout-remove {
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            border: 1.5px solid #111;
-            background: #111;
-            color: #fff;
-            font-size: 22px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.18s, color 0.18s, border-color 0.18s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-          .tiendaCheckout-remove:hover {
-            background: #222;
-            color: #ffd700;
-            border-color: #ffd700;
-          }
+          .tiendaCheckout-remove{ width:28px; height:28px; border-radius:8px; border:1.5px solid #111; background:#111; color:#fff; font-size:22px; font-weight:700; cursor:pointer; }
           .tiendaCheckout-totals{ display:flex; gap:16px; justify-content:flex-end; margin:8px 0 12px; }
           .tiendaCheckout-method{ display:flex; align-items:center; gap:14px; margin-bottom:12px; }
-          .method-btn {
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: background 0.2s, border-color 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: #f6f6f6;
-          }
-          .method-btn:hover {
-            background: #e0e0e0;
-            border-color: #111;
-          }
-          .method-btn.selected {
-            background: #111;
-            color: #fff;
-            border-color: #111;
-          }
-          .method-btn input[type="radio"] {
-            accent-color: #111;
-            margin-right: 6px;
-          }
+          .method-btn{ padding:8px 16px; border-radius:8px; border:2px solid transparent; background:#f6f6f6; cursor:pointer; display:flex; align-items:center; gap:6px; }
+          .method-btn.selected{ background:#111; color:#fff; border-color:#111; }
           .btn{ padding:10px 12px; border-radius:12px; border:1px solid rgba(0,0,0,.12); cursor:pointer; }
           .btn-primary{ background:#111; color:#fff; border-color:#111; }
           .btn-secondary{ background:#f6f6f6; color:#111; }
@@ -319,182 +280,99 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
   )
 }
 
-/** ====== Tarjeta con estética ====== */
+/* =========================
+ * Tarjeta + Grid
+ * ========================= */
+const THEMES2 = null // solo para que no marque no usado arriba (pickTheme)
+
 function PrettyPlanCard({ plan, idx, onAdd }) {
   const theme = pickTheme(idx, plan.theme)
-
   const isFree = (plan.amountUsd === 0 && plan.amountCop === 0)
   const big = isFree ? 'FREE' : (plan.amountUsd > 0 ? `${plan.amountUsd}` : `${Math.round(plan.amountCop/1000)}k`)
   const currency = isFree ? '' : (plan.amountUsd > 0 ? 'USD' : 'COP')
-
-  const feats = Array.isArray(plan.features) && plan.features.length
-    ? plan.features
-    : (plan.description ? [plan.description] : [])
+  const feats = Array.isArray(plan.features) && plan.features.length ? plan.features : (plan.description ? [plan.description] : [])
 
   return (
-    <article
-      className="pretty-card"
-      style={{ '--bg': theme.bg, '--fg': theme.fg, '--accent': theme.accent, '--pill': theme.pill }}
-    >
-      <div className="pc-head">
-        <span className="pc-line" />
-        <div className="pc-stars">★{idx % 2 ? '★' : ''}</div>
-      </div>
-
+    <article className="pretty-card" style={{ '--bg': theme.bg, '--fg': theme.fg, '--accent': theme.accent, '--pill': theme.pill }}>
+      <div className="pc-head"><span className="pc-line" /><div className="pc-stars">★{idx % 2 ? '★' : ''}</div></div>
       <h3 className="pc-title">{plan.name}</h3>
       {plan.description && <p className="pc-sub">{plan.description}</p>}
-
-      <div className="pc-price">
-        <span className="pc-price-big">{big}</span>
-        {!isFree && <span className="pc-currency">{currency}</span>}
-      </div>
-
-      <ul className="pc-feats">
-        {feats.map((t, i) => <li key={i}>{t}</li>)}
-      </ul>
-
+      <div className="pc-price"><span className="pc-price-big">{big}</span>{!isFree && <span className="pc-currency">{currency}</span>}</div>
+      <ul className="pc-feats">{feats.map((t, i) => <li key={i}>{t}</li>)}</ul>
       <button className="pc-cta" onClick={() => onAdd(plan.id)}>Agregar al carrito</button>
-
       <style jsx>{`
-        .pretty-card{
-          background:var(--bg);
-          color:var(--fg);
-          border-radius:28px;
-          padding:26px 22px;
-          display:flex; flex-direction:column; justify-content:flex-start;
-          box-shadow:0 10px 26px rgba(0,0,0,.20);
-          transition:transform .18s ease, box-shadow .18s ease;
-        }
+        .pretty-card{ background:var(--bg); color:var(--fg); border-radius:28px; padding:26px 22px; display:flex; flex-direction:column; box-shadow:0 10px 26px rgba(0,0,0,.20); transition:transform .18s, box-shadow .18s; }
         .pretty-card:hover{ transform:translateY(-4px); box-shadow:0 16px 36px rgba(0,0,0,.50); }
-
         .pc-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
         .pc-line{ display:block; width:42px; height:3px; background:var(--fg); opacity:.5; border-radius:2px; }
         .pc-stars{ letter-spacing:6px; opacity:.9; }
-
         .pc-title{ font-size:28px; line-height:1.1; margin:0 0 8px; font-weight:800; }
         .pc-sub{ margin:0 0 18px; opacity:.85; }
-
         .pc-price{ display:flex; align-items:flex-start; gap:6px; margin-bottom:14px; }
         .pc-price-big{ font-size:70px; line-height:.9; font-weight:700; letter-spacing:1px; }
         .pc-currency{ font-weight:700; margin-top:10px; }
-
         .pc-feats{ margin:8px 0 18px; padding:0 0 0 16px; display:grid; gap:8px; }
-        .pc-feats li{ padding-left:6px; }
-
-        .pc-cta{
-          margin-top:auto;
-          background:#fff; color:#111; border:1px solid rgba(0,0,0,.12);
-          border-radius:16px; padding:14px 12px; font-weight:700;
-          cursor:pointer;
-        }
-        /* contraste para fondos claros/oscures */
+        .pc-cta{ margin-top:auto; background:#fff; color:#111; border:1px solid rgba(0,0,0,.12); border-radius:16px; padding:14px 12px; font-weight:700; cursor:pointer; }
         :global(.pretty-card[style*="#e9eee9"]) .pc-cta{ background:#111; color:#fff; border-color:#111; }
       `}</style>
     </article>
   )
 }
-
-/** ====== Grid de planes (renderiza N tarjetas) ====== */
 function PlansGrid({ items, onAdd }) {
   return (
     <div className="plans-grid">
-      {items.map((p, i) => (
-        <PrettyPlanCard key={p.id} plan={p} idx={i} onAdd={onAdd} />
-      ))}
-
+      {items.map((p, i) => <PrettyPlanCard key={p.id} plan={p} idx={i} onAdd={onAdd} />)}
       <style jsx>{`
-      .plans-grid{
-        width:100%;
-        display:grid;
-        gap:24px;
-        /* columnas responsivas: tantas como quepan */
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        align-items: stretch;
-      }
-
-      /* Si quieres forzar más columnas en pantallas grandes */
-      @media (min-width: 1200px){
-        .plans-grid{ grid-template-columns: repeat(3, 1fr); }
-      }
-      @media (min-width: 1500px){
-        .plans-grid{ grid-template-columns: repeat(4, 1fr); }
-      }
-    `}</style>
-
+        .plans-grid{ width:100%; display:grid; gap:24px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); align-items: stretch; }
+        @media (min-width: 1200px){ .plans-grid{ grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 1500px){ .plans-grid{ grid-template-columns: repeat(4, 1fr); } }
+      `}</style>
     </div>
   )
 }
 
-/** ====== Página TIENDA (header + grid + carrito + modal) ====== */
+/* =========================
+ * Página: Tienda
+ * ========================= */
 export default function TiendaVista({ lang = 'es', setOpt = () => {} }) {
-  // catálogo local de arranque
   const [items, setItems] = useState(CATALOGO)
-
-  // ✅ Aquí SÍ va:
   const searchParams = useSearchParams()
   const iParam = searchParams?.get('i') ?? process.env.NEXT_PUBLIC_TIENDA_CLUB_ID ?? null
+  const textEncParam = searchParams?.get('textEnc') || undefined // ← permite probar /tienda?i=100&textEnc=XXXX
+
   const [loadingApi, setLoadingApi] = useState(false)
   const [errorApi, setErrorApi] = useState(null)
   const [cart, setCart] = useState([])
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    if (!iParam) {
-      console.log('[Tienda] Sin iParam; usando CATALOGO local.')
-      return
-    }
+    if (!iParam) { console.log('[Tienda] Sin iParam; usando CATALOGO local.'); return }
     const ctrl = new AbortController()
     setLoadingApi(true); setErrorApi(null)
-    console.log('[Tienda] Cargando planes para i =', iParam, 'URL =', API_TIENDA_URL)
-
-    fetchPlanesPorClub({ i: iParam, signal: ctrl.signal })
-      .then((arr) => {
-        console.log('[Tienda] Planes API:', arr)
-        if (arr.length) setItems(arr)  // sobreescribe con API
-      })
-      .catch((err) => {
-        console.error('[Tienda] API error:', err)
-        setErrorApi('No se pudo cargar la tienda de este club')
-      })
+    console.log('[Tienda] Cargando planes para i =', iParam)
+    fetchPlanesPorClub({ i: iParam, textEncFromUrl: textEncParam, signal: ctrl.signal })
+      .then((arr) => { console.log('[Tienda] Planes API:', arr); if (arr.length) setItems(arr) })
+      .catch((err) => { if (err?.name !== 'AbortError') { console.error('[Tienda] API error:', err); setErrorApi('No se pudo cargar la tienda de este club') } })
       .finally(() => setLoadingApi(false))
-
     return () => ctrl.abort()
-  }, [iParam])
+  }, [iParam, textEncParam])
 
-{loadingApi && <p style={{ margin: '8px 0' }}>Cargando planes del club…</p>}
-{errorApi &&   <p style={{ margin: '8px 0', color: '#b00' }}>{errorApi}</p>}
-
-  // Persistencia carrito
+  // carrito
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem('pokerlap_cart')
-      if (raw) {
-        const parsed = JSON.parse(raw)
-        if (Array.isArray(parsed)) setCart(parsed.filter(x => x && x.id && x.qty > 0))
-      }
-    } catch {}
+    try { const raw = localStorage.getItem('pokerlap_cart'); if (raw) { const parsed = JSON.parse(raw); if (Array.isArray(parsed)) setCart(parsed.filter(x => x && x.id && x.qty > 0)) } } catch {}
   }, [])
-  useEffect(() => {
-    try { localStorage.setItem('pokerlap_cart', JSON.stringify(cart)) } catch {}
-  }, [cart])
+  useEffect(() => { try { localStorage.setItem('pokerlap_cart', JSON.stringify(cart)) } catch {} }, [cart])
 
-  const add = useCallback((id) => {
-    setCart((prev) => {
-      const i = prev.findIndex(x => x.id === id)
-      if (i >= 0) { const next=[...prev]; next[i]={...next[i], qty: next[i].qty+1}; return next }
-      return [...prev, { id, qty:1 }]
-    })
-  }, [])
+  const add    = useCallback((id) => setCart((p)=>{ const i=p.findIndex(x=>x.id===id); if(i>=0){const n=[...p]; n[i]={...n[i],qty:n[i].qty+1}; return n} return [...p,{id,qty:1}] }), [])
   const inc    = useCallback((id) => setCart((p)=>p.map(x=>x.id===id?{...x,qty:x.qty+1}:x)), [])
   const dec    = useCallback((id) => setCart((p)=>p.map(x=>x.id===id?{...x,qty:Math.max(1,x.qty-1)}:x)), [])
   const remove = useCallback((id) => setCart((p)=>p.filter(x=>x.id!==id)), [])
   const clear  = useCallback(() => setCart([]), [])
 
-  // Totales
-  const mapItems = useMemo(() => new Map(items.map(p => [p.id, p])), [items])
-  const itemsCount = useMemo(() => cart.reduce((a,b)=>a+b.qty,0), [cart])
-  const totalCop = useMemo(() => cart.reduce((a,it)=>a + (mapItems.get(it.id)?.amountCop||0)*it.qty,0), [cart,mapItems])
-  const totalUsd = useMemo(() => cart.reduce((a,it)=>a + (mapItems.get(it.id)?.amountUsd||0)*it.qty,0), [cart,mapItems])
+  const mapItems  = useMemo(() => new Map(items.map(p => [p.id, p])), [items])
+  const itemsCount= useMemo(() => cart.reduce((a,b)=>a+b.qty,0), [cart])
+  const totalCop  = useMemo(() => cart.reduce((a,it)=>a + (mapItems.get(it.id)?.amountCop||0)*it.qty,0), [cart,mapItems])
+  const totalUsd  = useMemo(() => cart.reduce((a,it)=>a + (mapItems.get(it.id)?.amountUsd||0)*it.qty,0), [cart,mapItems])
 
   return (
     <div className="descargas-container">
@@ -502,10 +380,10 @@ export default function TiendaVista({ lang = 'es', setOpt = () => {} }) {
 
       <div className="tabla-descargas">
         <h5 className="mb-10 mt-10">Elige el plan que más te convenga</h5>
-
+        {loadingApi && <p style={{ margin: '8px 0' }}>Cargando planes del club…</p>}
+        {errorApi &&   <p style={{ margin: '8px 0', color: '#b00' }}>{errorApi}</p>}
         <PlansGrid items={items} onAdd={add} />
 
-        {/* Barra de carrito full-width */}
         <div className="cart-bar-row">
           <div className="cart-bar">
             <div className="cart-summary">
@@ -520,25 +398,12 @@ export default function TiendaVista({ lang = 'es', setOpt = () => {} }) {
         </div>
       </div>
 
-      {/* Modal */}
-      <CheckoutModal
-        open={open}
-        onClose={() => setOpen(false)}
-        items={items}
-        cart={cart}
-        onInc={inc}
-        onDec={dec}
-        onRemove={remove}
-      />
+      <CheckoutModal open={open} onClose={() => setOpen(false)} items={items} cart={cart} onInc={inc} onDec={dec} onRemove={remove} />
 
       <style jsx>{`
-        .cart-bar-row{
-          grid-column:1 / -1;
-          width:100%;
-        }
+        .cart-bar-row{ grid-column:1 / -1; width:100%; }
         .cart-bar{
-          width:100%; box-sizing:border-box;
-          position:sticky; bottom:0;
+          width:100%; box-sizing:border-box; position:sticky; bottom:0;
           display:flex; align-items:center; justify-content:space-between;
           gap:12px; margin-top:20px; padding:10px 12px;
           background:#fff; color:#111; border:1px solid rgba(0,0,0,.08); border-radius:12px;
@@ -553,5 +418,4 @@ export default function TiendaVista({ lang = 'es', setOpt = () => {} }) {
       `}</style>
     </div>
   )
-
 }
