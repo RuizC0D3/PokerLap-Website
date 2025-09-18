@@ -7,19 +7,28 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { CATALOGO } from '../../lib/catalogo'
 
+// ---- helpers de moneda
+const fmtCOP = (n) =>
+  (n ?? 0).toLocaleString('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    maximumFractionDigits: 0,
+  });
+
+const fmtUSD = (n) =>
+  (n ?? 0).toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  });
+
 /* =========================
  * Config
  * ========================= */
-const API_TIENDA_URL = '/api/tienda' // proxy local (sin CORS)
+// Usamos el proxy local para evitar CORS
+const API_TIENDA_URL = '/api/tienda'
 
-const fmtCOP = (n) =>
-  (n ?? 0).toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 })
-const fmtUSD = (n) =>
-  (n ?? 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
-
-/* =========================
- * Utils normalización
- * ========================= */
+// Busca recursivamente el primer array de objetos dentro de cualquier shape
 function findArrayDeep(obj, seen = new Set()) {
   if (!obj || typeof obj !== 'object') return null
   if (seen.has(obj)) return null
@@ -40,46 +49,26 @@ function findArrayDeep(obj, seen = new Set()) {
   }
   return null
 }
-function firstNumber(...vals) {
-  for (const x of vals) {
-    if (x == null) continue
-    if (typeof x === 'number' && Number.isFinite(x)) return x
-    if (typeof x === 'string') {
-      const n = Number(x.replace(/[^\d.-]/g, ''))
-      if (Number.isFinite(n)) return n
-    }
-  }
-  return 0
-}
-function toPlan(x, idx) {
-  return {
-    id: String(x.id ?? x.ID ?? x.codigo ?? `p-${idx}`),
-    name: x.name ?? x.nombre ?? x.titulo ?? x.plan ?? 'Plan',
-    description: x.description ?? x.descripcion ?? x.detalle ?? '',
-    amountCop: firstNumber(x.amountCop, x.precioCop, x.cop, x.precio_cop, x.precio, x.valor, x.monto, x.amount, x.total, x.costo),
-    amountUsd: firstNumber(x.amountUsd, x.precioUsd, x.usd, x.precio_usd, x.price_usd, x.us_price),
-    features: Array.isArray(x.features) ? x.features : undefined,
-  }
+
+// Lee textEnc de URL, localStorage, cookie o .env (fallback)
+function getTextEncFromClient() {
+  try {
+    const sp = new URLSearchParams(window.location.search)
+    const fromUrl = sp.get('textEnc')
+    if (fromUrl) return fromUrl
+    const fromLS = localStorage.getItem('pkti_textEnc') || localStorage.getItem('textEnc')
+    if (fromLS) return fromLS
+    return process.env.NEXT_PUBLIC_TIENDA_TEXTENC || undefined
+  } catch { return undefined }
 }
 
-/* =========================
- * Fetch planes
- * ========================= */
-async function fetchPlanesPorClub({ i, textEncFromUrl, signal }) {
+// *** Reemplaza tu función anterior por ESTA ***
+async function fetchPlanesPorClub({ i, signal }) {
   if (!i) return []
+  const textEnc = typeof window !== 'undefined' ? getTextEncFromClient() : undefined
+  const payload = { i: Number(i), ...(textEnc ? { textEnc } : {}) }
+  console.debug('[Tienda] payload →', payload)
 
-  // 1) Prioriza ?textEnc= de la URL para pruebas rápidas
-  // 2) Luego localStorage (guardado en Landing)
-  const textEnc =
-    textEncFromUrl ||
-    (typeof window !== 'undefined'
-      ? (localStorage.getItem('pkti_textEnc') || localStorage.getItem('textEnc') || undefined)
-      : undefined)
-
-  const payload = textEnc ? { i: Number(i), textEnc } : { i: Number(i) }
-  console.log('[Tienda] payload →', { ...payload, textEnc: payload.textEnc ? payload.textEnc.slice(0, 12) + '…' : undefined })
-
-  // 1) POST
   let res
   try {
     res = await fetch(API_TIENDA_URL, {
@@ -97,28 +86,28 @@ async function fetchPlanesPorClub({ i, textEncFromUrl, signal }) {
     return []
   }
 
-  let raw = await res.clone().text()
-  if (!res.ok || !raw) {
-    console.warn('[Tienda] POST no-OK, probando GET…', res.status, raw?.slice(0, 80))
-    // 2) GET fallback (por si upstream solo lee query)
-    const qs = new URLSearchParams({ i: String(i) })
-    if (textEnc) qs.set('textEnc', textEnc)
-    const r2 = await fetch(`${API_TIENDA_URL}?${qs.toString()}`, { method: 'GET', signal })
-    raw = await r2.text()
-    if (!r2.ok) {
-      console.error('[Tienda] GET también falló:', r2.status, raw?.slice(0, 120))
-      return []
-    }
+  const raw = await res.clone().text()
+  console.debug('[Tienda] RAW API:', raw)
+
+  if (!res.ok) {
+    console.error('[Tienda] status', res.status, raw)
+    return []
   }
 
-  if (typeof window !== 'undefined' && !window.__tienda_dump) {
-    window.__tienda_dump = true
-    console.debug('[Tienda] RAW API:', raw.slice(0, 300))
-  }
+  let data
+  try { data = JSON.parse(raw) } catch { data = raw }
+  const arr = Array.isArray(data) ? data : findArrayDeep(data) || []
+  console.debug('[Tienda] Planes API:', arr)
 
-  let data; try { data = JSON.parse(raw) } catch { data = raw }
-  const arr = Array.isArray(data) ? data : (findArrayDeep(data) || [])
-  return arr.map(toPlan)
+  // normaliza a tu tipo Plan
+  return arr.map((x, idx) => ({
+    id: String(x.id ?? x.ID ?? `p-${idx}`),
+    name: x.name ?? x.nombre ?? 'Plan',
+    description: x.description ?? x.descripcion ?? '',
+    amountCop: Number(x.amountCop ?? x.cop ?? x.precioCop ?? 0),
+    amountUsd: Number(x.amountUsd ?? x.usd ?? x.precioUsd ?? 0),
+    features: Array.isArray(x.features) ? x.features : undefined,
+  }))
 }
 
 /* =========================
@@ -216,7 +205,7 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
                     </label>
 
                     <div className="tiendaCheckout-info">
-                      <strong>{it.plan.name}</strong>
+                      <strong>{it.plan.name}</strong> {/* Declaracion de currency por plan */}
                       <small>{fmtCOP(it.plan.amountCop)} · {fmtUSD(it.plan.amountUsd)}</small>
                     </div>
 
@@ -346,16 +335,18 @@ export default function TiendaVista({ lang = 'es', setOpt = () => {} }) {
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    if (!iParam) { console.log('[Tienda] Sin iParam; usando CATALOGO local.'); return }
-    const ctrl = new AbortController()
-    setLoadingApi(true); setErrorApi(null)
-    console.log('[Tienda] Cargando planes para i =', iParam)
-    fetchPlanesPorClub({ i: iParam, textEncFromUrl: textEncParam, signal: ctrl.signal })
-      .then((arr) => { console.log('[Tienda] Planes API:', arr); if (arr.length) setItems(arr) })
-      .catch((err) => { if (err?.name !== 'AbortError') { console.error('[Tienda] API error:', err); setErrorApi('No se pudo cargar la tienda de este club') } })
-      .finally(() => setLoadingApi(false))
-    return () => ctrl.abort()
-  }, [iParam, textEncParam])
+  if (!iParam) return
+  const ctrl = new AbortController()
+  setLoadingApi(true); setErrorApi(null)
+
+  fetchPlanesPorClub({ i: iParam, signal: ctrl.signal })
+    .then(arr => { if (arr.length) setItems(arr) }) // si API devuelve, reemplaza el CATALOGO local
+    .catch(err => { if (err?.name !== 'AbortError') setErrorApi('No se pudo cargar la tienda de este club') })
+    .finally(() => setLoadingApi(false))
+
+  return () => ctrl.abort()
+}, [iParam])
+
 
   // carrito
   useEffect(() => {
