@@ -1,320 +1,261 @@
 'use client'
-import { useEffect, useMemo, useState } from "react"
-import { useSearchParams } from 'next/navigation'
+import { useEffect, useState } from "react"
 import Container from "./body/container"
 import MenuBar from "./menuBar/menuBar"
-import io from "socket.io-client";
-
 import Footer from "./footer/footer"
-import { setCookie, getCookie, deleteCookie } from 'cookies-next';
-import { Languages } from "../modelos/languages";
-import fetch from 'isomorphic-fetch'
+import { setCookie, getCookie, deleteCookie } from 'cookies-next'
+import { Languages } from "../modelos/languages"
 import Image from "next/image"
-import { FormatEnc } from "../funciones/formatEnc";
-import { TorneoBlamnco, TorneoRocas } from "../paginas/torneos/torneoInteractivo/modelos/opciones";
+import { FormatEnc } from "../funciones/formatEnc"
 
-/* const Socket = io('wss://wm.pkti.me GET /index.js HTTP/1.1')*/
-let socket
+// Si pones NEXT_PUBLIC_DEBUG=1 en .env.local verás logs
+const DEBUG = process.env.NEXT_PUBLIC_DEBUG === '1'
+
 let init = false
 
 const defUser = { codigo: '', idUser: false, usuario: "", email: "", passwordRepeat: "", password: "", machineId: "ABC", tipoDispositivo: "" }
-const defUserP = { codigo: '', idUser: false, usuario: "elmozapate1@gmail.com", email: "elmozapate1@gmail.com", passwordRepeat: "3rrejotA", password: "3rrejotA", machineId: "dadfCss", tipoDispositivo: "Computadora" }
 let actualUser = defUser
 
 const LandingSelect = (props) => {
-    const { onMobil = { state: false }, fontion = console.log, res = 0, club = false, delact = false } = props
-    const [opt, setOpt] = useState(res)
-    const [torneoOpt, setTorneoOpt] = useState(false)
-    const [optLogin, setOptLogin] = useState(false)
-    const [user, setUser] = useState(defUser);
-    const [optApp, setOptApp] = useState(true)
-    const [fullScreen, setFullScreen] = useState(false)
-    const [casinos, setCasinos] = useState([])
-    const [torneos, setTorneos] = useState([])
-    const [languageSelected, setLanguageSelected] = useState('es')
-    const fsetLanguageSelected = (lang) => {
-        setLanguageSelected(lang)
-        setCookie('pokerlaplanguage', lang, {
-            maxAge: 60 * 60 * 12,
-            sameSite: 'strict',
-            path: '/'
-            /* httpOnly: true, */
-            // secure: true
-        })
+  const { onMobil = { state: false }, res = 0, club = false, delact = false } = props
+
+  const [opt, setOpt] = useState(res)
+  const [torneoOpt, setTorneoOpt] = useState(false)
+  const [optLogin, setOptLogin] = useState(false)
+  const [user, setUser] = useState(defUser)
+  const [optApp, setOptApp] = useState(true)
+  const [fullScreen, setFullScreen] = useState(false)
+  const [casinos, setCasinos] = useState([])
+  const [torneos, setTorneos] = useState([])
+  const [languageSelected, setLanguageSelected] = useState('es')
+
+  // Detectar ruta en cliente para no ejecutar landing cuando estemos en /tienda
+  const [routeReady, setRouteReady] = useState(false)
+  const [isTienda, setIsTienda] = useState(false)
+  useEffect(() => {
+    // se evalúa solo en cliente
+    const path = window.location.pathname
+    setIsTienda(path === '/tienda' || path.startsWith('/tienda'))
+    setRouteReady(true)
+  }, [])
+
+  const fsetLanguageSelected = (lang) => {
+    setLanguageSelected(lang)
+    setCookie('pokerlaplanguage', lang, {
+      maxAge: 60 * 60 * 12,
+      sameSite: 'strict',
+      path: '/',
+    })
+  }
+
+  const logOut = () => {
+    deleteCookie('pokerlUser')
+    window.location.reload()
+  }
+
+  // --------- Llamados remotos de la landing (NO se ejecutan en /tienda) ---------
+  const fetchTorneos = async () => {
+    try {
+      const res = await fetch("https://api.pkti.me/db", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ q: "Torneo_Listar", p: ["CO", 1000] })
+      })
+      const txt = await res.text()
+      if (!txt) return
+      const arr = JSON.parse(txt)
+      setTorneos(arr)
+      if (DEBUG) console.log('[Landing] Torneos', arr)
+    } catch (e) {
+      if (DEBUG) console.warn('[Landing] Torneos error', e)
     }
-    useEffect(() => { /* socketInitializer() */ }, [])
+  }
 
-
-    const socketInitializer = async (torneo) => {
-        console.log(club, res);
-        if (res === 2 && !(isNaN(parseInt(club)))) {
-            let socket = new WebSocket('wss://289438sd1m.execute-api.us-east-1.amazonaws.com/production');
-
-            socket.onopen = (event) => {
-                socket.send(`{"action":"ID_Torneo","valor":${parseInt(club)}}`);
-            };
-            socket.onmessage = (event) => {
-                let dataIn = event.data
-                try {
-                    setTorneoOpt(JSON.parse(dataIn))
-                } catch (error) {
-
-                }
-            };
-        }
-
-
-        /* socket.addEventListener("open", (event) => {
-           console.log('1111',event);
-       });
-       socket.addEventListener("message", (event) => {
-           console.log('222', event);
-       }); */
-        /* ws.send('{"action":"id","ID_Mesa":31}', (data) => {
-            console.log(data);
-        }) */
-        /*  await fetch('wss://wm.pkti.me GET /')
-  socket = io()
-
-  socket.on('connect', () => {
-      console.log('connected')
-  })*/
+  const fetchCasinos = async () => {
+    try {
+      const res = await fetch("https://api.pkti.me/db", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ q: "Club_Listar", p: ["CO"] })
+      })
+      const txt = await res.text()
+      if (!txt) return
+      const arr = JSON.parse(txt)
+      setCasinos(arr)
+      if (DEBUG) console.log('[Landing] Casinos', arr)
+    } catch (e) {
+      if (DEBUG) console.warn('[Landing] Casinos error', e)
     }
-    const logOut = () => {
+  }
 
-        deleteCookie('pokerlUser');
-        window.location.reload()
-    }
-    const makeTry = () => {
-        const getElenemntaa = async (url) => {
-            const raw = JSON.stringify({ "q": "Torneo_Listar", "p": ["CO", 1000] });
-            const myHeaders = new Headers();
-            myHeaders.append("Content-Type", "application/json");
-            const requestOptions = {
-                method: "POST",
-                headers: myHeaders,
-                redirect: "follow",
-                body: raw
-            };
-            fetch("https://api.pkti.me/db", requestOptions)
-                .then((response) => response.text())
-                .then((result) => {
+  const makeTry = () => {
+    fetchCasinos()
+    fetchTorneos()
+  }
 
-                    if (result) {
-                        let resArray = JSON.parse(result)
-                       /*  resArray.push(TorneoRocas)
-                        resArray.push(TorneoBlamnco) */
-                        setTorneos(resArray)
-                        console.log(resArray);
-                    }
-                })
-                .catch((error) => console.error(error))
+  // --------- Usuario / idioma ----------
+  const getLanguageAndApp = async () => {
+    const tieneLang = getCookie('pokerlaplanguage')
+    const boton = getCookie('pokerlapapiget')
+    const userCookie = getCookie('pokerlUser')
+
+    if (userCookie) {
+      try {
+        const decoded = FormatEnc('des', userCookie)
+        let tipoDdispo = 'Computadora'
+        if (onMobil?.state && onMobil?.data?._cache) {
+          tipoDdispo = `${onMobil.data._cache.os}-${onMobil.data._cache.phone}`
         }
-
-        const getElenemnt = async (url) => {
-            const myHeaders = new Headers();
-            myHeaders.append("Content-Type", "application/json");
-            const raw = JSON.stringify({
-                "q": "Club_Listar",
-                "p": [
-                    "CO"
-                ]
-            });
-            const requestOptions = {
-                method: "POST",
-                headers: myHeaders,
-                redirect: "follow",
-                body: raw
-            };
-            fetch("https://api.pkti.me/db", requestOptions)
-                .then((response) => response.text())
-                .then((result) => {
-                    if (result) {
-                        let resArray = JSON.parse(result)
-                        setCasinos(resArray)
-                    }
-                })
-                .catch((error) => console.error(error))
-        }
-        getElenemnt();
-/*         getElenemnta();
- */        getElenemntaa()
- 
-    }
-    const getLanguageAndApp = async () => {
-
-        const tieneLang = getCookie('pokerlaplanguage')
-        const boton = getCookie('pokerlapapiget')
-        const userCookie = getCookie('pokerlUser')
-        if (userCookie) {
-            try {
-                let userD = FormatEnc('des', userCookie)
-                let tipoDdispo = 'Computadora'
-                if (onMobil && onMobil.state && onMobil.data && onMobil.data[`_cache`]) {
-                    tipoDdispo = `${onMobil.data[`_cache`].os + '-' + onMobil.data[`_cache`].phone}`
-                }
-                let elU = { ...JSON.parse(userD), tipoDispositivo: tipoDdispo }
-                if (elU && elU.idUser) {
-                    actualUser = { ...user, ...elU }
-                    const raw = JSON.stringify({ "q": "Usuario_Datos", "p": [elU.idUser] });
-                    const myHeaders = new Headers();
-                    myHeaders.append("Content-Type", "application/json");
-                    const requestOptions = {
-                        method: "POST",
-                        headers: myHeaders,
-                        redirect: "follow",
-                        body: raw
-                    };
-
-                    fetch("https://api.pkti.me/db", requestOptions)
-                        .then((response) => response.text())
-                        .then((result) => {
-                            if (result && JSON.parse(result) && JSON.parse(result)[0] && JSON.parse(result)[0].Correo) {
-                                let tipoDdispo = 'Computadora'
-                                if (onMobil && onMobil.state && onMobil.data && onMobil.data[`_cache`]) {
-                                    tipoDdispo = `${onMobil.data[`_cache`].os + '-' + onMobil.data[`_cache`].phone}`
-                                    actualUser.tipoDispositivo = tipoDdispo
-                                    setUser({ ...actualUser, ...elU, ...JSON.parse(result)[0], tipoDispositivo: tipoDdispo })
-                                } else {
-                                    actualUser = { ...actualUser, ...elU, ...JSON.parse(result)[0], tipoDispositivo: tipoDdispo }
-                                    setUser({ ...actualUser, ...elU, ...JSON.parse(result)[0], tipoDispositivo: tipoDdispo })
-                                }
-
-                            }
-                        })
-                        .catch((error) => console.error(error))
-                }
-            } catch (error) {
-
-            }
-        }
-        let elLang = false
-        if (tieneLang) {
-            Languages.map((key, i) => {
-                if (tieneLang === key) {
-                    elLang = key
-                }
+        const elU = { ...JSON.parse(decoded), tipoDispositivo: tipoDdispo }
+        if (elU?.idUser) {
+          actualUser = { ...user, ...elU }
+          // pedir datos actualizados
+          try {
+            const res = await fetch("https://api.pkti.me/db", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ q: "Usuario_Datos", p: [elU.idUser] })
             })
-            elLang && setLanguageSelected(elLang)
+            const txt = await res.text()
+            const data = txt ? JSON.parse(txt) : []
+            const perfil = data?.[0] || {}
+            if (onMobil?.state && onMobil?.data?._cache) {
+              tipoDdispo = `${onMobil.data._cache.os}-${onMobil.data._cache.phone}`
+            }
+            actualUser = { ...actualUser, ...elU, ...perfil, tipoDispositivo: tipoDdispo }
+            setUser(actualUser)
+          } catch {}
         }
-        boton && setOptApp(false)
-
+      } catch {}
     }
 
-    useEffect(() => {
+    if (tieneLang && Languages.includes(tieneLang)) {
+      setLanguageSelected(tieneLang)
+    }
+    boton && setOptApp(false)
+  }
 
-        /*  Socket.on(`pokerlap`, (msg) => {
-                msg.actionTodo === 'casinos' && setCasinos(msg.casinos);
-                msg.actionTodo === 'casinos' && setTorneos(msg.torneos); 
-         })*/
-        if (!init) {
-            init = true
+  // --------- Inicialización (evitar ejecutar en /tienda) ----------
+  useEffect(() => {
+    if (!routeReady) return
+    if (init) return
+    init = true
 
+    getLanguageAndApp()
 
-            getLanguageAndApp()
+    // Solo la landing hace sus llamadas cuando **no** estamos en /tienda
+    if (!isTienda) {
+      makeTry()
+    }
+  }, [routeReady, isTienda]) // <- importante
 
-            makeTry()
-        }
-        /* Socket.on('conectado', (msg) => {
-            console.log(msg);
-        }) */
-        /*         console.log(Socket.connected, 'conectado');
-         */
+  // Mantener actualUser consistente con los cambios de usuario / dispositivo
+  useEffect(() => {
+    actualUser = user
+    if (onMobil?.state && onMobil?.data?._cache) {
+      actualUser.tipoDispositivo = `${onMobil.data._cache.os}-${onMobil.data._cache.phone}`
+    }
+  }, [user, onMobil])
 
-    }, [])
-    useEffect(() => {
-        actualUser = user
-        if (onMobil && onMobil.state && onMobil.data && onMobil.data[`_cache`]) {
-            let tipoDdispo = 'Computadora'
-            tipoDdispo = `${onMobil.data[`_cache`].os + '-' + onMobil.data[`_cache`].phone}`
-            actualUser.tipoDispositivo = tipoDdispo
-        }
-    }, [user])
-    useEffect(() => {
-        if (onMobil && onMobil.state && onMobil.data && onMobil.data[`_cache`]) {
-            let tipoDdispo = 'Computadora'
+  // Generar y guardar textEnc para otros módulos (sin log y sin molestar /tienda)
+  useEffect(() => {
+    if (!routeReady) return
+    try {
+      const objtest = { ip: '1.234.545.567.677', id: 7243556342342343 }
+      const textEnc = FormatEnc('enc', JSON.stringify(objtest))
+      // Guardar para que /tienda pueda leerlo si lo necesita
+      localStorage.setItem('pkti_textEnc', textEnc)
+      setCookie('pkti_textEnc', textEnc, { path: '/', maxAge: 60 * 60 * 24 * 30, sameSite: 'lax' })
+      if (DEBUG) console.log('[Landing] textEnc generado y guardado')
+    } catch (e) {
+      if (DEBUG) console.warn('[Landing] no se pudo generar textEnc', e)
+    }
+    // Si tienes sockets propios de la landing y NO quieres abrirlos en /tienda, guárdalos:
+    // if (!isTienda) socketInitializer()
+  }, [routeReady, isTienda])
 
-            tipoDdispo = `${onMobil.data[`_cache`].os + '-' + onMobil.data[`_cache`].phone}`
-            actualUser.tipoDispositivo = tipoDdispo
-            setUser(actualUser)
-        }
-
-    }, [onMobil])
-    useEffect(() => {
-        let objtest = {
-            ip: '1.234.545.567.677',
-            id: 7243556342342343
-        }
-        let textOb = JSON.stringify(objtest)
-        let textEnc = FormatEnc('enc', textOb)
-        console.log(textEnc, 'textEnc')
-        socketInitializer()
-    }, [])
-    return (
+  return (
+    <>
+      {onMobil.state &&
         <>
-            {onMobil.state &&
-                <>
-                    {
-                        optApp &&
-                        <>
-                            <div className="get-app">
-                                <button className="save" onClick={(e) => {
-                                    e.preventDefault(); window.open('https://play.google.com/store/apps/details?id=com.pokerlap'); setCookie('pokerlapapiget', true, {
-                                        maxAge: 60 * 60 * 12,
-                                        sameSite: 'strict',
-                                        path: '/'
-                                        /* httpOnly: true, */
-                                        // secure: true
-                                    })
-                                        ; setOptApp(false)
-                                }} >
-                                    {Textos[languageSelected].descargar}
-
-                                </button>
-                                <button className="close" onClick={(e) => {
-                                    e.preventDefault(); setCookie('pokerlapapiget', true, {
-                                        maxAge: 60 * 60 * 12,
-                                        sameSite: 'strict',
-                                        path: '/'
-                                        /* httpOnly: true, */
-                                        // secure: true
-                                    })
-                                        ; setOptApp(false)
-                                }} >
-                                    <Image className="hover close-btn" src={'/multimedia/icons/close.png'} width={25} height={25} alt="lgovtb" />
-                                </button>
-                            </div>
-                        </>
-                    }
-                </>
-            }
-            {!delact && <MenuBar user={user} logOut={logOut} setOptLogin={setOptLogin} optLogin={optLogin} setLanguageSelected={fsetLanguageSelected} lang={languageSelected} setOpt={setOpt} opt={opt} />}
-            <Container torneoOpt={torneoOpt} socketInitializer={socketInitializer} user={user} setUser={setUser} logout={logOut} setOptLogin={setOptLogin} optLogin={optLogin} onMobil={onMobil} delact={delact} club={club} casinos={casinos} lang={languageSelected} torneos={torneos} fullScreen={fullScreen} setFullScreen={setFullScreen} setOpt={setOpt} opt={opt} />
-            <Footer lang={languageSelected} />
+          {optApp &&
+            <div className="get-app">
+              <button
+                className="save"
+                onClick={(e) => {
+                  e.preventDefault()
+                  window.open('https://play.google.com/store/apps/details?id=com.pokerlap')
+                  setCookie('pokerlapapiget', true, {
+                    maxAge: 60 * 60 * 12,
+                    sameSite: 'strict',
+                    path: '/'
+                  })
+                  setOptApp(false)
+                }}>
+                {Textos[languageSelected].descargar}
+              </button>
+              <button
+                className="close"
+                onClick={(e) => {
+                  e.preventDefault()
+                  setCookie('pokerlapapiget', true, {
+                    maxAge: 60 * 60 * 12,
+                    sameSite: 'strict',
+                    path: '/'
+                  })
+                  setOptApp(false)
+                }}>
+                <Image className="hover close-btn" src={'/multimedia/icons/close.png'} width={25} height={25} alt="close" />
+              </button>
+            </div>
+          }
         </>
-    )
+      }
+
+      {!delact && (
+        <MenuBar
+          user={user}
+          logOut={logOut}
+          setOptLogin={setOptLogin}
+          optLogin={optLogin}
+          setLanguageSelected={fsetLanguageSelected}
+          lang={languageSelected}
+          setOpt={setOpt}
+          opt={opt}
+        />
+      )}
+
+      <Container
+        torneoOpt={torneoOpt}
+        // socketInitializer={socketInitializer} // si lo usas, actívalo solo cuando proceda
+        user={user}
+        setUser={setUser}
+        logout={logOut}
+        setOptLogin={setOptLogin}
+        optLogin={optLogin}
+        onMobil={onMobil}
+        delact={delact}
+        club={club}
+        casinos={casinos}
+        lang={languageSelected}
+        torneos={torneos}
+        fullScreen={fullScreen}
+        setFullScreen={setFullScreen}
+        setOpt={setOpt}
+        opt={opt}
+      />
+
+      <Footer lang={languageSelected} />
+    </>
+  )
 }
+
 export default LandingSelect
 
 export const Textos = {
-    es: {
-        descargar: 'Descarga Nuestra App desde la PlayStore',
-        cerrar: 'Cerrar',
-    },
-    en: {
-        descargar: 'Descarga Nuestra App desde la PlayStore',
-        cerrar: 'Close',
-    },
-    ger: {
-        descargar: 'Descarga Nuestra App desde la PlayStore',
-        cerrar: 'Schließen',
-    },
-    prt: {
-        descargar: 'Descarga Nuestra App desde la PlayStore',
-        cerrar: 'Fechar',
-    },
-    fr: {
-        descargar: 'Descarga Nuestra App desde la PlayStore',
-        cerrar: 'Fermer',
-    }
+  es: { descargar: 'Descarga Nuestra App desde la PlayStore', cerrar: 'Cerrar' },
+  en: { descargar: 'Descarga Nuestra App desde la PlayStore', cerrar: 'Close' },
+  ger: { descargar: 'Descarga Nuestra App desde la PlayStore', cerrar: 'Schließen' },
+  prt: { descargar: 'Descarga Nuestra App desde la PlayStore', cerrar: 'Fechar' },
+  fr: { descargar: 'Descarga Nuestra App desde la PlayStore', cerrar: 'Fermer' },
 }

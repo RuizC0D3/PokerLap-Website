@@ -7,34 +7,27 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { CATALOGO } from '../../lib/catalogo'
 
-// ---- helpers de moneda
+// ------------- CONFIG -------------
+const API_TIENDA_URL = '/api/tienda' // usamos el proxy local
+
+// ------------- HELPERS -------------
 const fmtCOP = (n) =>
-  (n ?? 0).toLocaleString('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    maximumFractionDigits: 0,
-  });
-
+  (n ?? 0).toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 })
 const fmtUSD = (n) =>
-  (n ?? 0).toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0,
-  });
+  (n ?? 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
 
-/* =========================
- * Config
- * ========================= */
-// Usamos el proxy local para evitar CORS
-const API_TIENDA_URL = '/api/tienda'
-
-// Busca recursivamente el primer array de objetos dentro de cualquier shape
+// busca recursivamente el primer array “válido” dentro de cualquier shape
 function findArrayDeep(obj, seen = new Set()) {
   if (!obj || typeof obj !== 'object') return null
   if (seen.has(obj)) return null
   seen.add(obj)
+
   if (Array.isArray(obj) && obj.length && typeof obj[0] === 'object') return obj
-  const keys = ['planes','productos','items','data','result','results','records','rows','list','payload','response','content']
+
+  const keys = [
+    'planes','productos','items','data','result','results','records','rows','list',
+    'payload','response','content'
+  ]
   for (const k of keys) {
     const v = obj[k]
     if (Array.isArray(v) && v.length && typeof v[0] === 'object') return v
@@ -50,24 +43,24 @@ function findArrayDeep(obj, seen = new Set()) {
   return null
 }
 
-// Lee textEnc de URL, localStorage, cookie o .env (fallback)
-function getTextEncFromClient() {
-  try {
-    const sp = new URLSearchParams(window.location.search)
-    const fromUrl = sp.get('textEnc')
-    if (fromUrl) return fromUrl
-    const fromLS = localStorage.getItem('pkti_textEnc') || localStorage.getItem('textEnc')
-    if (fromLS) return fromLS
-    return process.env.NEXT_PUBLIC_TIENDA_TEXTENC || undefined
-  } catch { return undefined }
+// ✅ DECLARA toPlan ANTES de usarla
+function toPlan(x, idx) {
+  return {
+    id: String(x.id ?? x.ID ?? x.codigo ?? `p-${idx}`),
+    name: x.name ?? x.nombre ?? x.titulo ?? 'Plan',
+    description: x.description ?? x.descripcion ?? x.detalle ?? '',
+    amountCop: Number(x.amountCop ?? x.cop ?? x.precioCop ?? x.precio_cop ?? 0),
+    amountUsd: Number(x.amountUsd ?? x.usd ?? x.precioUsd ?? x.precio_usd ?? 0),
+    features: Array.isArray(x.features) ? x.features : undefined,
+  }
 }
 
-// *** Reemplaza tu función anterior por ESTA ***
-async function fetchPlanesPorClub({ i, signal }) {
+// ------------- FETCH A LA API (via proxy) -------------
+async function fetchPlanesPorClub({ i, signal, textEncFromUrl }) {
   if (!i) return []
-  const textEnc = typeof window !== 'undefined' ? getTextEncFromClient() : undefined
-  const payload = { i: Number(i), ...(textEnc ? { textEnc } : {}) }
-  console.debug('[Tienda] payload →', payload)
+
+  // arma payload con textEnc si viene por URL/estado
+  const payload = textEncFromUrl ? { i: Number(i), textEnc: textEncFromUrl } : { i: Number(i) }
 
   let res
   try {
@@ -78,17 +71,12 @@ async function fetchPlanesPorClub({ i, signal }) {
       signal,
     })
   } catch (e) {
-    if (e?.name === 'AbortError') {
-      console.warn('[Tienda] fetch abortado por hot-reload (ok)')
-      return []
-    }
+    if (e?.name === 'AbortError') return []
     console.error('[Tienda] fetch error:', e)
     return []
   }
 
   const raw = await res.clone().text()
-  console.debug('[Tienda] RAW API:', raw)
-
   if (!res.ok) {
     console.error('[Tienda] status', res.status, raw)
     return []
@@ -96,19 +84,31 @@ async function fetchPlanesPorClub({ i, signal }) {
 
   let data
   try { data = JSON.parse(raw) } catch { data = raw }
-  const arr = Array.isArray(data) ? data : findArrayDeep(data) || []
-  console.debug('[Tienda] Planes API:', arr)
+
+  // localiza un array candidato
+  let arr = Array.isArray(data) ? data : (findArrayDeep(data) || [])
+
+  // caso especial visto en tu debug: [{ Res: "[...json...]" }]
+  if (Array.isArray(arr) && arr.length && typeof arr[0] === 'object' && 'Res' in arr[0]) {
+    const collected = []
+    for (const row of arr) {
+      const s = row?.Res
+      if (typeof s === 'string' && s.trim().length) {
+        try {
+          const inner = JSON.parse(s) // aquí está el array real
+          if (Array.isArray(inner)) collected.push(...inner)
+        } catch (e) {
+          console.warn('[Tienda] No pude parsear row.Res:', e)
+        }
+      }
+    }
+    if (collected.length) arr = collected
+  }
 
   // normaliza a tu tipo Plan
-  return arr.map((x, idx) => ({
-    id: String(x.id ?? x.ID ?? `p-${idx}`),
-    name: x.name ?? x.nombre ?? 'Plan',
-    description: x.description ?? x.descripcion ?? '',
-    amountCop: Number(x.amountCop ?? x.cop ?? x.precioCop ?? 0),
-    amountUsd: Number(x.amountUsd ?? x.usd ?? x.precioUsd ?? 0),
-    features: Array.isArray(x.features) ? x.features : undefined,
-  }))
+  return arr.map(toPlan)
 }
+
 
 /* =========================
  * Temas UI
@@ -327,25 +327,41 @@ export default function TiendaVista({ lang = 'es', setOpt = () => {} }) {
   const [items, setItems] = useState(CATALOGO)
   const searchParams = useSearchParams()
   const iParam = searchParams?.get('i') ?? process.env.NEXT_PUBLIC_TIENDA_CLUB_ID ?? null
-  const textEncParam = searchParams?.get('textEnc') || undefined // ← permite probar /tienda?i=100&textEnc=XXXX
+  const textEncFromUrl = searchParams?.get('textEnc') ?? undefined;
 
   const [loadingApi, setLoadingApi] = useState(false)
   const [errorApi, setErrorApi] = useState(null)
   const [cart, setCart] = useState([])
   const [open, setOpen] = useState(false)
 
-  useEffect(() => {
-  if (!iParam) return
-  const ctrl = new AbortController()
-  setLoadingApi(true); setErrorApi(null)
+useEffect(() => {
+  if (!iParam) {
+    console.log('[Tienda] Sin iParam; usando CATALOGO.');
+    return;
+  }
+  const ctrl = new AbortController();
+  setLoadingApi(true);
+  setErrorApi(null);
 
-  fetchPlanesPorClub({ i: iParam, signal: ctrl.signal })
-    .then(arr => { if (arr.length) setItems(arr) }) // si API devuelve, reemplaza el CATALOGO local
-    .catch(err => { if (err?.name !== 'AbortError') setErrorApi('No se pudo cargar la tienda de este club') })
-    .finally(() => setLoadingApi(false))
+  fetchPlanesPorClub({ i: iParam, signal: ctrl.signal, textEncFromUrl }) // <-- pásala aquí
+    .then((arr) => {
+      if (arr.length) {
+        setItems(arr);
+        setErrorApi(null);   // limpia el aviso si llegan datos
+      } else {
+        setErrorApi('No se pudo cargar la tienda de este club');
+      }
+    })
+    .catch((err) => {
+      if (err?.name !== 'AbortError') {
+        console.error('[Tienda] API error:', err);
+        setErrorApi('No se pudo cargar la tienda de este club');
+      }
+    })
+    .finally(() => setLoadingApi(false));
 
-  return () => ctrl.abort()
-}, [iParam])
+  return () => ctrl.abort();
+}, [iParam, textEncFromUrl]); // <-- agrégala a dependencias
 
 
   // carrito
