@@ -1,11 +1,13 @@
+// src/paginas/usuario/tienda.jsx
 'use client'
 
 import '../../../estilos/styles.scss'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import PageHead from '../../components/body/pageHead'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { CATALOGO } from '../../lib/catalogo'
+import BotonBold from './BotonBold'
 
 // ------------- CONFIG -------------
 const API_TIENDA_URL = '/api/tienda' // usamos el proxy local
@@ -16,7 +18,6 @@ const fmtCOP = (n) =>
 const fmtUSD = (n) =>
   (n ?? 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
 
-// busca recursivamente el primer array “válido” dentro de cualquier shape
 function findArrayDeep(obj, seen = new Set()) {
   if (!obj || typeof obj !== 'object') return null
   if (seen.has(obj)) return null
@@ -43,7 +44,6 @@ function findArrayDeep(obj, seen = new Set()) {
   return null
 }
 
-// ✅ DECLARA toPlan ANTES de usarla
 function toPlan(x, idx) {
   return {
     id: String(x.id ?? x.ID ?? x.codigo ?? `p-${idx}`),
@@ -59,7 +59,6 @@ function toPlan(x, idx) {
 async function fetchPlanesPorClub({ i, signal, textEncFromUrl }) {
   if (!i) return []
 
-  // arma payload con textEnc si viene por URL/estado
   const payload = textEncFromUrl ? { i: Number(i), textEnc: textEncFromUrl } : { i: Number(i) }
 
   let res
@@ -85,17 +84,15 @@ async function fetchPlanesPorClub({ i, signal, textEncFromUrl }) {
   let data
   try { data = JSON.parse(raw) } catch { data = raw }
 
-  // localiza un array candidato
   let arr = Array.isArray(data) ? data : (findArrayDeep(data) || [])
 
-  // caso especial visto en tu debug: [{ Res: "[...json...]" }]
   if (Array.isArray(arr) && arr.length && typeof arr[0] === 'object' && 'Res' in arr[0]) {
     const collected = []
     for (const row of arr) {
       const s = row?.Res
       if (typeof s === 'string' && s.trim().length) {
         try {
-          const inner = JSON.parse(s) // aquí está el array real
+          const inner = JSON.parse(s)
           if (Array.isArray(inner)) collected.push(...inner)
         } catch (e) {
           console.warn('[Tienda] No pude parsear row.Res:', e)
@@ -105,10 +102,8 @@ async function fetchPlanesPorClub({ i, signal, textEncFromUrl }) {
     if (collected.length) arr = collected
   }
 
-  // normaliza a tu tipo Plan
   return arr.map(toPlan)
 }
-
 
 /* =========================
  * Temas UI
@@ -141,11 +136,15 @@ function Portal({ children }) {
 }
 
 /* =========================
- * Modal Checkout
+ * Modal Checkout (con Bold embebido)
  * ========================= */
 function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
   const [method, setMethod] = useState('bold')
   const [selected, setSelected] = useState(null)
+
+  const [orderId, setOrderId] = useState(null)
+  const [signature, setSignature] = useState(null)
+  const [prepError, setPrepError] = useState(null)
 
   const lines = useMemo(() => {
     const map = new Map(items.map(p => [p.id, p]))
@@ -163,24 +162,88 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
   const totalCop = useMemo(() => lines.reduce((a, it) => a + it.plan.amountCop * it.qty, 0), [lines])
   const totalUsd = useMemo(() => lines.reduce((a, it) => a + it.plan.amountUsd * it.qty, 0), [lines])
 
+  useEffect(() => {
+    async function prepBold() {
+      setPrepError(null)
+      setSignature(null)
+      setOrderId(null)
+
+      if (!open) return
+      if (method !== 'bold') return
+      if (!selected) return
+
+      const plan = items.find(p => p.id === selected)
+      if (!plan) return
+      const amount = Math.round(Number(plan.amountCop || 0))
+      if (!amount) { setPrepError('Este plan no tiene precio COP válido.'); return }
+
+      const oid = `plan-${String(plan.id).replace(/[^A-Za-z0-9_-]/g,'')}-${Date.now()}`
+      setOrderId(oid)
+
+      try {
+        const r = await fetch('/api/bold/hash', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId: oid, amount, currency: 'COP' })
+        })
+        const d = await r.json()
+        if (!r.ok || !d?.signature) {
+          setPrepError(d?.error || 'No se pudo generar la firma de integridad.')
+          return
+        }
+        setSignature(d.signature)
+      } catch (e) {
+        setPrepError(e?.message || 'Error solicitando la firma.')
+      }
+    }
+    prepBold()
+  }, [open, method, selected, items])
+
   const pagar = async () => {
     if (!selected) return
+    if (method === 'bold') {
+      alert('El pago con Bold se realiza con el botón embebido de abajo.')
+      return
+    }
     try {
-      const url = method === 'bold' ? '/api/bold/create-link' : '/api/commerce/create-charge'
+      const url = '/api/commerce/create-charge'
       const r = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId: selected }),
+        body: JSON.stringify({ planId: String(selected) }),
       })
       const d = await r.json()
-      if (!r.ok || !d?.url) throw new Error(d?.error || 'No se pudo crear el checkout')
-      window.location.href = d.url
+      if (!r.ok) {
+        const detail =
+          (Array.isArray(d?.detail) && (d.detail[0]?.message || JSON.stringify(d.detail))) ||
+          d?.error || d?.message || JSON.stringify(d)
+        alert(`Error al iniciar el pago:\n${detail}`)
+        return
+      }
+      if (d?.url) window.location.href = d.url
+      else alert('No recibimos URL de la pasarela.')
     } catch (e) {
-      alert(e?.message || 'Error al iniciar el pago (¿keys configuradas?)')
+      alert(`Error de red al crear el cobro.\n${e?.message || e}`)
     }
   }
 
   if (!open) return null
+
+  const apiKeyPublic =
+    process.env.NEXT_PUBLIC_BOLD_TEST_IDENTITY_KEY ||
+    process.env.NEXT_PUBLIC_BOLD_IDENTITY_KEY
+
+  const selectedPlan = items.find(p => p.id === selected)
+  const amountForBold = selectedPlan ? Math.round(Number(selectedPlan.amountCop || 0)) : 0
+
+  // SIEMPRE manda a /tienda (con absoluto para sandbox/local también)
+  const redirectionUrl = (() => {
+    if (typeof window !== 'undefined') {
+      return `${window.location.origin}/tienda`
+    }
+    const base = (process.env.NEXT_PUBLIC_WEB_URL || 'http://localhost:3000').replace(/\/+$/, '')
+    return `${base}/tienda`
+  })()
 
   return (
     <Portal>
@@ -205,7 +268,7 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
                     </label>
 
                     <div className="tiendaCheckout-info">
-                      <strong>{it.plan.name}</strong> {/* Declaracion de currency por plan */}
+                      <strong>{it.plan.name}</strong>
                       <small>{fmtCOP(it.plan.amountCop)} · {fmtUSD(it.plan.amountUsd)}</small>
                     </div>
 
@@ -229,7 +292,7 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
                 <span>Método de pago:</span>
                 <label className={`method-btn ${method === 'bold' ? 'selected' : ''}`}>
                   <input type="radio" name="method" checked={method === 'bold'} onChange={() => setMethod('bold')} />
-                  Bold (COP)
+                  Bold (Botón de pagos)
                 </label>
                 <label className={`method-btn ${method === 'coinbase' ? 'selected' : ''}`}>
                   <input type="radio" name="method" checked={method === 'coinbase'} onChange={() => setMethod('coinbase')} />
@@ -238,32 +301,123 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
               </div>
 
               <div className="tiendaCheckout-actions">
-                <button className="btn btn-secondary" onClick={onClose}>Seguir comprando</button>
-                <button className="btn btn-primary" onClick={pagar}>Pagar</button>
+                {/* Botón Bold alineado a la izquierda */}
+                {method === 'bold' && (
+                  <div className="bold-slot">
+                    {apiKeyPublic && orderId && signature && amountForBold > 0 ? (
+                      <BotonBold
+                        apiKey={apiKeyPublic}
+                        orderId={orderId}
+                        amount={amountForBold}
+                        currency="COP"
+                        description={selectedPlan?.description || selectedPlan?.name || 'Compra'}
+                        redirectionUrl={redirectionUrl}   // <<< ¡importante!
+                        integritySignature={signature}
+                        renderMode="embedded"
+                        theme="light-L"
+                        environment="SANDBOX"
+                      />
+                    ) : (
+                      <span className="bold-prep">Preparando…</span>
+                    )}
+                  </div>
+                )}
+
+                {/* Botón secundario a la derecha */}
+                <button className="btn btn-secondary" onClick={onClose}>Seguir Comprando</button>
+
+                {/* Solo aparece si el método NO es Bold */}
+                {method !== 'bold' && (
+                  <button className="btn btn-primary" onClick={pagar}>Pagar</button>
+                )}
               </div>
+
             </>
           )}
         </div>
 
         <style jsx>{`
-          .tiendaCheckoutOverlay{ position:fixed; inset:0; width:100vw; height:100vh; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; z-index:2147483647; }
-          .tiendaCheckout{ width:100%; max-width:760px; max-height:80vh; overflow:auto; background:#fff; color:#111; border-radius:18px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
+          .tiendaCheckoutOverlay{
+            position:fixed; inset:0; width:100vw; height:100vh;
+            background:rgba(0,0,0,.45);
+            display:flex; align-items:center; justify-content:center;
+            z-index:2147483647;
+          }
+          .tiendaCheckout{
+            width:100%; max-width:760px; max-height:80vh; overflow:auto;
+            background:#fff; color:#111; border-radius:18px; padding:18px;
+            box-shadow:0 10px 30px rgba(0,0,0,.25);
+          }
           .tiendaCheckout-title{ margin:6px 0 14px; font-size:22px; font-weight:800; }
           .tiendaCheckout-list{ display:grid; gap:10px; margin-bottom:12px; }
-          .tiendaCheckout-row{ display:grid; grid-template-columns:auto 1fr auto auto; gap:10px; align-items:center; border:1px solid rgba(0,0,0,.08); border-radius:10px; padding:10px 12px; }
+          .tiendaCheckout-row{
+            display:grid; grid-template-columns:auto 1fr auto auto; gap:10px; align-items:center;
+            border:1px solid rgba(0,0,0,.08); border-radius:10px; padding:10px 12px;
+          }
           .tiendaCheckout-row.is-active{ border-color:#111; box-shadow:0 6px 16px rgba(0,0,0,.06); }
           .tiendaCheckout-radio{ display:flex; align-items:center; }
           .tiendaCheckout-info small{ opacity:.7; display:block; }
           .tiendaCheckout-qty{ display:flex; align-items:center; gap:8px; }
-          .tiendaCheckout-remove{ width:28px; height:28px; border-radius:8px; border:1.5px solid #111; background:#111; color:#fff; font-size:22px; font-weight:700; cursor:pointer; }
-          .tiendaCheckout-totals{ display:flex; gap:16px; justify-content:flex-end; margin:8px 0 12px; }
-          .tiendaCheckout-method{ display:flex; align-items:center; gap:14px; margin-bottom:12px; }
-          .method-btn{ padding:8px 16px; border-radius:8px; border:2px solid transparent; background:#f6f6f6; cursor:pointer; display:flex; align-items:center; gap:6px; }
+          .tiendaCheckout-remove{
+            width:28px; height:28px; border-radius:8px; border:1.5px solid #111;
+            background:#111; color:#fff; font-size:22px; font-weight:700; cursor:pointer;
+          }
+          .tiendaCheckout-totals{
+            display:flex; gap:16px; justify-content:flex-end; margin:8px 0 12px;
+          }
+
+          /* ===== Acciones (Bold + botones) en una sola fila ===== */
+          .tiendaCheckout-actions{
+            display:flex; align-items:center; gap:10px;
+            justify-content:flex-end;           /* botones a la derecha */
+            flex-wrap:wrap;                      /* evita desbordes en móvil */
+            min-height:44px;                     /* alto base similar a .btn */
+            margin-top:6px;
+          }
+          .bold-slot{
+            margin-right:auto;                   /* Bold queda a la izquierda */
+            display:flex; align-items:center;
+            height:44px;                         /* iguala alto a .btn */
+          }
+          /* el script de Bold genera un contenedor interno; lo tratamos como botón */
+          .bold-slot > div{
+            display:inline-flex; align-items:center;
+            height:100%;
+          }
+          /* si lo ves un poco más grande que tus botones, descomenta el scale:
+            transform:scale(0.94); transform-origin:left center; */
+
+          .bold-prep{ opacity:.7; font-size:14px; }
+
+          .tiendaCheckout-method{
+            display:flex; align-items:center; gap:14px; margin-bottom:12px;
+          }
+          .method-btn{
+            padding:8px 16px; border-radius:8px; border:2px solid transparent;
+            background:#f6f6f6; cursor:pointer; display:flex; align-items:center; gap:6px;
+          }
           .method-btn.selected{ background:#111; color:#fff; border-color:#111; }
-          .btn{ padding:10px 12px; border-radius:12px; border:1px solid rgba(0,0,0,.12); cursor:pointer; }
+
+          .btn{
+            padding:10px 12px; border-radius:12px;
+            border:1px solid rgba(0,0,0,.12); cursor:pointer;
+            height:44px;                         /* alto consistente */
+            display:inline-flex; align-items:center;
+          }
           .btn-primary{ background:#111; color:#fff; border-color:#111; }
           .btn-secondary{ background:#f6f6f6; color:#111; }
+          .btn:disabled{ opacity:.6; cursor:not-allowed; }
+
+          /* Responsive: en pantallas chicas, Bold arriba y botones abajo */
+          @media (max-width: 520px){
+            .tiendaCheckout-actions{
+              flex-direction:column; align-items:stretch; gap:8px;
+            }
+            .bold-slot{ margin-right:0; justify-content:center; }
+            .btn{ width:100%; justify-content:center; }
+          }
         `}</style>
+
       </div>
     </Portal>
   )
@@ -272,7 +426,7 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
 /* =========================
  * Tarjeta + Grid
  * ========================= */
-const THEMES2 = null // solo para que no marque no usado arriba (pickTheme)
+const THEMES2 = null
 
 function PrettyPlanCard({ plan, idx, onAdd }) {
   const theme = pickTheme(idx, plan.theme)
@@ -307,6 +461,7 @@ function PrettyPlanCard({ plan, idx, onAdd }) {
     </article>
   )
 }
+
 function PlansGrid({ items, onAdd }) {
   return (
     <div className="plans-grid">
@@ -324,52 +479,80 @@ function PlansGrid({ items, onAdd }) {
  * Página: Tienda
  * ========================= */
 export default function TiendaVista({ lang = 'es', setOpt = () => {} }) {
-  const [items, setItems] = useState(CATALOGO)
+  const router = useRouter()
   const searchParams = useSearchParams()
+
+  const [txAlert, setTxAlert] = useState(null) // { status, orderId }
+  const [items, setItems] = useState(CATALOGO)
+
   const iParam = searchParams?.get('i') ?? process.env.NEXT_PUBLIC_TIENDA_CLUB_ID ?? null
-  const textEncFromUrl = searchParams?.get('textEnc') ?? undefined;
+  const textEncFromUrl = searchParams?.get('textEnc') ?? undefined
 
   const [loadingApi, setLoadingApi] = useState(false)
   const [errorApi, setErrorApi] = useState(null)
   const [cart, setCart] = useState([])
   const [open, setOpen] = useState(false)
 
-useEffect(() => {
-  if (!iParam) {
-    console.log('[Tienda] Sin iParam; usando CATALOGO.');
-    return;
-  }
-  const ctrl = new AbortController();
-  setLoadingApi(true);
-  setErrorApi(null);
-
-  fetchPlanesPorClub({ i: iParam, signal: ctrl.signal, textEncFromUrl }) // <-- pásala aquí
-    .then((arr) => {
-      if (arr.length) {
-        setItems(arr);
-        setErrorApi(null);   // limpia el aviso si llegan datos
-      } else {
-        setErrorApi('No se pudo cargar la tienda de este club');
-      }
-    })
-    .catch((err) => {
-      if (err?.name !== 'AbortError') {
-        console.error('[Tienda] API error:', err);
-        setErrorApi('No se pudo cargar la tienda de este club');
-      }
-    })
-    .finally(() => setLoadingApi(false));
-
-  return () => ctrl.abort();
-}, [iParam, textEncFromUrl]); // <-- agrégala a dependencias
-
-
-  // carrito
+  // --- Lee el resultado devuelto por Bold y limpia la URL ---
   useEffect(() => {
-    try { const raw = localStorage.getItem('pokerlap_cart'); if (raw) { const parsed = JSON.parse(raw); if (Array.isArray(parsed)) setCart(parsed.filter(x => x && x.id && x.qty > 0)) } } catch {}
+    const status = (searchParams?.get('bold-tx-status') || '').toLowerCase()
+    const orderId = searchParams?.get('bold-order-id') || null
+    if (!status) return
+
+    setTxAlert({ status, orderId })
+
+    // Limpia solo esos 2 parámetros, manteniendo el resto
+    const sp = new URLSearchParams(Array.from(searchParams.entries()))
+    sp.delete('bold-tx-status')
+    sp.delete('bold-order-id')
+    const qs = sp.toString()
+    router.replace(qs ? `?${qs}` : '/tienda', { scroll: false })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
+  // --- Carga catálogo desde API si hay iParam ---
+  useEffect(() => {
+    if (!iParam) {
+      console.log('[Tienda] Sin iParam; usando CATALOGO.')
+      return
+    }
+    const ctrl = new AbortController()
+    setLoadingApi(true)
+    setErrorApi(null)
+
+    fetchPlanesPorClub({ i: iParam, signal: ctrl.signal, textEncFromUrl })
+      .then((arr) => {
+        if (arr.length) {
+          setItems(arr)
+          setErrorApi(null)
+        } else {
+          setErrorApi('No se pudo cargar la tienda de este club')
+        }
+      })
+      .catch((err) => {
+        if (err?.name !== 'AbortError') {
+          console.error('[Tienda] API error:', err)
+          setErrorApi('No se pudo cargar la tienda de este club')
+        }
+      })
+      .finally(() => setLoadingApi(false))
+
+    return () => ctrl.abort()
+  }, [iParam, textEncFromUrl])
+
+  // --- Carrito persistido ---
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('pokerlap_cart')
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed)) setCart(parsed.filter(x => x && x.id && x.qty > 0))
+      }
+    } catch {}
   }, [])
   useEffect(() => { try { localStorage.setItem('pokerlap_cart', JSON.stringify(cart)) } catch {} }, [cart])
 
+  // --- Helpers carrito ---
   const add    = useCallback((id) => setCart((p)=>{ const i=p.findIndex(x=>x.id===id); if(i>=0){const n=[...p]; n[i]={...n[i],qty:n[i].qty+1}; return n} return [...p,{id,qty:1}] }), [])
   const inc    = useCallback((id) => setCart((p)=>p.map(x=>x.id===id?{...x,qty:x.qty+1}:x)), [])
   const dec    = useCallback((id) => setCart((p)=>p.map(x=>x.id===id?{...x,qty:Math.max(1,x.qty-1)}:x)), [])
@@ -384,6 +567,42 @@ useEffect(() => {
   return (
     <div className="descargas-container">
       <PageHead lang={lang} setOpt={setOpt} page={'Tienda'} />
+
+      {/* --- Banner de resultado Bold --- */}
+      {txAlert && (
+        <div
+          className={`tienda-alert ${
+            txAlert.status === 'approved' ? 'ok' :
+            txAlert.status === 'rejected' ? 'bad' : 'warn'
+          }`}
+          role="status"
+        >
+          {txAlert.status === 'approved' && (
+            <>
+              ✅ Pago aprobado. Pedido <b>{txAlert.orderId}</b>.
+              <button className="ta-btn" onClick={() => setTxAlert(null)}>Cerrar</button>
+            </>
+          )}
+
+          {txAlert.status === 'rejected' && (
+            <>
+              ❌ El pago fue rechazado (Pedido <b>{txAlert.orderId}</b>). Puedes intentarlo de nuevo.
+              <span className="ta-spacer" />
+              <button className="ta-btn" onClick={() => { setTxAlert(null); setOpen(true) }}>
+                Intentar de nuevo
+              </button>
+              <button className="ta-btn ghost" onClick={() => setTxAlert(null)}>Cerrar</button>
+            </>
+          )}
+
+          {txAlert.status !== 'approved' && txAlert.status !== 'rejected' && (
+            <>
+              ⏳ Pago en proceso (Pedido <b>{txAlert.orderId}</b>). Si no se actualiza en unos minutos, intenta nuevamente.
+              <button className="ta-btn ghost" onClick={() => setTxAlert(null)}>Cerrar</button>
+            </>
+          )}
+        </div>
+      )}
 
       <div className="tabla-descargas">
         <h5 className="mb-10 mt-10">Elige el plan que más te convenga</h5>
@@ -405,8 +624,17 @@ useEffect(() => {
         </div>
       </div>
 
-      <CheckoutModal open={open} onClose={() => setOpen(false)} items={items} cart={cart} onInc={inc} onDec={dec} onRemove={remove} />
+      <CheckoutModal
+        open={open}
+        onClose={() => setOpen(false)}
+        items={items}
+        cart={cart}
+        onInc={inc}
+        onDec={dec}
+        onRemove={remove}
+      />
 
+      {/* ===== Estilos locales de la página (incluye el banner) ===== */}
       <style jsx>{`
         .cart-bar-row{ grid-column:1 / -1; width:100%; }
         .cart-bar{
@@ -422,6 +650,25 @@ useEffect(() => {
         .btn-primary{ background:#111; color:#fff; border-color:#111; }
         .btn-secondary{ background:#f6f6f6; color:#111; }
         .btn:disabled{ opacity:.6; cursor:not-allowed; }
+
+        /* ===== Banner de resultado Bold ===== */
+        .tienda-alert{
+          display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+          padding:10px 12px; margin:10px 0 14px;
+          border-radius:10px; border:1px solid transparent;
+          font-size:14px;
+        }
+        .tienda-alert.ok   { background:#e9f9ef; color:#0b5b2a; border-color:#bfead0; }
+        .tienda-alert.bad  { background:#ffecec; color:#8a1f1f; border-color:#ffc7c7; }
+        .tienda-alert.warn { background:#fff7e6; color:#7a4b00; border-color:#ffe3b0; }
+        .ta-spacer{ flex:1 1 auto; }
+        .ta-btn{
+          padding:8px 12px; border-radius:10px; border:1px solid rgba(0,0,0,.12);
+          background:#111; color:#fff; cursor:pointer;
+        }
+        .ta-btn.ghost{
+          background:transparent; color:inherit; border-color:rgba(0,0,0,.2);
+        }
       `}</style>
     </div>
   )
