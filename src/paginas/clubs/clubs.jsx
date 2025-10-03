@@ -1,209 +1,128 @@
+// src/paginas/clubs/club.jsx
 'use client'
 
-import Image from "next/image"
-import { useEffect, useState } from "react"
-import PageHead from "../../components/body/pageHead"
-import ClubIndividual from "./clubIndividual"
-import ClubVistaIndividual from "./clubVista"
-const feed = 10
-const Clubs = (props) => {
-    const { club = false, casinos = [], torneos = [], setOpt = console.log, lang = 'es' } = props
-    const [clubExiste, setClubExiste] = useState({ state: false, club: {} })
-    const [clubs, setClubs] = useState([])
-    const [clubsAlimentador, setClubsAlimentador] = useState({ page: 0, max: feed, min: 0 })
-    const [torneoClubs, setTorneoClubs] = useState([])
-    useEffect(() => {
-        let newClubs = []
-        let newClubsT = []
-        casinos.map((key, i) => {
-            let existeClub = { state: false, torneos: [] }
+import React, { useEffect, useMemo, useState } from 'react'
+import PageHead from '../../components/body/pageHead'
+import ClubCard from './clubVista' // default export
 
-            torneos.map((keyT, iT) => {
-                if (key.ID_Club === keyT.ID_Club) {
-                    newClubsT.push({ ...key, torneo: { state: true, torneo: keyT } })
-                    existeClub.state = true
-                    existeClub.torneos.push(keyT)
-                }
-            })
-            newClubs.push({ ...key, ...existeClub })
-        });
-        setClubs(newClubs)
-        setTorneoClubs(newClubsT)
-        if (club) {
-            let newClubs = []
-            let newClubsT = []
+const PAGE_SIZE = 18  // más grandes + más por página
 
-            casinos.map((key, i) => {
-                let existeClub = { torneo: false, torneos: [] }
+export default function Clubs({
+  club = false,          // NO lo usamos aquí (detalle va en /clubs/[club])
+  casinos = [],          // viene de tu API
+  torneos = [],          // viene de tu API
+  setOpt = () => {},
+  lang = 'es',
+}) {
+  const [q, setQ] = useState('')
+  const [city, setCity] = useState('ALL')
+  const [page, setPage] = useState(0)
 
-                if (key.ID_Club === parseInt(club)) {
-                    torneos.map((keyT, iT) => {
-                        if (key.ID_Club === keyT.ID_Club && !existeClub.state) {
-                            newClubsT.push({ ...key, torneo: { state: true, torneo: keyT } })
-                            existeClub.torneo = true
-                            existeClub.torneos.push(keyT)
-                        }
-                    })
-                    newClubs.push({ ...key, ...existeClub })
-                    setClubExiste({ ...clubExiste, state: true, club: { ...key, ...existeClub } })
-                }
-            })
+  // ciudades únicas
+  const cities = useMemo(() => {
+    const s = new Set()
+    casinos.forEach(c => { if (c?.Ciudad) s.add(String(c.Ciudad)) })
+    return ['ALL', ...Array.from(s).sort()]
+  }, [casinos])
+
+  // filtro
+  const filtered = useMemo(() => {
+    const term = q.trim().toLowerCase()
+    return casinos.filter(c => {
+      if (city !== 'ALL' && String(c?.Ciudad) !== String(city)) return false
+      if (!term) return true
+      const name = (c?.Nombre || '').toLowerCase()
+      const dir  = (c?.Direccion || '').toLowerCase()
+      return name.includes(term) || dir.includes(term)
+    })
+  }, [casinos, q, city])
+
+  // paginado
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const pageItems = useMemo(() => {
+    const start = page * PAGE_SIZE
+    return filtered.slice(start, start + PAGE_SIZE)
+  }, [filtered, page])
+
+  useEffect(() => { setPage(0) }, [q, city])
+
+  return (
+    <div className="clubs-container">
+      <PageHead lang={lang} page="Clubs" setOpt={setOpt} />
+
+      {/* filtros */}
+      <div className="filters">
+        <input
+          className="search"
+          placeholder="Buscar club o dirección…"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+        />
+        <select
+          className="city"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+        >
+          {cities.map((c) => (
+            <option key={c} value={c}>{c === 'ALL' ? 'Todas las ciudades' : c}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* grid (cards más grandes) */}
+      <div className="grid">
+        {pageItems.map((c) => (
+          <ClubCard key={c.ID_Club || c.id} club={c} torneos={torneos} />
+        ))}
+      </div>
+
+      {/* paginación */}
+      <div className="pager">
+        {Array.from({ length: pageCount }, (_, i) => (
+          <button
+            key={i}
+            className={`pbtn ${i === page ? 'is-active' : ''}`}
+            onClick={() => setPage(i)}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
+
+      <style jsx>{`
+        .filters{
+          margin:14px 0; display:flex; gap:12px; flex-wrap:wrap;
+        }
+        .search{
+          flex:1 1 560px; min-width:280px;
+          height:46px; padding:0 14px; border-radius:14px;
+          border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.06);
+          color:inherit; outline:none;
+        }
+        .search::placeholder{ opacity:.7; }
+
+        .city{
+          height:46px; padding:0 14px; border-radius:14px; outline:none; cursor:pointer;
+          border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.06); color:inherit;
         }
 
+        .grid{
+          display:grid; gap:18px;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          align-items: stretch;
+        }
 
-    }, [casinos, torneos])
-    let counted = casinos.length / 10
-    let pages = []
-
-    for (let index = 0; index < counted; index++) {
-        pages.push(index);
-
-    }
-    const FclubsAlimentador = (i) => {
-        let newAlimentador = { page: i, max: (i * 10) + 10, min: i * 10 }
-        setClubsAlimentador(newAlimentador)
-    }
-    return (
-        <>
-            <div className="clubs-container">
-                <PageHead lang={lang} page={'Clubs'} club={club} subPage={clubExiste.club.Nombre} setOpt={setOpt} />
-                {club ? <div className="fontcolor-black caontlist">{clubExiste.state ? <>
-                    <ClubIndividual enClub torneos={torneos} clubs={clubs} club={clubExiste.club} />
-                </> : <div className="fontcolor-black caontlist">
-                    <h5 className="mb-10 mt-10" >{casinos.length > 0 ? 'PAGINA NO ENCONTRADA' : 'Cargando'}</h5>
-                </div>
-
-                }
-                </div> :
-                    <div className="caontlist">
-                        <div className="clubs-container-list">
-                            <input type="text" />
-                            {
-                                clubs.map((key, i) => {
-                                    return (
-                                        <>
-                                            {key.Estado && key.Estado > 1 ? <div className={`clubs-valores-hijo${i} clubs-container-list-hijo`} key={`funciones-grid-${i}`} id={`funciones-grid-${i}`}>
-                                                <li className="texto-titulo hover" onClick={(e) => { e.preventDefault(); window.location.replace(`./clubs/${key.ID_Club}`) }}>
-                                                    {key.Nombre}
-                                                </li>
-                                            </div> : <></>}
-                                        </>
-                                    )
-                                })
-                            }
-
-
-                        </div>
-                        <div className="centered">
-                            {/*  <div className="select-page">
-                                {
-                                    pages.map((key, i) => {
-                                        return (
-                                            <>
-                                                {
-                                                    <div onClick={(e) => { e.preventDefault(); FclubsAlimentador(i) }} className={(parseInt(clubsAlimentador.min / 10)) === i ? 'pagina-select pagina-select-selected' : "pagina-select"}>{key}</div>
-                                                }
-                                            </>
-                                        )
-                                    })
-                                }
-                            </div> */}
-                            <div className="paginadora">
-                                <ul className="page">
-                                    {clubsAlimentador.page > 0 && <Image onClick={(e) => { e.preventDefault(); FclubsAlimentador(clubsAlimentador.page - 1) }} className="hover" alt="chev" width={30} height={30} src={'/multimedia/icons/left.svg'} />
-                                    }
-                                    {
-                                        pages.map((key, i) => {
-                                            return (
-                                                <>
-                                                    {
-                                                        <li onClick={(e) => { e.preventDefault(); FclubsAlimentador(i) }} className={(parseInt(clubsAlimentador.min / 10)) === i ? 'page__numbers active' : "page__numbers"}> {key + 1}</li>
-
-                                                    }
-                                                </>
-                                            )
-                                        })
-                                    }
-                                    {clubsAlimentador.page < (pages.length - 1) && <><Image className="hover" onClick={(e) => { e.preventDefault(); FclubsAlimentador(clubsAlimentador.page + 1) }} alt="chev" width={30} height={30} src={'/multimedia/icons/right.svg'} /></>}
-                                    {/*     <li className="page__btn"><span className="material-icons">chevron_left</span></li>
-                                    <li className="page__numbers active">2</li>
-                                    <li className="page__numbers">3</li>
-                                    <li className="page__numbers">4</li>
-                                    <li className="page__numbers">5</li>
-                                    <li className="page__numbers">6</li>
-                                    <li className="page__dots">...</li>
-                                    <li className="page__numbers"> 10</li>
-                                    <li className="page__btn"><span class="material-icons">chevron_right</span></li> */}
-                                </ul>
-                            </div>
-                            <div className="clubs-container-center ">
-
-                                {
-                                    clubs.map((key, i) => {
-                                        return (
-                                            <>
-                                                {clubsAlimentador.max > i && clubsAlimentador.min <= i &&
-                                                    <ClubVistaIndividual lang={lang} maping club={key} torneos={torneos} />}
-                                            </>
-                                        )
-                                    })
-                                }
-                            </div>
-                            <div className="paginadora">
-                                <ul className="page">
-                                    {clubsAlimentador.page > 0 && <Image onClick={(e) => { e.preventDefault(); FclubsAlimentador(clubsAlimentador.page - 1) }} className="hover" alt="chev" width={30} height={30} src={'/multimedia/icons/left.svg'} />
-                                    }
-                                    {
-                                        pages.map((key, i) => {
-                                            return (
-                                                <>
-                                                    {
-                                                        <li onClick={(e) => { e.preventDefault(); FclubsAlimentador(i) }} className={(parseInt(clubsAlimentador.min / 10)) === i ? 'page__numbers active' : "page__numbers"}> {key + 1}</li>
-
-                                                    }
-                                                </>
-                                            )
-                                        })
-                                    }
-                                    {clubsAlimentador.page < (pages.length - 1) && <><Image className="hover" onClick={(e) => { e.preventDefault(); FclubsAlimentador(clubsAlimentador.page + 1) }} alt="chev" width={30} height={30} src={'/multimedia/icons/right.svg'} /></>}
-                                    {/*     <li className="page__btn"><span className="material-icons">chevron_left</span></li>
-                                    <li className="page__numbers active">2</li>
-                                    <li className="page__numbers">3</li>
-                                    <li className="page__numbers">4</li>
-                                    <li className="page__numbers">5</li>
-                                    <li className="page__numbers">6</li>
-                                    <li className="page__dots">...</li>
-                                    <li className="page__numbers"> 10</li>
-                                    <li className="page__btn"><span class="material-icons">chevron_right</span></li> */}
-                                </ul>
-                            </div>
-
-                        </div>
-                    </div>}
-
-
-            </div>
-        </>
-
-    )
-}
-export default Clubs
-
-
-export const Textos = {
-    es: {
-        suscribir: 'Suscribir'
-    },
-    en: {
-        suscribir: ''
-    },
-    ger: {
-        suscribir: ''
-    },
-    prt: {
-        suscribir: ''
-    },
-    fr: {
-        suscribir: ''
-    }
+        .pager{
+          display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:20px 0 6px;
+        }
+        .pbtn{
+          height:36px; min-width:36px; padding:0 11px; border-radius:10px; cursor:pointer;
+          border:1px solid rgba(0,0,0,.12); background:#fff; color:#111; font-weight:800;
+          transition:.14s transform,.14s box-shadow;
+        }
+        .pbtn:hover{ transform:translateY(-1px); box-shadow:0 12px 28px rgba(0,0,0,.12); }
+        .pbtn.is-active{ background:#111; color:#fff; border-color:#111; }
+      `}</style>
+    </div>
+  )
 }

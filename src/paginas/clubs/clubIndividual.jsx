@@ -1,49 +1,25 @@
+// src/paginas/clubs/clubIndividual.jsx
 'use client'
 
-import Image from "next/image"
-import { useEffect, useState } from "react"
-import ClubVistaIndividual from "./clubVista"
-import TorneoIndividual from "../torneos/torneoIndividual"
+import React from 'react'
+import { ClubDetail } from './clubVista'   // <<--- export nombrado (detalle)
 
 const ClubIndividual = (props) => {
-    const {enClub=false, club = { ID_Club: 0, torneo: false, torneos: [] }, clubs = [], torneos = [] } = props
-    const [clubTorneo, setClubTorneo] = useState({ state: false, torneo: {} })
-    useEffect(() => {
-        torneos.map((key, i) => {
-            if (key.ID_Club === club.ID_Club) {
-                setClubTorneo({ ...clubTorneo, state: true, torneo: key })
-            }
-        })
-    }, [torneos])
-    return (
-        <>
-            <div className="clubs-container">
+  const {
+    enClub = false,                                  // si lo usas en TorneoIndividual
+    club = { ID_Club: 0, torneo: false, torneos: [] },
+    clubs = [],
+    torneos = [],                                     // <<--- lo necesitamos aquí
+  } = props
 
-
-                <div className="clubs-container-center ">
-
-                    <ClubVistaIndividual vista club={club} />
-                    {club.torneo && club.torneos.length && club.torneos.length > 0 && <div>
-                        <h5 className="mb-10 mt-10" >TORNEOS ACTIVOS</h5>
-                        {
-
-                            club.torneo && club.torneos.map((key, i) => {
-                                return (
-                                    <>
-                                        <TorneoIndividual enClub={enClub} clubs={clubs} torneo={key} />
-                                    </>
-                                )
-                            })
-                        }
-                    </div>}
-
-                </div >
-
-            </div >
-        </>
-
-    )
+  // Renderiza el detalle con header + acciones + torneos activos
+  return (
+    <div className="clubs-container">
+      <div className="clubs-container-center">
+        <ClubDetail club={club} torneos={torneos} />
+      </div>
+    </div>
+  )
 }
+
 export default ClubIndividual
-
-
