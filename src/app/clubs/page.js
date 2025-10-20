@@ -1,7 +1,7 @@
 // src/app/clubs/page.js
 import '../../../estilos/styles.scss'
 import PageHead from '../../components/body/pageHead'
-import Clubs from '../../paginas/clubs/clubs'
+import ClubsWithData from '../../paginas/clubs/ClubsWithData'
 
 export const metadata = {
   title: 'PokerLAP Clubs',
@@ -22,8 +22,8 @@ export default function ClubsPage() {
 
       {/* Contenedor principal */}
       <main className="clubs-wrapper">
-        {/* Componente que lista los clubes */}
-        <Clubs />
+        {/* Componente que lista los clubes CON DATOS */}
+        <ClubsWithData />
       </main>
     </>
   )
