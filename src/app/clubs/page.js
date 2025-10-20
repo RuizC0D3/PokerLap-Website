@@ -19,7 +19,6 @@ export default function ClubsPage() {
     <>
       <div style={{ marginTop: 80 }} />
       <PageHead lang="es" page="Clubs" />
-
       <main className="clubs-wrapper">
         <ClubsWithData />
       </main>
