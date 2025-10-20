@@ -2,7 +2,6 @@
 'use client'
 import Image from "next/image"
 import { useState } from "react"
-import PageHead from "../../components/body/pageHead"
 import Historia from "./historia"
 import Manos from "./manos"
 
@@ -14,14 +13,6 @@ const Aprende = (props) => {
   return (
     <>
       <div style={{ marginTop: 80 }} />
-      <PageHead 
-        lang={lang}
-        onClick={() => { setaprendeVista(0) }} 
-        page={'Aprende'} 
-        subPage={aprendeVista === 1 ? 'Historia' : aprendeVista === 2 ? 'Manos' : false} 
-        setOpt={setOpt} 
-      />
-      
       {aprendeVista === 0 && (
         <div className="aprende-container">
           <h1>Aprende Poker</h1>

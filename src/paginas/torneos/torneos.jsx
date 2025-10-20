@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import PageHead from "../../components/body/pageHead"
 import TorneoIndividual from "./torneoIndividual"
 import { SaldoFix } from "../../fixSlado"
 let windoewa = false
@@ -86,7 +85,6 @@ const Torneos = (props) => {
     return (
         <>
             <div className="clubs-container">
-                <PageHead lang={lang} setInPage={setInPage} subPage={club ? !torneoExiste.state || !torneoExiste.torneo.Nombre ? '' : torneoExiste.torneo.Nombre : inTorneo.state ? torneos[inTorneo.torneo].Nombre : false} page={'Torneos'} setOpt={setOpt} />
                 <>
                     {club ? <>
                         <div className="caontlist">

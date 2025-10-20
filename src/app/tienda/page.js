@@ -17,9 +17,8 @@ export const metadata = {
 export default function TiendaPage() {
   return (
     <>
-      <div style={{ marginTop: 80 }} />  {/* space under navbar */}
+      <div style={{ marginTop: 80 }} />
       <PageHead lang="es" page="Tienda" />
-
       <main className="shop-wrapper">
         <TiendaVista lang="es" />
       </main>

@@ -2,7 +2,6 @@
 
 import Image from "next/image"
 import { useState } from "react"
-import PageHead from "../../components/body/pageHead"
 
 const SobreNosotros = (props) => {
     const { setOpt = console.log, lang = 'es' } = props
@@ -11,7 +10,6 @@ const SobreNosotros = (props) => {
     return (
         <>
             <div className="sobreNosotros-container">
-                <PageHead  lang= { lang }page={'Sobre Nosotros'} setOpt={setOpt} />
                 <div className="sobreNosotros-introduccion">
                     <div className="imagen">
                         <Image src={'/multimedia/sobreNosotros/carta.png'} alt="carta" height={731} width={560} />

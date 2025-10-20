@@ -1,6 +1,5 @@
 // src/paginas/usuario/tienda.jsx
 'use client'
-
 import '../../../estilos/styles.scss'
 import { useSearchParams, useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
@@ -8,10 +7,10 @@ import { createPortal } from 'react-dom'
 import { CATALOGO } from '../../lib/catalogo'
 import BotonBold from './BotonBold'
 
-// ------------- CONFIG -------------
-const API_TIENDA_URL = '/api/tienda' // usamos el proxy local
+// ============= CONFIG =============
+const API_TIENDA_URL = '/api/tienda'
 
-// ------------- HELPERS -------------
+// ============= HELPERS =============
 const fmtCOP = (n) =>
   (n ?? 0).toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 })
 const fmtUSD = (n) =>
@@ -21,9 +20,7 @@ function findArrayDeep(obj, seen = new Set()) {
   if (!obj || typeof obj !== 'object') return null
   if (seen.has(obj)) return null
   seen.add(obj)
-
   if (Array.isArray(obj) && obj.length && typeof obj[0] === 'object') return obj
-
   const keys = [
     'planes','productos','items','data','result','results','records','rows','list',
     'payload','response','content'
@@ -33,7 +30,7 @@ function findArrayDeep(obj, seen = new Set()) {
     if (Array.isArray(v) && v.length && typeof v[0] === 'object') return v
     if (v && typeof v === 'object') {
       if (Array.isArray(v.items) && v.items.length) return v.items
-      if (Array.isArray(v.data)  && v.data.length)  return v.data
+      if (Array.isArray(v.data) && v.data.length) return v.data
     }
   }
   for (const v of Object.values(obj)) {
@@ -54,12 +51,9 @@ function toPlan(x, idx) {
   }
 }
 
-// ------------- FETCH A LA API (via proxy) -------------
 async function fetchPlanesPorClub({ i, signal, textEncFromUrl }) {
   if (!i) return []
-
   const payload = textEncFromUrl ? { i: Number(i), textEnc: textEncFromUrl } : { i: Number(i) }
-
   let res
   try {
     res = await fetch(API_TIENDA_URL, {
@@ -73,18 +67,14 @@ async function fetchPlanesPorClub({ i, signal, textEncFromUrl }) {
     console.error('[Tienda] fetch error:', e)
     return []
   }
-
   const raw = await res.clone().text()
   if (!res.ok) {
     console.error('[Tienda] status', res.status, raw)
     return []
   }
-
   let data
   try { data = JSON.parse(raw) } catch { data = raw }
-
   let arr = Array.isArray(data) ? data : (findArrayDeep(data) || [])
-
   if (Array.isArray(arr) && arr.length && typeof arr[0] === 'object' && 'Res' in arr[0]) {
     const collected = []
     for (const row of arr) {
@@ -100,25 +90,20 @@ async function fetchPlanesPorClub({ i, signal, textEncFromUrl }) {
     }
     if (collected.length) arr = collected
   }
-
   return arr.map(toPlan)
 }
 
-/* =========================
- * Temas UI
- * ========================= */
+// ============= THEMES =============
 const THEMES = {
-  navy:  { bg:'#272b40', fg:'#fff',  accent:'#ffffff', pill:'#ffffff' },
+  navy: { bg:'#272b40', fg:'#fff', accent:'#ffffff', pill:'#ffffff' },
   yellow:{ bg:'#f0d426', fg:'#111', accent:'#111111', pill:'#111111' },
-  teal:  { bg:'#0c9e98', fg:'#111', accent:'#111111', pill:'#111111' },
-  soft:  { bg:'#e9eee9', fg:'#111', accent:'#111111', pill:'#111111' },
+  teal: { bg:'#0c9e98', fg:'#111', accent:'#111111', pill:'#111111' },
+  soft: { bg:'#e9eee9', fg:'#111', accent:'#111111', pill:'#111111' },
 }
 const THEME_ORDER = ['navy','yellow','teal','soft']
 const pickTheme = (idx, theme) => THEMES[theme] || THEMES[THEME_ORDER[idx % THEME_ORDER.length]]
 
-/* =========================
- * Portal Modal
- * ========================= */
+// ============= PORTAL MODAL =============
 function Portal({ children }) {
   const [node, setNode] = useState(null)
   useEffect(() => {
@@ -134,22 +119,19 @@ function Portal({ children }) {
   return createPortal(children, node)
 }
 
-/* =========================
- * Modal Checkout (con Bold embebido)
- * ========================= */
+// ============= MODAL CHECKOUT =============
 function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
   const [method, setMethod] = useState('bold')
   const [selected, setSelected] = useState(null)
-
   const [orderId, setOrderId] = useState(null)
   const [signature, setSignature] = useState(null)
   const [prepError, setPrepError] = useState(null)
-
+  
   const lines = useMemo(() => {
     const map = new Map(items.map(p => [p.id, p]))
     return cart.map(c => (map.get(c.id) ? { ...c, plan: map.get(c.id) } : null)).filter(Boolean)
   }, [cart, items])
-
+  
   useEffect(() => {
     if (!open) return
     const prev = document.body.style.overflow
@@ -157,28 +139,24 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
     if (!selected && lines.length) setSelected(lines[0].id)
     return () => { document.body.style.overflow = prev }
   }, [open, lines, selected])
-
+  
   const totalCop = useMemo(() => lines.reduce((a, it) => a + it.plan.amountCop * it.qty, 0), [lines])
   const totalUsd = useMemo(() => lines.reduce((a, it) => a + it.plan.amountUsd * it.qty, 0), [lines])
-
+  
   useEffect(() => {
     async function prepBold() {
       setPrepError(null)
       setSignature(null)
       setOrderId(null)
-
       if (!open) return
       if (method !== 'bold') return
       if (!selected) return
-
       const plan = items.find(p => p.id === selected)
       if (!plan) return
       const amount = Math.round(Number(plan.amountCop || 0))
       if (!amount) { setPrepError('Este plan no tiene precio COP válido.'); return }
-
       const oid = `plan-${String(plan.id).replace(/[^A-Za-z0-9_-]/g,'')}-${Date.now()}`
       setOrderId(oid)
-
       try {
         const r = await fetch('/api/bold/hash', {
           method: 'POST',
@@ -197,45 +175,15 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
     }
     prepBold()
   }, [open, method, selected, items])
-
-  const pagar = async () => {
-    if (!selected) return
-    if (method === 'bold') {
-      alert('El pago con Bold se realiza con el botón embebido de abajo.')
-      return
-    }
-    try {
-      const url = '/api/commerce/create-charge'
-      const r = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId: String(selected) }),
-      })
-      const d = await r.json()
-      if (!r.ok) {
-        const detail =
-          (Array.isArray(d?.detail) && (d.detail[0]?.message || JSON.stringify(d.detail))) ||
-          d?.error || d?.message || JSON.stringify(d)
-        alert(`Error al iniciar el pago:\n${detail}`)
-        return
-      }
-      if (d?.url) window.location.href = d.url
-      else alert('No recibimos URL de la pasarela.')
-    } catch (e) {
-      alert(`Error de red al crear el cobro.\n${e?.message || e}`)
-    }
-  }
-
+  
   if (!open) return null
-
+  
   const apiKeyPublic =
     process.env.NEXT_PUBLIC_BOLD_TEST_IDENTITY_KEY ||
     process.env.NEXT_PUBLIC_BOLD_IDENTITY_KEY
-
   const selectedPlan = items.find(p => p.id === selected)
   const amountForBold = selectedPlan ? Math.round(Number(selectedPlan.amountCop || 0)) : 0
-
-  // SIEMPRE manda a /tienda (con absoluto para sandbox/local también)
+  
   const redirectionUrl = (() => {
     if (typeof window !== 'undefined') {
       return `${window.location.origin}/tienda`
@@ -243,273 +191,160 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
     const base = (process.env.NEXT_PUBLIC_WEB_URL || 'http://localhost:3000').replace(/\/+$/, '')
     return `${base}/tienda`
   })()
-
+  
   return (
     <Portal>
-      <div className="tiendaCheckoutOverlay" role="dialog" aria-modal="true" onClick={onClose}>
-        <div className="tiendaCheckout" onClick={(e) => e.stopPropagation()}>
-          <h3 className="tiendaCheckout-title">Resumen del carrito</h3>
-
+      <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <button className="modal-close" onClick={onClose}>✕</button>
+          
+          <h3>Resumen del carrito</h3>
+          
           {lines.length === 0 ? (
             <p>Tu carrito está vacío.</p>
           ) : (
             <>
-              <div className="tiendaCheckout-list">
+              <div className="cart-items">
                 {lines.map((it) => (
-                  <div className={`tiendaCheckout-row ${selected === it.id ? 'is-active' : ''}`} key={it.id}>
-                    <label className="tiendaCheckout-radio">
-                      <input
-                        type="radio"
-                        name="toPay"
-                        checked={selected === it.id}
-                        onChange={() => setSelected(it.id)}
-                      />
-                    </label>
-
-                    <div className="tiendaCheckout-info">
+                  <div key={it.id} className="cart-item">
+                    <input
+                      type="radio"
+                      name="toPay"
+                      checked={selected === it.id}
+                      onChange={() => setSelected(it.id)}
+                    />
+                    <div className="cart-item-info">
                       <strong>{it.plan.name}</strong>
-                      <small>{fmtCOP(it.plan.amountCop)} · {fmtUSD(it.plan.amountUsd)}</small>
+                      <span>{fmtCOP(it.plan.amountCop)} · {fmtUSD(it.plan.amountUsd)}</span>
                     </div>
-
-                    <div className="tiendaCheckout-qty">
-                      <button onClick={() => onDec(it.id)} disabled={it.qty <= 1}>−</button>
+                    <div className="cart-item-controls">
+                      <button onClick={() => onDec(it.id)}>−</button>
                       <span>{it.qty}</span>
                       <button onClick={() => onInc(it.id)}>+</button>
+                      <button onClick={() => onRemove(it.id)}>🗑️</button>
                     </div>
-
-                    <button className="tiendaCheckout-remove" title="Quitar" onClick={() => onRemove(it.id)}>×</button>
                   </div>
                 ))}
               </div>
-
-              <div className="tiendaCheckout-totals">
-                <span>Total (COP): <b>{fmtCOP(totalCop)}</b></span>
-                <span>Total (USD): <b>{fmtUSD(totalUsd)}</b></span>
+              
+              <div className="cart-total">
+                <p>Total (COP): <strong>{fmtCOP(totalCop)}</strong></p>
+                <p>Total (USD): <strong>{fmtUSD(totalUsd)}</strong></p>
               </div>
-
-              <div className="tiendaCheckout-method">
-                <span>Método de pago:</span>
-                <label className={`method-btn ${method === 'bold' ? 'selected' : ''}`}>
-                  <input type="radio" name="method" checked={method === 'bold'} onChange={() => setMethod('bold')} />
+              
+              <div className="payment-methods">
+                <p>Método de pago:</p>
+                <label>
+                  <input type="radio" checked={method === 'bold'} onChange={() => setMethod('bold')} />
                   Bold (Botón de pagos)
                 </label>
-                <label className={`method-btn ${method === 'coinbase' ? 'selected' : ''}`}>
-                  <input type="radio" name="method" checked={method === 'coinbase'} onChange={() => setMethod('coinbase')} />
+                <label>
+                  <input type="radio" checked={method === 'coinbase'} onChange={() => setMethod('coinbase')} />
                   Coinbase (Cripto)
                 </label>
               </div>
-
-              <div className="tiendaCheckout-actions">
-                {/* Botón Bold alineado a la izquierda */}
-                {method === 'bold' && (
-                  <div className="bold-slot">
-                    {apiKeyPublic && orderId && signature && amountForBold > 0 ? (
-                      <BotonBold
-                        apiKey={apiKeyPublic}
-                        orderId={orderId}
-                        amount={amountForBold}
-                        currency="COP"
-                        description={selectedPlan?.description || selectedPlan?.name || 'Compra'}
-                        redirectionUrl={redirectionUrl}   // <<< ¡importante!
-                        integritySignature={signature}
-                        renderMode="embedded"
-                        theme="light-L"
-                        environment="SANDBOX"
-                      />
-                    ) : (
-                      <span className="bold-prep">Preparando…</span>
-                    )}
-                  </div>
-                )}
-
-                {/* Botón secundario a la derecha */}
-                <button className="btn btn-secondary" onClick={onClose}>Seguir Comprando</button>
-
-                {/* Solo aparece si el método NO es Bold */}
+              
+              {method === 'bold' && (
+                <div className="bold-button-container">
+                  {apiKeyPublic && orderId && signature && amountForBold > 0 ? (
+                    <BotonBold
+                      apiKey={apiKeyPublic}
+                      orderId={orderId}
+                      amount={amountForBold}
+                      currency="COP"
+                      description={selectedPlan?.description || selectedPlan?.name || 'Compra'}
+                      redirectionUrl={redirectionUrl}
+                      integritySignature={signature}
+                      renderMode="embedded"
+                      theme="light-L"
+                      environment="SANDBOX"
+                    />
+                  ) : (
+                    <p>Preparando…</p>
+                  )}
+                  {prepError && <p className="error">{prepError}</p>}
+                </div>
+              )}
+              
+              <div className="modal-actions">
                 {method !== 'bold' && (
-                  <button className="btn btn-primary" onClick={pagar}>Pagar</button>
+                  <button className="btn-pagar" onClick={() => alert('Implementar pago alternativo')}>
+                    Pagar ahora
+                  </button>
                 )}
               </div>
-
             </>
           )}
         </div>
-
-        <style jsx>{`
-          .tiendaCheckoutOverlay{
-            position:fixed; inset:0; width:100vw; height:100vh;
-            background:rgba(0,0,0,.45);
-            display:flex; align-items:center; justify-content:center;
-            z-index:2147483647;
-          }
-          .tiendaCheckout{
-            width:100%; max-width:760px; max-height:80vh; overflow:auto;
-            background:#fff; color:#111; border-radius:18px; padding:18px;
-            box-shadow:0 10px 30px rgba(0,0,0,.25);
-          }
-          .tiendaCheckout-title{ margin:6px 0 14px; font-size:22px; font-weight:800; }
-          .tiendaCheckout-list{ display:grid; gap:10px; margin-bottom:12px; }
-          .tiendaCheckout-row{
-            display:grid; grid-template-columns:auto 1fr auto auto; gap:10px; align-items:center;
-            border:1px solid rgba(0,0,0,.08); border-radius:10px; padding:10px 12px;
-          }
-          .tiendaCheckout-row.is-active{ border-color:#111; box-shadow:0 6px 16px rgba(0,0,0,.06); }
-          .tiendaCheckout-radio{ display:flex; align-items:center; }
-          .tiendaCheckout-info small{ opacity:.7; display:block; }
-          .tiendaCheckout-qty{ display:flex; align-items:center; gap:8px; }
-          .tiendaCheckout-remove{
-            width:28px; height:28px; border-radius:8px; border:1.5px solid #111;
-            background:#111; color:#fff; font-size:22px; font-weight:700; cursor:pointer;
-          }
-          .tiendaCheckout-totals{
-            display:flex; gap:16px; justify-content:flex-end; margin:8px 0 12px;
-          }
-
-          /* ===== Acciones (Bold + botones) en una sola fila ===== */
-          .tiendaCheckout-actions{
-            display:flex; align-items:center; gap:10px;
-            justify-content:flex-end;           /* botones a la derecha */
-            flex-wrap:wrap;                      /* evita desbordes en móvil */
-            min-height:44px;                     /* alto base similar a .btn */
-            margin-top:6px;
-          }
-          .bold-slot{
-            margin-right:auto;                   /* Bold queda a la izquierda */
-            display:flex; align-items:center;
-            height:44px;                         /* iguala alto a .btn */
-          }
-          /* el script de Bold genera un contenedor interno; lo tratamos como botón */
-          .bold-slot > div{
-            display:inline-flex; align-items:center;
-            height:100%;
-          }
-          /* si lo ves un poco más grande que tus botones, descomenta el scale:
-            transform:scale(0.94); transform-origin:left center; */
-
-          .bold-prep{ opacity:.7; font-size:14px; }
-
-          .tiendaCheckout-method{
-            display:flex; align-items:center; gap:14px; margin-bottom:12px;
-          }
-          .method-btn{
-            padding:8px 16px; border-radius:8px; border:2px solid transparent;
-            background:#f6f6f6; cursor:pointer; display:flex; align-items:center; gap:6px;
-          }
-          .method-btn.selected{ background:#111; color:#fff; border-color:#111; }
-
-          .btn{
-            padding:10px 12px; border-radius:12px;
-            border:1px solid rgba(0,0,0,.12); cursor:pointer;
-            height:44px;                         /* alto consistente */
-            display:inline-flex; align-items:center;
-          }
-          .btn-primary{ background:#111; color:#fff; border-color:#111; }
-          .btn-secondary{ background:#f6f6f6; color:#111; }
-          .btn:disabled{ opacity:.6; cursor:not-allowed; }
-
-          /* Responsive: en pantallas chicas, Bold arriba y botones abajo */
-          @media (max-width: 520px){
-            .tiendaCheckout-actions{
-              flex-direction:column; align-items:stretch; gap:8px;
-            }
-            .bold-slot{ margin-right:0; justify-content:center; }
-            .btn{ width:100%; justify-content:center; }
-          }
-        `}</style>
-
       </div>
     </Portal>
   )
 }
 
-/* =========================
- * Tarjeta + Grid
- * ========================= */
-const THEMES2 = null
-
+// ============= PLAN CARD =============
 function PrettyPlanCard({ plan, idx, onAdd }) {
   const theme = pickTheme(idx, plan.theme)
   const isFree = (plan.amountUsd === 0 && plan.amountCop === 0)
-  const big = isFree ? 'FREE' : (plan.amountUsd > 0 ? `${plan.amountUsd}` : `${Math.round(plan.amountCop/1000)}k`)
-  const currency = isFree ? '' : (plan.amountUsd > 0 ? 'USD' : 'COP')
+  const big = isFree ? 'FREE' : (plan.amountUsd > 0 ? `${plan.amountUsd}` : `${Math.round(plan.amountCop/1000)}`)
+  const currency = isFree ? '' : (plan.amountUsd > 0 ? 'USD' : '')
   const feats = Array.isArray(plan.features) && plan.features.length ? plan.features : (plan.description ? [plan.description] : [])
-
+  
   return (
-    <article className="pretty-card" style={{ '--bg': theme.bg, '--fg': theme.fg, '--accent': theme.accent, '--pill': theme.pill }}>
-      <div className="pc-head"><span className="pc-line" /><div className="pc-stars">★{idx % 2 ? '★' : ''}</div></div>
-      <h3 className="pc-title">{plan.name}</h3>
-      {plan.description && <p className="pc-sub">{plan.description}</p>}
-      <div className="pc-price"><span className="pc-price-big">{big}</span>{!isFree && <span className="pc-currency">{currency}</span>}</div>
-      <ul className="pc-feats">{feats.map((t, i) => <li key={i}>{t}</li>)}</ul>
-      <button className="pc-cta" onClick={() => onAdd(plan.id)}>Agregar al carrito</button>
-      <style jsx>{`
-        .pretty-card{ background:var(--bg); color:var(--fg); border-radius:28px; padding:26px 22px; display:flex; flex-direction:column; box-shadow:0 10px 26px rgba(0,0,0,.20); transition:transform .18s, box-shadow .18s; }
-        .pretty-card:hover{ transform:translateY(-4px); box-shadow:0 16px 36px rgba(0,0,0,.50); }
-        .pc-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
-        .pc-line{ display:block; width:42px; height:3px; background:var(--fg); opacity:.5; border-radius:2px; }
-        .pc-stars{ letter-spacing:6px; opacity:.9; }
-        .pc-title{ font-size:28px; line-height:1.1; margin:0 0 8px; font-weight:800; }
-        .pc-sub{ margin:0 0 18px; opacity:.85; }
-        .pc-price{ display:flex; align-items:flex-start; gap:6px; margin-bottom:14px; }
-        .pc-price-big{ font-size:70px; line-height:.9; font-weight:700; letter-spacing:1px; }
-        .pc-currency{ font-weight:700; margin-top:10px; }
-        .pc-feats{ margin:8px 0 18px; padding:0 0 0 16px; display:grid; gap:8px; }
-        .pc-cta{ margin-top:auto; background:#fff; color:#111; border:1px solid rgba(0,0,0,.12); border-radius:16px; padding:14px 12px; font-weight:700; cursor:pointer; }
-        :global(.pretty-card[style*="#e9eee9"]) .pc-cta{ background:#111; color:#fff; border-color:#111; }
-      `}</style>
-    </article>
+    <div className="plan-card" style={{ background: theme.bg, color: theme.fg }}>
+      <div className="plan-badge">★{idx % 2 ? '★' : ''}</div>
+      <h3>{plan.name}</h3>
+      {plan.description && <p className="plan-desc">{plan.description}</p>}
+      <div className="plan-price">
+        <span className="price-big">{big}</span>
+        {!isFree && <span className="price-currency">{currency}</span>}
+      </div>
+      <ul className="plan-features">
+        {feats.map((t, i) => <li key={i}>{t}</li>)}
+      </ul>
+      <button className="btn-add-cart" onClick={() => onAdd(plan.id)}>
+        Agregar al carrito
+      </button>
+    </div>
   )
 }
 
 function PlansGrid({ items, onAdd }) {
   return (
     <div className="plans-grid">
-      {items.map((p, i) => <PrettyPlanCard key={p.id} plan={p} idx={i} onAdd={onAdd} />)}
-      <style jsx>{`
-        .plans-grid{ width:100%; display:grid; gap:24px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); align-items: stretch; }
-        @media (min-width: 1200px){ .plans-grid{ grid-template-columns: repeat(3, 1fr); } }
-        @media (min-width: 1500px){ .plans-grid{ grid-template-columns: repeat(4, 1fr); } }
-      `}</style>
+      {items.map((p, i) => (
+        <PrettyPlanCard key={p.id} plan={p} idx={i} onAdd={onAdd} />
+      ))}
     </div>
   )
 }
 
-/* =========================
- * Página: Tienda
- * ========================= */
+// ============= COMPONENTE PRINCIPAL =============
 export default function TiendaVista({ lang = 'es', setOpt = () => {} }) {
   const router = useRouter()
   const searchParams = useSearchParams()
-
-  const [txAlert, setTxAlert] = useState(null) // { status, orderId }
+  const [txAlert, setTxAlert] = useState(null)
   const [items, setItems] = useState(CATALOGO)
-
   const iParam = searchParams?.get('i') ?? process.env.NEXT_PUBLIC_TIENDA_CLUB_ID ?? null
   const textEncFromUrl = searchParams?.get('textEnc') ?? undefined
-
   const [loadingApi, setLoadingApi] = useState(false)
   const [errorApi, setErrorApi] = useState(null)
   const [cart, setCart] = useState([])
   const [open, setOpen] = useState(false)
-
-  // --- Lee el resultado devuelto por Bold y limpia la URL ---
+  
+  // Lee resultado de Bold
   useEffect(() => {
     const status = (searchParams?.get('bold-tx-status') || '').toLowerCase()
     const orderId = searchParams?.get('bold-order-id') || null
     if (!status) return
-
     setTxAlert({ status, orderId })
-
-    // Limpia solo esos 2 parámetros, manteniendo el resto
     const sp = new URLSearchParams(Array.from(searchParams.entries()))
     sp.delete('bold-tx-status')
     sp.delete('bold-order-id')
     const qs = sp.toString()
     router.replace(qs ? `?${qs}` : '/tienda', { scroll: false })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams])
-
-  // --- Carga catálogo desde API si hay iParam ---
+  }, [searchParams, router])
+  
+  // Carga catálogo desde API
   useEffect(() => {
     if (!iParam) {
       console.log('[Tienda] Sin iParam; usando CATALOGO.')
@@ -518,7 +353,6 @@ export default function TiendaVista({ lang = 'es', setOpt = () => {} }) {
     const ctrl = new AbortController()
     setLoadingApi(true)
     setErrorApi(null)
-
     fetchPlanesPorClub({ i: iParam, signal: ctrl.signal, textEncFromUrl })
       .then((arr) => {
         if (arr.length) {
@@ -535,11 +369,10 @@ export default function TiendaVista({ lang = 'es', setOpt = () => {} }) {
         }
       })
       .finally(() => setLoadingApi(false))
-
     return () => ctrl.abort()
   }, [iParam, textEncFromUrl])
-
-  // --- Carrito persistido ---
+  
+  // Carrito persistido
   useEffect(() => {
     try {
       const raw = localStorage.getItem('pokerlap_cart')
@@ -549,23 +382,26 @@ export default function TiendaVista({ lang = 'es', setOpt = () => {} }) {
       }
     } catch {}
   }, [])
-  useEffect(() => { try { localStorage.setItem('pokerlap_cart', JSON.stringify(cart)) } catch {} }, [cart])
-
-  // --- Helpers carrito ---
-  const add    = useCallback((id) => setCart((p)=>{ const i=p.findIndex(x=>x.id===id); if(i>=0){const n=[...p]; n[i]={...n[i],qty:n[i].qty+1}; return n} return [...p,{id,qty:1}] }), [])
-  const inc    = useCallback((id) => setCart((p)=>p.map(x=>x.id===id?{...x,qty:x.qty+1}:x)), [])
-  const dec    = useCallback((id) => setCart((p)=>p.map(x=>x.id===id?{...x,qty:Math.max(1,x.qty-1)}:x)), [])
-  const remove = useCallback((id) => setCart((p)=>p.filter(x=>x.id!==id)), [])
-  const clear  = useCallback(() => setCart([]), [])
-
-  const mapItems  = useMemo(() => new Map(items.map(p => [p.id, p])), [items])
+  
+  useEffect(() => { 
+    try { localStorage.setItem('pokerlap_cart', JSON.stringify(cart)) } catch {} 
+  }, [cart])
+  
+  // Helpers carrito
+  const add = useCallback((id) => setCart((p)=>{ const i=p.findIndex(x=>x.id===id); if(i>=0){const n=[...p]; n[i]={...n[i],qty:n[i].qty+1}; return n} return [...p,{id,qty:1}] }), [])
+  const inc = useCallback((id) => setCart((p)=>p.map(x=>x.id===id?{...x,qty:x.qty+1}:x)), [])
+  const dec = useCallback((id) => setCart((p)=>p.map(x=>x.id===id?{...x,qty:Math.max(1,x.qty-1)}:x)), [])
+  const remove = useCallback((id) => setCart((p)=>p.filter(x=>x.id!=id)), [])
+  const clear = useCallback(() => setCart([]), [])
+  
+  const mapItems = useMemo(() => new Map(items.map(p => [p.id, p])), [items])
   const itemsCount= useMemo(() => cart.reduce((a,b)=>a+b.qty,0), [cart])
-  const totalCop  = useMemo(() => cart.reduce((a,it)=>a + (mapItems.get(it.id)?.amountCop||0)*it.qty,0), [cart,mapItems])
-  const totalUsd  = useMemo(() => cart.reduce((a,it)=>a + (mapItems.get(it.id)?.amountUsd||0)*it.qty,0), [cart,mapItems])
-
+  const totalCop = useMemo(() => cart.reduce((a,it)=>a + (mapItems.get(it.id)?.amountCop||0)*it.qty,0), [cart,mapItems])
+  const totalUsd = useMemo(() => cart.reduce((a,it)=>a + (mapItems.get(it.id)?.amountUsd||0)*it.qty,0), [cart,mapItems])
+  
   return (
-    <div className="descargas-container">
-      {/* --- Banner de resultado Bold --- */}
+    <div className="tienda-container">
+      {/* Banner resultado Bold */}
       {txAlert && (
         <div
           className={`tienda-alert ${
@@ -576,51 +412,44 @@ export default function TiendaVista({ lang = 'es', setOpt = () => {} }) {
         >
           {txAlert.status === 'approved' && (
             <>
-              ✅ Pago aprobado. Pedido <b>{txAlert.orderId}</b>.
-              <button className="ta-btn" onClick={() => setTxAlert(null)}>Cerrar</button>
+              ✅ Pago aprobado. Pedido <strong>{txAlert.orderId}</strong>.
+              <button onClick={() => setTxAlert(null)}>✕</button>
             </>
           )}
-
           {txAlert.status === 'rejected' && (
             <>
-              ❌ El pago fue rechazado (Pedido <b>{txAlert.orderId}</b>). Puedes intentarlo de nuevo.
-              <span className="ta-spacer" />
-              <button className="ta-btn" onClick={() => { setTxAlert(null); setOpen(true) }}>
-                Intentar de nuevo
-              </button>
-              <button className="ta-btn ghost" onClick={() => setTxAlert(null)}>Cerrar</button>
+              ❌ El pago fue rechazado (Pedido <strong>{txAlert.orderId}</strong>).
+              <button onClick={() => setTxAlert(null)}>✕</button>
             </>
           )}
-
           {txAlert.status !== 'approved' && txAlert.status !== 'rejected' && (
             <>
-              ⏳ Pago en proceso (Pedido <b>{txAlert.orderId}</b>). Si no se actualiza en unos minutos, intenta nuevamente.
-              <button className="ta-btn ghost" onClick={() => setTxAlert(null)}>Cerrar</button>
+              ⏳ Pago en proceso (Pedido <strong>{txAlert.orderId}</strong>).
+              <button onClick={() => setTxAlert(null)}>✕</button>
             </>
           )}
         </div>
       )}
-
-      <div className="tabla-descargas">
-        <h5 className="mb-10 mt-10">Elige el plan que más te convenga</h5>
-        {loadingApi && <p style={{ margin: '8px 0' }}>Cargando planes del club…</p>}
-        {errorApi &&   <p style={{ margin: '8px 0', color: '#b00' }}>{errorApi}</p>}
-        <PlansGrid items={items} onAdd={add} />
-
-        <div className="cart-bar-row">
-          <div className="cart-bar">
-            <div className="cart-summary">
-              <span>Carrito: <b>{itemsCount}</b> {itemsCount === 1 ? 'ítem' : 'ítems'}</span>
-              <span> · Total: <b>{fmtCOP(totalCop)}</b> / <b>{fmtUSD(totalUsd)}</b></span>
-            </div>
-            <div className="cart-actions">
-              <button className="btn btn-secondary" onClick={clear} disabled={cart.length === 0}>Vaciar</button>
-              <button className="btn btn-primary" onClick={() => setOpen(true)} disabled={cart.length === 0}>Ir a pagar</button>
-            </div>
+      
+      <h1>Elige el plan que más te convenga</h1>
+      
+      {loadingApi && <p className="loading">Cargando planes del club…</p>}
+      {errorApi && <p className="error">{errorApi}</p>}
+      
+      <PlansGrid items={items} onAdd={add} />
+      
+      {/* Carrito flotante */}
+      {itemsCount > 0 && (
+        <div className="cart-floating" onClick={() => setOpen(true)}>
+          <div className="cart-badge">{itemsCount}</div>
+          <div className="cart-icon">🛒</div>
+          <div className="cart-info">
+            <span className="cart-label">Carrito</span>
+            <span className="cart-total">{fmtCOP(totalCop)}</span>
           </div>
         </div>
-      </div>
-
+      )}
+      
       <CheckoutModal
         open={open}
         onClose={() => setOpen(false)}
@@ -630,43 +459,6 @@ export default function TiendaVista({ lang = 'es', setOpt = () => {} }) {
         onDec={dec}
         onRemove={remove}
       />
-
-      {/* ===== Estilos locales de la página (incluye el banner) ===== */}
-      <style jsx>{`
-        .cart-bar-row{ grid-column:1 / -1; width:100%; }
-        .cart-bar{
-          width:100%; box-sizing:border-box; position:sticky; bottom:0;
-          display:flex; align-items:center; justify-content:space-between;
-          gap:12px; margin-top:20px; padding:10px 12px;
-          background:#fff; color:#111; border:1px solid rgba(0,0,0,.08); border-radius:12px;
-          box-shadow:0 6px 16px rgba(0,0,0,.06);
-        }
-        .cart-summary{ font-size:14px; }
-        .cart-actions{ display:flex; gap:10px; }
-        .btn{ padding:10px 12px; border-radius:12px; border:1px solid rgba(0,0,0,.12); cursor:pointer; }
-        .btn-primary{ background:#111; color:#fff; border-color:#111; }
-        .btn-secondary{ background:#f6f6f6; color:#111; }
-        .btn:disabled{ opacity:.6; cursor:not-allowed; }
-
-        /* ===== Banner de resultado Bold ===== */
-        .tienda-alert{
-          display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-          padding:10px 12px; margin:10px 0 14px;
-          border-radius:10px; border:1px solid transparent;
-          font-size:14px;
-        }
-        .tienda-alert.ok   { background:#e9f9ef; color:#0b5b2a; border-color:#bfead0; }
-        .tienda-alert.bad  { background:#ffecec; color:#8a1f1f; border-color:#ffc7c7; }
-        .tienda-alert.warn { background:#fff7e6; color:#7a4b00; border-color:#ffe3b0; }
-        .ta-spacer{ flex:1 1 auto; }
-        .ta-btn{
-          padding:8px 12px; border-radius:10px; border:1px solid rgba(0,0,0,.12);
-          background:#111; color:#fff; cursor:pointer;
-        }
-        .ta-btn.ghost{
-          background:transparent; color:inherit; border-color:rgba(0,0,0,.2);
-        }
-      `}</style>
     </div>
   )
 }

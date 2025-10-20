@@ -1,5 +1,4 @@
 'use client'
-import PageHead from '../../components/body/pageHead'
 
 export default function Descargas() {
   const archivos = [
@@ -21,7 +20,6 @@ export default function Descargas() {
   return (
     <>
       <div style={{ marginTop: 80 }} />
-      <PageHead lang="es" page="Descargas" />
 
       <div className="descargas-container">
         <div className="descargas-grid">
