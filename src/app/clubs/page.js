@@ -17,12 +17,8 @@ export const metadata = {
 export default function ClubsPage() {
   return (
     <>
-      {/* Header con breadcrumb */}
       <PageHead lang="es" page="Clubs" />
-
-      {/* Contenedor principal */}
       <main className="clubs-wrapper">
-        {/* Componente que lista los clubes CON DATOS */}
         <ClubsWithData />
       </main>
     </>
