@@ -1,22 +1,18 @@
+// src/app/descargas/page.js
 import '../../../estilos/styles.scss'
-import PreLanding from '../preLanding'
+import Descargas from '../../paginas/descargas/descargas'
+
 export const metadata = {
   title: 'PokerLAP Descargas',
-  description: 'Descargas enPokerLAP.com',
-  images: [`https://www.pokerlap.com/img/ficha512.jpg`],
-  image: `https://www.pokerlap.com/img/ficha512.jpg`,
+  description: 'Descargas en PokerLAP.com',
   openGraph: {
-    title: 'PokerLAP',
-    description: 'Descargas enPokerLAP.com',
-    images: [`https://www.pokerlap.com/img/ficha512.jpg`],
-    image: `https://www.pokerlap.com/img/ficha512.jpg`,
+    title: 'PokerLAP Descargas',
+    description: 'Descarga herramientas para poker',
+    images: ['https://www.pokerlap.com/img/ficha512.jpg'],
+    type: 'website'
   }
 }
-export default function Home() {
 
-  return (
-    <main className="main">
-      <PreLanding   seccion={5} />
-    </main>
-  )
+export default function DescargasPage() {
+  return <Descargas />
 }

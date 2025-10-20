@@ -1,22 +1,18 @@
+// src/app/aprende/page.js
 import '../../../estilos/styles.scss'
-import PreLanding from '../preLanding'
+import Aprende from '../../paginas/aprende/aprende'
+
 export const metadata = {
-  title: 'PokerLAP',
-  description: 'Aprende enPokerLAP',
-  images: [`https://www.pokerlap.com/img/ficha512.jpg`],
-  image: `https://www.pokerlap.com/img/ficha512.jpg`,
+  title: 'PokerLAP Aprende',
+  description: 'Aprende poker en PokerLAP.com',
   openGraph: {
-    title: 'PokerLAP',
-    description: 'Aprende enPokerLAP',
-    images: [`https://www.pokerlap.com/img/ficha512.jpg`],
-    image: `https://www.pokerlap.com/img/ficha512.jpg`,
+    title: 'PokerLAP Aprende',
+    description: 'Historia, reglas y manos de poker',
+    images: ['https://www.pokerlap.com/img/ficha512.jpg'],
+    type: 'website'
   }
 }
-export default function Home() {
 
-  return (
-    <main className="main">
-      <PreLanding   seccion={4} />
-    </main>
-  )
+export default function AprendePage() {
+  return <Aprende lang="es" />
 }

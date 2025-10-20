@@ -14,6 +14,7 @@ export default function Descargas() {
     const a = document.createElement('a')
     a.href = url
     a.download = nombre
+    a.target = '_blank'
     a.click()
   }
 
