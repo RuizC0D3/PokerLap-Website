@@ -1,3 +1,4 @@
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 export const metadata = {
@@ -7,10 +8,9 @@ export const metadata = {
 
 type Props = { searchParams: { status?: string; ref?: string } }
 
-export default function ResultadoPagoPage({ searchParams }: Props) {
-  const status = searchParams?.status ?? 'unknown'   // success | cancel | failure | unknown
-  const ref = searchParams?.ref ?? ''
-
+export default function ResultadoPage({ searchParams }: Props) {
+  const status = searchParams.status || 'unknown'
+  const ref = searchParams.ref
   return (
     <main style={{ maxWidth: 720, margin: '24px auto', padding: '0 16px' }}>
       {status === 'success' ? (

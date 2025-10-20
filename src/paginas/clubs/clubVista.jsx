@@ -58,62 +58,30 @@ export default function ClubVista({ club = {}, torneos = [] }) {
   const href = club?.ID_Club ? `/clubs/${club.ID_Club}` : undefined
   const tieneTorneos = hasTorneosForClub(torneos, club?.ID_Club)
 
-  // Usamos <a> real (no onClick) para que Next haga navegación correcta a /clubs/[club]
   return (
-    <a href={href} className="cv-card" aria-label={club?.Nombre || 'Club'}>
-      <div className="cv-thumb">
+    <a href={href} className="club-card-modern">
+      <div className="club-card-image-wrapper">
         <img
           src={img}
           alt={club?.Nombre || 'Club'}
           loading="lazy"
           onError={(ev) => { ev.currentTarget.src = '/img/no-image.png' }}
+          className="club-card-image"
         />
-        {tieneTorneos && <span className="cv-badge">Torneos</span>}
+        {tieneTorneos && (
+          <span className="club-badge-torneos">🏆 Torneos</span>
+        )}
       </div>
-
-      <div className="cv-body">
-        <h3 className="cv-title">{club?.Nombre || 'Club sin nombre'}</h3>
-        <p className="cv-meta">{club?.Direccion || 'Dirección no disponible'}</p>
-        <div className="cv-actions">
-          <span className="cv-btn">Ver</span>
-        </div>
+      
+      <div className="club-card-content">
+        <h3 className="club-card-title">{club?.Nombre || 'Club sin nombre'}</h3>
+        <p className="club-card-direccion">{club?.Direccion || 'Dirección no disponible'}</p>
+        <span className="club-card-btn">Ver detalles →</span>
       </div>
-
-      <style jsx>{`
-        .cv-card{
-          display:grid; grid-template-rows:auto 1fr; gap:12px;
-          width:100%; background:#fff; color:#111; text-decoration:none;
-          border:1px solid rgba(0,0,0,.08); border-radius:18px;
-          box-shadow:0 10px 26px rgba(0,0,0,.10);
-          overflow:hidden; transition:.16s transform,.16s box-shadow,.16s border-color;
-        }
-        .cv-card:hover{
-          transform:translateY(-3px);
-          box-shadow:0 16px 36px rgba(0,0,0,.16);
-          border-color:rgba(0,0,0,.14);
-        }
-
-        .cv-thumb{ position:relative; aspect-ratio: 4 / 3; background:#f5f7f9; overflow:hidden; }
-        .cv-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
-        .cv-badge{
-          position:absolute; left:12px; bottom:12px; z-index:2;
-          background:#17a34a; color:#fff; font-weight:800; font-size:12px;
-          padding:5px 12px; border-radius:999px; box-shadow:0 8px 24px rgba(0,0,0,.20);
-        }
-
-        .cv-body{ padding:14px 16px 16px; display:grid; gap:8px; }
-        .cv-title{ margin:0; font-size:18px; font-weight:900; letter-spacing:.2px; line-height:1.2; }
-        .cv-meta{ margin:0; font-size:13px; color:#444; opacity:.85; }
-        .cv-actions{ margin-top:4px; }
-        .cv-btn{
-          height:40px; padding:0 16px; display:inline-flex; align-items:center; justify-content:center;
-          background:#111; color:#fff; border:1px solid #111; border-radius:12px; font-weight:800;
-          box-shadow:0 10px 26px rgba(0,0,0,.14);
-        }
-      `}</style>
     </a>
   )
 }
+
 
 /* ============================
  * Detalle (header + torneos)

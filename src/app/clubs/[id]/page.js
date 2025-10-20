@@ -7,12 +7,21 @@ export const revalidate = 3600;
 
 async function getClubData(clubId) {
   try {
+    if (!clubId || isNaN(Number(clubId))) {
+      return { club: null, torneos: [] }
+    }
+
     const clubRes = await fetch("https://api.pkti.me/db", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ q: "Club_Listar", p: ["CO"] }),
-      cache: 'no-store' // o 'force-cache' con revalidate
+      cache: 'force-cache',
+      next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(10000)
     })
+    
+    if (!clubRes.ok) throw new Error(`HTTP error! status: ${clubRes.status}`)
+    
     const clubs = await clubRes.json()
     const club = clubs.find(c => String(c.ID_Club) === String(clubId))
 
@@ -37,7 +46,7 @@ export default async function ClubPage({ params }) {
     return (
       <div className="club-page-error">
         <h2>Club no encontrado</h2>
-        <a href="/clubs">← Volver</a>
+        <a href="/clubs">← Volver a Clubs</a>
       </div>
     )
   }
@@ -47,14 +56,14 @@ export default async function ClubPage({ params }) {
       {/* 1. HEADER MULTIIDIOMA */}
       <PageHead lang="es" page="Clubs" subPage={club.Nombre} />
 
-      {/* 2. BOTÓN VOLVER */}
+      {/* 2. BOTÓN "Volver a Clubs" en su propio wrapper */}
       <div className="back-nav-wrapper">
         <div className="back-nav">
           <a href="/clubs">← Volver a Clubs</a>
         </div>
       </div>
 
-      {/* 3. DETALLE DEL CLUB ABAJO DEL HEADER */}
+      {/* 3. ClubDetail ABAJO: dentro de este wrapper separado */}
       <div className="club-detail-wrapper">
         <ClubDetail club={club} torneos={torneos} />
       </div>
@@ -62,18 +71,37 @@ export default async function ClubPage({ params }) {
   )
 }
 
-// Metadata dinámica
 export async function generateMetadata({ params }) {
   const { club } = await getClubData(params.id)
-  if (!club) return { title: 'Club no encontrado' }
+  
+  if (!club) {
+    return {
+      title: 'Club no encontrado | PokerLAP',
+      robots: 'noindex'
+    }
+  }
+  
+  const logoUrl = club.logo || club.Logo 
+    ? `https://img.pkti.me/club/${club.logo || club.Logo}`
+    : 'https://www.pokerlap.com/img/ficha512.jpg'
+  
   return {
-    title: `${club.Nombre} - PokerLAP`,
-    description: club.Direccion || 'Club de poker',
+    title: `${club.Nombre} - Club de Poker | PokerLAP`,
+    description: `${club.Nombre} en ${club.Direccion || 'Colombia'}. Torneos activos, información de contacto y ubicación. Encuentra los mejores clubes de poker en PokerLAP.`,
+    keywords: `poker, ${club.Nombre}, club de poker, torneos, ${club.Ciudad || 'Colombia'}`,
     openGraph: {
-      title: club.Nombre,
-      description: club.Direccion,
-      images: [`https://img.pkti.me/club/${club.logo || club.Logo}`]
+      type: 'website',
+      siteName: 'PokerLAP',
+      title: `${club.Nombre} | PokerLAP`,
+      description: `Información completa de ${club.Nombre}: ubicación, torneos y contacto`,
+      images: [{ url: logoUrl, width: 512, height: 512, alt: club.Nombre }],
+      locale: 'es_CO'
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${club.Nombre} | PokerLAP`,
+      description: club.Direccion || 'Club de poker en Colombia',
+      images: [logoUrl]
     }
   }
 }
-

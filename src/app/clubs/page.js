@@ -1,23 +1,30 @@
+// src/app/clubs/page.js
 import '../../../estilos/styles.scss'
-import PreLanding from '../preLanding'
+import PageHead from '../../components/body/pageHead'
+import Clubs from '../../paginas/clubs/clubs'
 
 export const metadata = {
   title: 'PokerLAP Clubs',
-  description: 'Clubs enPokerLAP.com',
-  images: [`https://www.pokerlap.com/img/ficha512.jpg`],
-  image: `https://www.pokerlap.com/img/ficha512.jpg`,
+  description: 'Clubs en PokerLAP.com',
   openGraph: {
-    title: 'PokerLAP',
-    description: 'Clubs enPokerLAP.com',
-    images: [`https://www.pokerlap.com/img/ficha512.jpg`],
-    image: `https://www.pokerlap.com/img/ficha512.jpg`,
+    title: 'PokerLAP Clubs',
+    description: 'Encuentra y explora todos los clubes de poker en PokerLAP',
+    images: ['https://www.pokerlap.com/img/ficha512.jpg'],
+    type: 'website'
   }
 }
-export default function Home() {
 
+export default function ClubsPage() {
   return (
-    <main className="main">
-      <PreLanding seccion={1} />
-    </main>
+    <>
+      {/* Header con breadcrumb */}
+      <PageHead lang="es" page="Clubs" />
+
+      {/* Contenedor principal */}
+      <main className="clubs-wrapper">
+        {/* Componente que lista los clubes */}
+        <Clubs />
+      </main>
+    </>
   )
 }
