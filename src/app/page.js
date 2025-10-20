@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 import '../../estilos/styles.scss'
 import PreLanding from './preLanding'
 export const metadata = {
