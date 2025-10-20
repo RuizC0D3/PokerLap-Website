@@ -1,0 +1,37 @@
+// src/lib/api.ts
+
+export type Club = {
+  ID_Club: number;
+  Nombre: string;
+  Direccion?: string;
+  // ...otros campos
+};
+
+export type Torneo = {
+  ID_Club: number;
+  Nombre: string;
+  // ...otros campos
+};
+
+export async function fetchClubs(pais: string = 'CO'): Promise<Club[]> {
+  const res = await fetch('https://api.pkti.me/db', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ q: 'Club_Listar', p: [pais] }),
+  });
+  return res.json();
+}
+
+export async function fetchTorneos(pais: string = 'CO', limit: number = 1000): Promise<Torneo[]> {
+  const res = await fetch('https://api.pkti.me/db', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ q: 'Torneo_Listar', p: [pais, limit] }),
+  });
+  return res.json();
+}
+
+export async function fetchClubById(id: number): Promise<Club | undefined> {
+  const clubs = await fetchClubs();
+  return clubs.find((c: Club) => c.ID_Club === id);
+}

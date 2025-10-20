@@ -1,89 +1,79 @@
+// src/app/clubs/[id]/page.js
 import '../../../../estilos/styles.scss'
-import PreLanding from '../../preLanding'
-import { headers } from 'next/headers';
+import PageHead from '../../../components/body/pageHead'
+import { ClubDetail } from '../../../paginas/clubs/clubVista'
 
-let resArray = []
-let elId = false
-let firsDatos = false
-let elDato = false
-let Iid = 'id'
-let Nname = 'name'
-let Iimg = 'img'
-let Itype = 'png'
-export async function generateMetadata({ params, searchParams }, parent) {
-  const headersList = headers();
-  let Iid = searchParams.id
-  const pathname = headersList.get("x-current-path");
-  const Nname = searchParams.name
-  const Iimg = searchParams.img
-  const Itype = searchParams.type
-  if (pathname && pathname.split('clubs') && pathname.split('clubs')[1]) {
-    let pathN = pathname.split('clubs')[1].replace('/', '');
-    Iid = !isNaN(parseInt(pathN)) ? parseInt(pathN) : Iid
-    console.log('Iid', Iid,);
-  }
-  const doIt = async () => {
-    const raw = JSON.stringify({
-      "q": "Club_Listar",
-      "p": [
-        "CO"
-      ]
-    });
-    const myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    const requestOptions = {
+export const revalidate = 3600;
+
+async function getClubData(clubId) {
+  try {
+    const clubRes = await fetch("https://api.pkti.me/db", {
       method: "POST",
-      headers: myHeaders,
-      redirect: "follow",
-      body: raw
-    };
-    const desed = async (txto) => {
-      const elT = await txto.text();
-      const resArraya = JSON.parse(elT);
-      resArray = JSON.parse(elT);
-      return resArraya
-    }
-    resArray = await fetch("https://api.pkti.me/db", requestOptions)
-      .then(async (response) => await desed(response))
-      .catch((error) => console.error(error));
-  }
-  await doIt()
-  let moreW = ' Todo sobre Poker'
-  let word = `PokerLAP Clubs  `
-  let laimg = `https://www.pokerlap.com/img/ficha512.jpg`
-  resArray.map((key, i) => {
-    if (key.ID_Club === parseInt(Iid)) {
-      word = `Club ${key.Nombre}`
-      moreW = key.Direccion
-      laimg = `https://img.pkti.me/club/${key.logo} `
-    }
-  })
-  const resA = {
-    title: word,
-    description: moreW,
-    images: [laimg],
-    image: laimg,
-    openGraph: {
-      title: word,
-      description: moreW,
-      images: [laimg],
-      image: laimg
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ q: "Club_Listar", p: ["CO"] }),
+      cache: 'no-store' // o 'force-cache' con revalidate
+    })
+    const clubs = await clubRes.json()
+    const club = clubs.find(c => String(c.ID_Club) === String(clubId))
 
-    }
-  }
-  console.log(resA);
+    const torneosRes = await fetch("https://api.pkti.me/db", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ q: "Torneo_Listar", p: ["CO", 1000] })
+    })
+    const torneos = await torneosRes.json()
 
-  return resA
+    return { club, torneos }
+  } catch (error) {
+    console.error('[getClubData] Error:', error)
+    return { club: null, torneos: [] }
+  }
 }
 
-export default function Home(props) {
+export default async function ClubPage({ params }) {
+  const { club, torneos } = await getClubData(params.id)
+
+  if (!club) {
+    return (
+      <div className="club-page-error">
+        <h2>Club no encontrado</h2>
+        <a href="/clubs">← Volver</a>
+      </div>
+    )
+  }
+
   return (
     <>
+      {/* 1. HEADER MULTIIDIOMA */}
+      <PageHead lang="es" page="Clubs" subPage={club.Nombre} />
 
-      <main className="main">
-        <PreLanding seccion={1} club={props.params.id} />
-      </main>
+      {/* 2. BOTÓN VOLVER */}
+      <div className="back-nav-wrapper">
+        <div className="back-nav">
+          <a href="/clubs">← Volver a Clubs</a>
+        </div>
+      </div>
+
+      {/* 3. DETALLE DEL CLUB ABAJO DEL HEADER */}
+      <div className="club-detail-wrapper">
+        <ClubDetail club={club} torneos={torneos} />
+      </div>
     </>
-
   )
 }
+
+// Metadata dinámica
+export async function generateMetadata({ params }) {
+  const { club } = await getClubData(params.id)
+  if (!club) return { title: 'Club no encontrado' }
+  return {
+    title: `${club.Nombre} - PokerLAP`,
+    description: club.Direccion || 'Club de poker',
+    openGraph: {
+      title: club.Nombre,
+      description: club.Direccion,
+      images: [`https://img.pkti.me/club/${club.logo || club.Logo}`]
+    }
+  }
+}
+
