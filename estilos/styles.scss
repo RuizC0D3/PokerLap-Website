@@ -960,3 +960,111 @@
   padding: 0;
   max-width: 100%;
 }
+// Torneos - Mantener el cartel del oeste pero con mejor estética
+.torneo-card-western {
+  background: url('/images/western-bg.jpg') center/cover;
+  background-color: #f4e4c1;
+  padding: 30px;
+  border-radius: 12px;
+  border: 3px solid #8b4513;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(244,228,193,0.9) 0%, rgba(222,184,135,0.8) 100%);
+    z-index: 0;
+  }
+  
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .torneo-title {
+    font-family: 'Rocas', serif;
+    font-size: 28px;
+    color: #5c2e00;
+    text-align: center;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
+  }
+  
+  .torneo-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+    
+    .detail-item {
+      background: rgba(255,255,255,0.7);
+      padding: 12px;
+      border-radius: 8px;
+      border: 2px solid #8b4513;
+      
+      .label {
+        font-size: 12px;
+        color: #5c2e00;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      
+      .value {
+        font-size: 18px;
+        color: #2c1810;
+        font-weight: 700;
+      }
+    }
+  }
+}
+// Animaciones globales
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.btn-descargar,
+.btn-action,
+.club-card-modern,
+.aprende-card {
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+// Smooth scroll
+html {
+  scroll-behavior: smooth;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  
+  .loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f4f6;
+    border-top-color: #e74c3c;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  p {
+    margin-top: 16px;
+    color: #6b7280;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

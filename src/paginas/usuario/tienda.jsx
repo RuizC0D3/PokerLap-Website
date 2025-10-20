@@ -3,7 +3,6 @@
 
 import '../../../estilos/styles.scss'
 import { useSearchParams, useRouter } from 'next/navigation'
-import PageHead from '../../components/body/pageHead'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { CATALOGO } from '../../lib/catalogo'
@@ -566,8 +565,6 @@ export default function TiendaVista({ lang = 'es', setOpt = () => {} }) {
 
   return (
     <div className="descargas-container">
-      <PageHead lang={lang} setOpt={setOpt} page={'Tienda'} />
-
       {/* --- Banner de resultado Bold --- */}
       {txAlert && (
         <div

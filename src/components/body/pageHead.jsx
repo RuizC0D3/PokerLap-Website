@@ -36,4 +36,12 @@ const PageHead = ({ lang = 'es', page = 'Inicio', subPage = '' }) => {
   )
 }
 
-export default PageHead
+<style jsx>{`
+  .page-head-container .flex-row span {
+    transition: color 0.2s;
+  }
+  .page-head-container .flex-row .page-back:hover {
+    color: #e74c3c;
+    text-decoration: underline;
+  }
+`}</style>

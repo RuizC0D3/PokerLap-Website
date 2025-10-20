@@ -1,22 +1,23 @@
+// src/app/torneos/page.js
 import '../../../estilos/styles.scss'
 import PreLanding from '../preLanding'
+
 export const metadata = {
   title: 'PokerLAP Torneos',
-  description: 'Torneos enPokerLAP.com',
-  images: [`https://www.pokerlap.com/img/ficha512.jpg`],
-  image: `https://www.pokerlap.com/img/ficha512.jpg`,
+  description: 'Torneos en PokerLAP.com',
   openGraph: {
-    title: 'PokerLAP',
-    description: 'Torneos enPokerLAP.com',
-    images: [`https://www.pokerlap.com/img/ficha512.jpg`],
-    image: `https://www.pokerlap.com/img/ficha512.jpg`,
+    title: 'PokerLAP Torneos',
+    description: 'Encuentra y participa en torneos de poker',
+    images: ['https://www.pokerlap.com/img/ficha512.jpg'],
+    type: 'website'
   }
 }
-export default function Home() {
 
+export default function TorneosPage() {
   return (
-    <main className="main">
-      <PreLanding seccion={2} />
-    </main>
+    <>
+      <div style={{ marginTop: 80 }} />
+      <PreLanding seccion={3} />
+    </>
   )
 }

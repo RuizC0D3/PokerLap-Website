@@ -39,12 +39,13 @@ export default function ClubsWithData() {
   }, [])
 
   if (loading) {
-    return (
-      <div style={{ padding: '40px', textAlign: 'center' }}>
-        <p>Cargando clubes...</p>
-      </div>
-    )
-  }
+  return (
+    <div className="loading-container">
+      <div className="loading-spinner"></div>
+      <p>Cargando clubes...</p>
+    </div>
+  )
+}
 
   return <Clubs casinos={casinos} torneos={torneos} lang="es" />
 }
