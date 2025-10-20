@@ -1,5 +1,6 @@
 import '../../../estilos/styles.scss'
-import PreLanding from '../preLanding'
+import PageHead from '../../components/body/pageHead'
+import ShopPlans from './ShopPlans'
 
 export const metadata = {
   title: 'PokerLAP Tienda',
@@ -14,11 +15,15 @@ export const metadata = {
   }
 }
 
-export default function Page() {
+export default function TiendaPage() {
   return (
-      <main className="main">
-      <PreLanding seccion={6} />
-    </main>
+    <>
+      <div style={{ marginTop: 80 }} />  {/* espacio bajo el Navbar */}
+      <PageHead lang="es" page="Tienda" />
+
+      <main className="shop-wrapper">
+        <ShopPlans />
+      </main>
+    </>
   )
 }
-

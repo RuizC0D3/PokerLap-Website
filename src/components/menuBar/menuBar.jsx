@@ -1,8 +1,9 @@
 // src/components/menuBar/menuBar.jsx
 'use client'
-
+import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Languages, ObjVistasIdiomas, Vistas } from '../../modelos/languages'
 
 // Font Awesome
@@ -59,13 +60,16 @@ const MenuBar = (props) => {
   const secciones = Vistas
   const langString = ObjVistasIdiomas
 
+  const router = useRouter()
+
   useEffect(() => {
     // console.log(user, 'user');
   }, [user])
 
   const goTo = (label) => {
     const slug = label.toLowerCase().replaceAll(' ', '')
-    window.location.replace(`/${slug}`)
+    router.push(`/${slug}`)
+    setmenuOpen(false)
   }
 
   return (

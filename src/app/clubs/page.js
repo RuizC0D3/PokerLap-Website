@@ -17,7 +17,9 @@ export const metadata = {
 export default function ClubsPage() {
   return (
     <>
+      <div style={{ marginTop: 80 }} />
       <PageHead lang="es" page="Clubs" />
+
       <main className="clubs-wrapper">
         <ClubsWithData />
       </main>

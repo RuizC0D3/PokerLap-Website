@@ -2,7 +2,6 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
-import PageHead from '../../components/body/pageHead'
 import ClubCard from './clubVista' // default export
 
 const PAGE_SIZE = 18  // más grandes + más por página
@@ -48,8 +47,6 @@ export default function Clubs({
 
   return (
     <div className="clubs-container">
-      <PageHead lang={lang} page="Clubs" setOpt={setOpt} />
-
       {/* filtros */}
       <div className="filters">
         <input

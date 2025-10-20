@@ -784,3 +784,130 @@
     font-size: 24px;
   }
 }
+
+// Navbar principal
+.navbar-main {
+  background: #1b2936;
+  color: white;
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.navbar-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  
+  img {
+    height: 40px;
+    width: auto;
+  }
+}
+
+.navbar-links {
+  display: flex;
+  gap: 24px;
+  flex: 1;
+  
+  a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+    
+    &:hover {
+      color: #e74c3c;
+    }
+  }
+}
+
+.navbar-login {
+  padding: 10px 24px;
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: white;
+    color: #1b2936;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar-links {
+    display: none; // Aquí podrías agregar un menú hamburguesa
+  }
+}
+
+.descargas-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+  
+  h1 {
+    font-size: 36px;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+}
+
+.descargas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.descarga-card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  text-align: center;
+  transition: all 0.3s;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  }
+  
+  .descarga-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  
+  h3 {
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: #2c3e50;
+  }
+  
+  .btn-descargar {
+    padding: 12px 24px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+    
+    &:hover {
+      background: #2563eb;
+    }
+  }
+}

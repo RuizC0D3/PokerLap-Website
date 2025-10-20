@@ -1,16 +1,14 @@
-// app/layout.js
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// src/app/layout.js
 import { Inter } from 'next/font/google'
 import './globals.css'
+import MenuBar from '../components/menuBar/menuBar'
 
-// Font Awesome (evita inyectar CSS duplicado)
 import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 config.autoAddCss = false
 
 import Script from 'next/script'
-import BoldReturnShim from './BoldReturnShim' // asegúrate que exista app/BoldReturnShim.jsx
+import BoldReturnShim from './BoldReturnShim'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -31,7 +29,6 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <head>
-        {/* Librería de Bold: cargada una sola vez a nivel app */}
         <Script
           id="bold-lib"
           src="https://checkout.bold.co/library/boldPaymentButton.js"
@@ -39,8 +36,11 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className={inter.className}>
-        {/* Shim que detecta ?bold-order-id & ?bold-tx-status y redirige a /tienda */}
         <BoldReturnShim />
+        {/* --- Navbar visible en TODAS las páginas --- */}
+        <MenuBar />
+
+        {/* --- Todo el contenido pagina --- */}
         {children}
       </body>
     </html>
