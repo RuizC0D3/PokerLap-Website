@@ -1,5 +1,6 @@
 // src/app/torneos/page.js
 import '../../../estilos/styles.scss'
+import PageHead from '../../components/body/pageHead'
 import PreLanding from '../preLanding'
 
 export const metadata = {
@@ -17,7 +18,8 @@ export default function TorneosPage() {
   return (
     <>
       <div style={{ marginTop: 80 }} />
-      <PreLanding seccion={3} />
+      <PageHead lang="es" page="Torneos" />
+      <PreLanding seccion={2} />
     </>
   )
 }

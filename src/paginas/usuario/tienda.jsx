@@ -198,10 +198,10 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
           <button className="modal-close" onClick={onClose}>✕</button>
           
-          <h3>Resumen del carrito</h3>
+          <h3 className="modal-title">Resumen del carrito</h3>
           
           {lines.length === 0 ? (
-            <p>Tu carrito está vacío.</p>
+            <p className="cart-empty">Tu carrito está vacío.</p>
           ) : (
             <>
               <div className="cart-items">
@@ -215,61 +215,72 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
                     />
                     <div className="cart-item-info">
                       <strong>{it.plan.name}</strong>
-                      <span>{fmtCOP(it.plan.amountCop)} · {fmtUSD(it.plan.amountUsd)}</span>
+                      <div className="cart-item-prices">
+                        <span>{fmtCOP(it.plan.amountCop)}</span>
+                        <span className="price-separator">·</span>
+                        <span>{fmtUSD(it.plan.amountUsd)}</span>
+                      </div>
                     </div>
                     <div className="cart-item-controls">
                       <button onClick={() => onDec(it.id)}>−</button>
                       <span>{it.qty}</span>
                       <button onClick={() => onInc(it.id)}>+</button>
-                      <button onClick={() => onRemove(it.id)}>🗑️</button>
+                      <button onClick={() => onRemove(it.id)} className="btn-remove">🗑️</button>
                     </div>
                   </div>
                 ))}
               </div>
               
               <div className="cart-total">
-                <p>Total (COP): <strong>{fmtCOP(totalCop)}</strong></p>
-                <p>Total (USD): <strong>{fmtUSD(totalUsd)}</strong></p>
+                <div className="total-row">
+                  <span>Total (COP):</span>
+                  <strong>{fmtCOP(totalCop)}</strong>
+                </div>
+                <div className="total-row">
+                  <span>Total (USD):</span>
+                  <strong>{fmtUSD(totalUsd)}</strong>
+                </div>
               </div>
               
               <div className="payment-methods">
-                <p>Método de pago:</p>
-                <label>
+                <p className="payment-title">Método de pago:</p>
+                <label className="payment-option">
                   <input type="radio" checked={method === 'bold'} onChange={() => setMethod('bold')} />
-                  Bold (Botón de pagos)
+                  <span>Bold (Botón de pagos)</span>
                 </label>
-                <label>
+                <label className="payment-option">
                   <input type="radio" checked={method === 'coinbase'} onChange={() => setMethod('coinbase')} />
-                  Coinbase (Cripto)
+                  <span>Coinbase (Cripto)</span>
                 </label>
               </div>
               
-              {method === 'bold' && (
-                <div className="bold-button-container">
-                  {apiKeyPublic && orderId && signature && amountForBold > 0 ? (
-                    <BotonBold
-                      apiKey={apiKeyPublic}
-                      orderId={orderId}
-                      amount={amountForBold}
-                      currency="COP"
-                      description={selectedPlan?.description || selectedPlan?.name || 'Compra'}
-                      redirectionUrl={redirectionUrl}
-                      integritySignature={signature}
-                      renderMode="embedded"
-                      theme="light-L"
-                      environment="SANDBOX"
-                    />
-                  ) : (
-                    <p>Preparando…</p>
-                  )}
-                  {prepError && <p className="error">{prepError}</p>}
-                </div>
-              )}
-              
-              <div className="modal-actions">
-                {method !== 'bold' && (
-                  <button className="btn-pagar" onClick={() => alert('Implementar pago alternativo')}>
-                    Pagar ahora
+              {/* Botones de pago alineados a la izquierda */}
+              <div className="payment-button-container">
+                {method === 'bold' && (
+                  <div className="bold-button-wrapper">
+                    {apiKeyPublic && orderId && signature && amountForBold > 0 ? (
+                      <BotonBold
+                        apiKey={apiKeyPublic}
+                        orderId={orderId}
+                        amount={amountForBold}
+                        currency="COP"
+                        description={selectedPlan?.description || selectedPlan?.name || 'Compra'}
+                        redirectionUrl={redirectionUrl}
+                        integritySignature={signature}
+                        renderMode="embedded"
+                        theme="light-L"
+                        environment="SANDBOX"
+                      />
+                    ) : (
+                      <p className="preparing">Preparando pago...</p>
+                    )}
+                    {prepError && <p className="error-msg">{prepError}</p>}
+                  </div>
+                )}
+                
+                {method === 'coinbase' && (
+                  <button className="btn-pagar-coinbase" onClick={() => alert('Implementar pago con Coinbase')}>
+                    Pagar con Coinbase
                   </button>
                 )}
               </div>
@@ -280,6 +291,7 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
     </Portal>
   )
 }
+
 
 // ============= PLAN CARD =============
 function PrettyPlanCard({ plan, idx, onAdd }) {

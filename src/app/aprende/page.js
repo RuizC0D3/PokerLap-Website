@@ -1,5 +1,6 @@
 // src/app/aprende/page.js
 import '../../../estilos/styles.scss'
+import PageHead from '../../components/body/pageHead'
 import Aprende from '../../paginas/aprende/aprende'
 
 export const metadata = {
@@ -14,5 +15,11 @@ export const metadata = {
 }
 
 export default function AprendePage() {
-  return <Aprende lang="es" />
+  return (
+    <>
+      <div style={{ marginTop: 80 }} />
+      <PageHead lang="es" page="Aprende" />
+      <Aprende lang="es" />
+    </>
+  )
 }

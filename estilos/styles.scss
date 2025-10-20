@@ -27,6 +27,19 @@
 @import "plantilla/plantilla", "atajos", "componentes/comnponentes", "paginas/paginas",
   "componentes/paginador/paginadores.scss";
 
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #f9fafb;
+  color: #111827;
+}
+
+.home {
+  display: flex;
+  width: 100vw;
+  flex-grow: 1;
+  position: relative;
+}
+
 .flex-row {
   display: flex;
 }
@@ -40,7 +53,7 @@
 }
 
 // ============================================
-// PAGE HEAD CONTAINER (Header de páginas)
+// PAGE HEAD CONTAINER
 // ============================================
 .page-head-container {
   display: flex;
@@ -48,7 +61,7 @@
   width: 100%;
   align-items: center;
   justify-content: flex-end;
-  padding: 60px 20px 40px; // padding-top para navbar
+  padding: 60px 20px 40px;
   min-height: 200px;
   background-color: #1b2936;
   gap: getRemSize(20px);
@@ -62,6 +75,12 @@
   position: relative;
   z-index: 1;
   
+  h5 {
+    margin: 0;
+    font-size: getRemSize(32px);
+    font-weight: 700;
+  }
+  
   .flex-row {
     gap: getRemSize(20px);
     font-size: getRemSize(18px);
@@ -70,14 +89,15 @@
   
   .page-back {
     cursor: pointer;
+    transition: color 0.3s;
+    
     &:hover {
-      transition: 700ms;
-      color: #972e2a;
+      color: #e74c3c;
     }
   }
   
   .page-item {
-    color: #972e2a;
+    color: #e74c3c;
     font-weight: 800;
     font-size: getRemSize(22px);
     word-break: break-all;
@@ -211,7 +231,7 @@
 }
 
 // ============================================
-// CLUBS - LISTADO Y FILTROS
+// CLUBS
 // ============================================
 .clubs-wrapper {
   max-width: 1400px;
@@ -260,9 +280,6 @@
   margin-bottom: 40px;
 }
 
-// ============================================
-// CLUB CARD - TARJETAS DE CLUBS
-// ============================================
 .club-card-modern {
   display: flex;
   flex-direction: column;
@@ -353,9 +370,6 @@
   }
 }
 
-// ============================================
-// PAGINACIÓN DE CLUBS
-// ============================================
 .select-page {
   display: flex;
   justify-content: center;
@@ -386,7 +400,7 @@
 }
 
 // ============================================
-// CLUB DETAIL - PÁGINA INDIVIDUAL
+// CLUB DETAIL
 // ============================================
 .back-nav-wrapper {
   background: #ffffff;
@@ -431,12 +445,6 @@
   z-index: 1;
 }
 
-.club-detail-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0;
-}
-
 .club-detail-header {
   display: flex;
   gap: 40px;
@@ -468,7 +476,6 @@
       font-size: 32px;
       color: #111827;
       font-weight: 700;
-      letter-spacing: -0.5px;
     }
     
     .direccion {
@@ -478,10 +485,6 @@
       font-size: 16px;
       color: #6b7280;
       margin-bottom: 28px;
-      
-      .icon {
-        font-size: 18px;
-      }
     }
     
     .club-actions {
@@ -532,7 +535,7 @@
 }
 
 // ============================================
-// TORNEOS - SECCIÓN Y CARDS
+// TORNEOS SECTION
 // ============================================
 .torneos-section {
   h2 {
@@ -605,40 +608,16 @@
       font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
       
       &.activo {
         background: #dcfce7;
         color: #166534;
-      }
-      &.proximo {
-        background: #fef3c7;
-        color: #92400e;
-      }
-      &.finalizado {
-        background: #f3f4f6;
-        color: #6b7280;
       }
     }
   }
   
   .torneo-content {
     padding: 30px;
-  }
-  
-  .torneo-image {
-    width: 100%;
-    max-height: 180px;
-    margin-bottom: 25px;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid #e5e7eb;
-    
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
   }
   
   .details-grid {
@@ -656,421 +635,41 @@
     background: #f9fafb;
     border-radius: 8px;
     border: 1px solid #f3f4f6;
-    transition: all 0.2s;
-    
-    &:hover {
-      background: #f3f4f6;
-    }
-    
-    &.highlight {
-      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-      border-color: #fbbf24;
-      
-      .value {
-        color: #92400e;
-        font-weight: 700;
-        font-size: 17px;
-      }
-    }
     
     .icon {
       font-size: 20px;
       margin-top: 2px;
-      opacity: 0.8;
     }
     
-    .label {
-      display: block;
-      font-size: 11px;
-      color: #6b7280;
-      text-transform: uppercase;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
-    }
-    
-    .value {
-      display: block;
-      font-size: 15px;
-      color: #111827;
-      font-weight: 500;
-    }
-  }
-  
-  .torneo-descripcion {
-    margin: 24px 0;
-    padding: 20px;
-    background: #f9fafb;
-    border-radius: 8px;
-    border: 1px solid #f3f4f6;
-    
-    h4 {
-      margin: 0 0 10px;
-      color: #111827;
-      font-size: 16px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    p {
-      margin: 0;
-      color: #374151;
-      line-height: 1.6;
-      font-size: 14px;
-    }
-  }
-  
-  .torneo-extra-info {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    
-    .info-tag {
-      padding: 6px 14px;
-      background: #f3f4f6;
-      color: #374151;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 500;
-      border: 1px solid #e5e7eb;
-    }
-  }
-}
-
-// ============================================
-// RESPONSIVE
-// ============================================
-@media (max-width: 768px) {
-  .clubs-grid {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 16px;
-  }
-  
-  .clubs-filters {
-    flex-direction: column;
-    
-    .search,
-    .city {
-      width: 100%;
-    }
-  }
-  
-  .club-detail-header {
-    flex-direction: column;
-    text-align: center;
-    padding: 30px 20px;
-    
-    .club-image img {
-      width: 140px;
-      height: 140px;
-    }
-    
-    .club-info h1 {
-      font-size: 26px;
-    }
-    
-    .club-actions {
-      justify-content: center;
-    }
-  }
-  
-  .details-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .torneos-section h2 {
-    font-size: 24px;
-  }
-}
-
-// Navbar principal
-.navbar-main {
-  background: #1b2936;
-  color: white;
-  padding: 16px 0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.navbar-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 20px;
-  display: flex;
-  align-items: center;
-  gap: 40px;
-}
-
-.navbar-logo {
-  display: flex;
-  align-items: center;
-  
-  img {
-    height: 40px;
-    width: auto;
-  }
-}
-
-.navbar-links {
-  display: flex;
-  gap: 24px;
-  flex: 1;
-  
-  a {
-    color: white;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s;
-    
-    &:hover {
-      color: #e74c3c;
-    }
-  }
-}
-
-.navbar-login {
-  padding: 10px 24px;
-  background: transparent;
-  color: white;
-  border: 2px solid white;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
-  
-  &:hover {
-    background: white;
-    color: #1b2936;
-  }
-}
-
-@media (max-width: 768px) {
-  .navbar-links {
-    display: none; // Aquí podrías agregar un menú hamburguesa
-  }
-}
-
-.descargas-container {
-  max-width: 1200px;
-  margin: 40px auto;
-  padding: 20px;
-  
-  h1 {
-    font-size: 36px;
-    margin-bottom: 30px;
-    text-align: center;
-  }
-}
-
-.descargas-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
-}
-
-.descarga-card {
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  text-align: center;
-  transition: all 0.3s;
-  
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-  }
-  
-  .descarga-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-  }
-  
-  h3 {
-    font-size: 18px;
-    margin-bottom: 16px;
-    color: #2c3e50;
-  }
-  
-  .btn-descargar {
-    padding: 12px 24px;
-    background: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 0.2s;
-    
-    &:hover {
-      background: #2563eb;
-    }
-  }
-}
-// Aprende
-.aprende-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px 20px;
-  
-  h1 {
-    text-align: center;
-    font-size: 36px;
-    margin-bottom: 40px;
-  }
-}
-
-.aprende-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 30px;
-}
-
-.aprende-card {
-  background: white;
-  padding: 40px;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s;
-  
-  &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
-  }
-  
-  .aprende-icon {
-    font-size: 64px;
-    margin-bottom: 20px;
-  }
-  
-  h3 {
-    font-size: 24px;
-    color: #2c3e50;
-  }
-}
-
-// Shop wrapper
-.shop-wrapper {
-  padding: 0;
-  max-width: 100%;
-}
-// Torneos - Mantener el cartel del oeste pero con mejor estética
-.torneo-card-western {
-  background: url('/images/western-bg.jpg') center/cover;
-  background-color: #f4e4c1;
-  padding: 30px;
-  border-radius: 12px;
-  border: 3px solid #8b4513;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(244,228,193,0.9) 0%, rgba(222,184,135,0.8) 100%);
-    z-index: 0;
-  }
-  
-  > * {
-    position: relative;
-    z-index: 1;
-  }
-  
-  .torneo-title {
-    font-family: 'Rocas', serif;
-    font-size: 28px;
-    color: #5c2e00;
-    text-align: center;
-    margin-bottom: 20px;
-    text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
-  }
-  
-  .torneo-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-top: 20px;
-    
-    .detail-item {
-      background: rgba(255,255,255,0.7);
-      padding: 12px;
-      border-radius: 8px;
-      border: 2px solid #8b4513;
+    .detail-content {
+      flex: 1;
       
       .label {
-        font-size: 12px;
-        color: #5c2e00;
-        font-weight: 600;
+        display: block;
+        font-size: 11px;
+        color: #6b7280;
         text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 4px;
       }
       
       .value {
-        font-size: 18px;
-        color: #2c1810;
-        font-weight: 700;
+        display: block;
+        font-size: 15px;
+        color: #111827;
+        font-weight: 500;
       }
     }
   }
 }
-// Animaciones globales
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
 
-.btn-descargar,
-.btn-action,
-.club-card-modern,
-.aprende-card {
-  &:active {
-    transform: scale(0.95);
-  }
-}
-
-// Smooth scroll
-html {
-  scroll-behavior: smooth;
-}
-
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-  
-  .loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid #f3f4f6;
-    border-top-color: #e74c3c;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  
-  p {
-    margin-top: 16px;
-    color: #6b7280;
-  }
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 // ============================================
-// TIENDA - PÁGINA Y COMPONENTES
+// TIENDA
 // ============================================
+.shop-wrapper {
+  max-width: 100%;
+  padding: 0;
+}
 
 .tienda-container {
   max-width: 1200px;
@@ -1083,20 +682,8 @@ html {
     margin-bottom: 40px;
     color: #111827;
   }
-  
-  .loading,
-  .error {
-    text-align: center;
-    padding: 20px;
-    font-size: 16px;
-  }
-  
-  .error {
-    color: #dc2626;
-  }
 }
 
-// Alerta de transacción
 .tienda-alert {
   padding: 16px 20px;
   border-radius: 8px;
@@ -1128,11 +715,9 @@ html {
     border: none;
     font-size: 20px;
     cursor: pointer;
-    padding: 4px 8px;
   }
 }
 
-// Grid de planes
 .plans-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1140,7 +725,6 @@ html {
   margin-bottom: 60px;
 }
 
-// Card de plan
 .plan-card {
   padding: 32px 24px;
   border-radius: 16px;
@@ -1286,7 +870,7 @@ html {
   }
 }
 
-// Modal overlay
+// Modal
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1311,9 +895,10 @@ html {
   overflow-y: auto;
   position: relative;
   
-  h3 {
-    margin-bottom: 24px;
+  .modal-title {
+    margin: 0 0 24px;
     font-size: 24px;
+    color: #111827;
   }
   
   .modal-close {
@@ -1325,10 +910,24 @@ html {
     font-size: 24px;
     cursor: pointer;
     color: #6b7280;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
     
     &:hover {
+      background: #f3f4f6;
       color: #111827;
     }
+  }
+  
+  .cart-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7280;
   }
 }
 
@@ -1343,23 +942,36 @@ html {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
+  padding: 16px;
   background: #f9fafb;
   border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  
+  input[type="radio"] {
+    flex-shrink: 0;
+  }
   
   .cart-item-info {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     
     strong {
       font-size: 16px;
+      color: #111827;
     }
     
-    span {
+    .cart-item-prices {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       font-size: 14px;
       color: #6b7280;
+      
+      .price-separator {
+        color: #d1d5db;
+      }
     }
   }
   
@@ -1376,9 +988,20 @@ html {
       border-radius: 6px;
       cursor: pointer;
       transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       
       &:hover {
         background: #f3f4f6;
+        border-color: #d1d5db;
+      }
+      
+      &.btn-remove {
+        &:hover {
+          background: #fee2e2;
+          border-color: #fca5a5;
+        }
       }
     }
     
@@ -1386,60 +1009,97 @@ html {
       min-width: 24px;
       text-align: center;
       font-weight: 600;
+      color: #111827;
     }
   }
 }
 
 .cart-total {
-  padding: 16px;
+  padding: 20px;
   background: #f9fafb;
   border-radius: 8px;
   margin-bottom: 24px;
+  border: 1px solid #e5e7eb;
   
-  p {
+  .total-row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin: 8px 0;
     font-size: 16px;
+    
+    span {
+      color: #6b7280;
+    }
+    
+    strong {
+      color: #111827;
+      font-size: 18px;
+    }
   }
 }
 
 .payment-methods {
   margin-bottom: 24px;
   
-  p {
+  .payment-title {
     font-weight: 600;
     margin-bottom: 12px;
+    color: #111827;
   }
   
-  label {
+  .payment-option {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px;
+    gap: 12px;
+    padding: 14px 16px;
     margin-bottom: 8px;
-    border: 1px solid #e5e7eb;
+    border: 2px solid #e5e7eb;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
     
     &:hover {
       background: #f9fafb;
+      border-color: #d1d5db;
+    }
+    
+    input[type="radio"] {
+      cursor: pointer;
+    }
+    
+    span {
+      font-size: 15px;
+      color: #111827;
+      font-weight: 500;
     }
   }
 }
 
-.bold-button-container {
-  margin: 20px 0;
-}
-
-.modal-actions {
+.payment-button-container {
   display: flex;
-  gap: 12px;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
   
-  .btn-pagar {
-    padding: 12px 32px;
+  .bold-button-wrapper {
+    width: 100%;
+    
+    .preparing {
+      text-align: center;
+      padding: 20px;
+      color: #6b7280;
+    }
+    
+    .error-msg {
+      color: #dc2626;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+  }
+  
+  .btn-pagar-coinbase {
+    padding: 14px 32px;
     background: #3b82f6;
     color: white;
     border: none;
@@ -1447,6 +1107,64 @@ html {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
+    font-size: 16px;
+    
+    &:hover {
+      background: #2563eb;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+  }
+}
+
+// ============================================
+// DESCARGAS
+// ============================================
+.descargas-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.descargas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.descarga-card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  text-align: center;
+  transition: all 0.3s;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  }
+  
+  .descarga-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  
+  h3 {
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: #2c3e50;
+  }
+  
+  .btn-descargar {
+    padding: 12px 24px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
     
     &:hover {
       background: #2563eb;
@@ -1454,7 +1172,89 @@ html {
   }
 }
 
+// ============================================
+// APRENDE
+// ============================================
+.aprende-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  
+  h1 {
+    text-align: center;
+    font-size: 36px;
+    margin-bottom: 40px;
+  }
+}
+
+.aprende-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.aprende-card {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+  }
+  
+  .aprende-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+  }
+  
+  h3 {
+    font-size: 24px;
+    color: #2c3e50;
+  }
+}
+
+// ============================================
+// RESPONSIVE
+// ============================================
 @media (max-width: 768px) {
+  .clubs-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  
+  .clubs-filters {
+    flex-direction: column;
+    
+    .search,
+    .city {
+      width: 100%;
+    }
+  }
+  
+  .club-detail-header {
+    flex-direction: column;
+    text-align: center;
+    padding: 30px 20px;
+    
+    .club-image img {
+      width: 140px;
+      height: 140px;
+    }
+    
+    .club-info h1 {
+      font-size: 26px;
+    }
+  }
+  
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+  
   .cart-floating {
     bottom: 20px;
     right: 20px;

@@ -1,5 +1,6 @@
 // src/app/descargas/page.js
 import '../../../estilos/styles.scss'
+import PageHead from '../../components/body/pageHead'
 import Descargas from '../../paginas/descargas/descargas'
 
 export const metadata = {
@@ -14,5 +15,11 @@ export const metadata = {
 }
 
 export default function DescargasPage() {
-  return <Descargas />
+  return (
+    <>
+      <div style={{ marginTop: 80 }} />
+      <PageHead lang="es" page="Descargas" />
+      <Descargas />
+    </>
+  )
 }

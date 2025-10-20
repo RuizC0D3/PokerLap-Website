@@ -1,5 +1,6 @@
 // src/app/sobrenosotros/page.js
 import '../../../estilos/styles.scss'
+import PageHead from '../../components/body/pageHead'
 import PreLanding from '../preLanding'
 
 export const metadata = {
@@ -17,7 +18,8 @@ export default function SobreNosotrosPage() {
   return (
     <>
       <div style={{ marginTop: 80 }} />
-      <PreLanding seccion={2} />
+      <PageHead lang="es" page="Sobre Nosotros" />
+      <PreLanding seccion={3} />
     </>
   )
 }
