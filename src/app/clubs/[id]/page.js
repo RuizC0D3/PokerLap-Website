@@ -53,17 +53,15 @@ export default async function ClubPage({ params }) {
 
   return (
     <>
-      {/* 1. HEADER MULTIIDIOMA */}
+      <div style={{ marginTop: 80 }} /> {/* ✅ Espacio para navbar */}
       <PageHead lang="es" page="Clubs" subPage={club.Nombre} />
 
-      {/* 2. BOTÓN "Volver a Clubs" en su propio wrapper */}
       <div className="back-nav-wrapper">
         <div className="back-nav">
           <a href="/clubs">← Volver a Clubs</a>
         </div>
       </div>
 
-      {/* 3. ClubDetail ABAJO: dentro de este wrapper separado */}
       <div className="club-detail-wrapper">
         <ClubDetail club={club} torneos={torneos} />
       </div>

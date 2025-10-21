@@ -635,29 +635,57 @@ body {
     background: #f9fafb;
     border-radius: 8px;
     border: 1px solid #f3f4f6;
+    transition: all 0.2s;
+    
+    &:hover {
+      background: #f3f4f6;
+      border-color: #e5e7eb;
+    }
+    
+    &.highlight {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-color: #fbbf24;
+      
+      .detail-content .value {
+        color: #92400e;
+        font-weight: 700;
+        font-size: 17px;
+      }
+    }
     
     .icon {
       font-size: 20px;
       margin-top: 2px;
+      opacity: 0.8;
+      flex-shrink: 0;
     }
     
     .detail-content {
       flex: 1;
-      
+
       .label {
         display: block;
         font-size: 11px;
         color: #6b7280;
         text-transform: uppercase;
         font-weight: 600;
-        margin-bottom: 4px;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px; 
       }
-      
+
       .value {
         display: block;
         font-size: 15px;
         color: #111827;
         font-weight: 500;
+        line-height: 1.4;
+
+        .no-info {
+          color: #9ca3af;
+          font-style: italic;
+          font-weight: 400;
+          font-size: 14px;
+        }
       }
     }
   }
@@ -816,7 +844,7 @@ body {
   bottom: 30px;
   right: 30px;
   background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-  color: c0392b;
+  color: #c0392b;
   padding: 16px 24px;
   border-radius: 50px;
   box-shadow: 0 8px 24px rgba(231, 76, 60, 0.4);
@@ -861,6 +889,7 @@ body {
     .cart-label {
       font-size: 12px;
       opacity: 0.9;
+      color: #ffffff;
     }
     
     .cart-total {

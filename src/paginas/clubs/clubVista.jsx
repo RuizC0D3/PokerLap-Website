@@ -88,18 +88,46 @@ export default function ClubVista({ club = {}, torneos = [] }) {
  *    export nombrado: ClubDetail
  * ============================ */
 // src/paginas/clubs/clubVista.jsx
+// Helper para formatear moneda colombiana
+const formatCurrency = (value) => {
+  if (!value) return null
+  const numericValue = parseInt(value.toString().replace(/\D/g, ''), 10)
+  if (isNaN(numericValue)) return value
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(numericValue)
+}
+
+// Helper para formatear fechas
+const formatFecha = (fecha) => {
+  if (!fecha) return null
+  try {
+    return new Date(fecha).toLocaleDateString('es-CO', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  } catch {
+    return fecha
+  }
+}
+
 export function ClubDetail({ club = {}, torneos = [] }) {
   const img = buildClubImg(club)
   const torneosActivos = useMemo(() => {
     if (!Array.isArray(torneos)) return []
     return torneos.filter(t => String(t?.ID_Club) === String(club?.ID_Club))
   }, [torneos, club?.ID_Club])
-
+  
   const whats = club?.WhatsApp || club?.Telefono || ''
   const mapHref = club?.Direccion 
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(club.Direccion)}` 
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(club.Direccion)}`
     : null
-  
+    
   const onShare = async () => {
     try {
       if (navigator.share) {
@@ -117,21 +145,6 @@ export function ClubDetail({ club = {}, torneos = [] }) {
     }
   }
 
-  // Helper para formatear fecha
-  const formatFecha = (fecha) => {
-    if (!fecha) return null
-    try {
-      return new Date(fecha).toLocaleDateString('es-CO', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })
-    } catch {
-      return fecha
-    }
-  }
-
   return (
     <div className="club-detail-container">
       {/* Header/Info principal del club */}
@@ -140,22 +153,25 @@ export function ClubDetail({ club = {}, torneos = [] }) {
           <img 
             src={img} 
             alt={club?.Nombre || 'Club'} 
-            onError={(ev) => {ev.currentTarget.src='/img/no-image.png'}} 
+            onError={(ev) => {ev.currentTarget.src='/img/no-image.png'}}
           />
         </div>
-        
         <div className="club-info">
           <h1>{club?.Nombre || 'Club'}</h1>
           {club?.Direccion && (
-            <p className="direccion">
+            <div className="direccion">
               <span className="icon">📍</span>
-              {club.Direccion}
-            </p>
+              <span>{club.Direccion}</span>
+            </div>
           )}
-          
           <div className="club-actions">
             {mapHref && (
-              <a href={mapHref} target="_blank" rel="noopener noreferrer" className="btn-action btn-mapa">
+              <a 
+                href={mapHref} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="btn-action btn-mapa"
+              >
                 📍 Ver en mapa
               </a>
             )}
@@ -169,7 +185,10 @@ export function ClubDetail({ club = {}, torneos = [] }) {
                 💬 WhatsApp
               </a>
             )}
-            <button onClick={onShare} className="btn-action btn-compartir">
+            <button 
+              onClick={onShare} 
+              className="btn-action btn-compartir"
+            >
               🔗 Compartir
             </button>
           </div>
@@ -187,156 +206,210 @@ export function ClubDetail({ club = {}, torneos = [] }) {
         ) : (
           <div className="torneos-list">
             {torneosActivos.map((t, i) => {
-              // Mapeo flexible de campos (ajustado a tu API)
               const nombre = t?.Nombre || t?.nombre || t?.Titulo || 'Torneo sin nombre'
               const fecha = t?.Fecha || t?.fecha || t?.FechaInicio
               const hora = t?.Hora || t?.hora || t?.HoraInicio
               const garantia = t?.Garantia || t?.garantia || t?.PremioGarantizado
               const buyin = t?.Buyin || t?.buyin || t?.BuyIn || t?.Entrada
               const recompra = t?.Recompra || t?.recompra || t?.Rebuys
+              const addon = t?.Addon || t?.addon || t?.AddOn
               const stack = t?.Stack || t?.stack || t?.StackInicial
               const niveles = t?.Niveles || t?.niveles || t?.DuracionNiveles
               const descripcion = t?.Descripcion || t?.descripcion || t?.Detalles
               const imagen = t?.Imagen || t?.imagen || t?.Foto
               const estado = t?.Estado || t?.estado || 'Activo'
-              
+              const camposOcultos = [
+                'Nombre', 'nombre', 'Titulo',
+                'Fecha', 'fecha', 'FechaInicio',
+                'Hora', 'hora', 'HoraInicio',
+                'Garantia', 'garantia', 'PremioGarantizado',
+                'Buyin', 'buyin', 'BuyIn', 'Entrada',
+                'Recompra', 'recompra', 'Rebuys',
+                'Addon', 'addon', 'AddOn',
+                'Stack', 'stack', 'StackInicial',
+                'Niveles', 'niveles', 'DuracionNiveles',
+                'Descripcion', 'descripcion', 'Detalles',
+                'Imagen', 'imagen', 'Foto',
+                'Estado', 'estado',
+                'ID_Torneo', 'ID_Club', 'id', '_id',
+                'Logo', 'logo', 'LogoCasino New York',
+                'ClubCasino New York', 'Inicio', 'ID PaisCO',
+                'FichasAdd30000', 'FichasRebuy60000', 'Fichastoin10000',
+                'Reservas61', 'Jugadores66', 'MonedaCOP'
+              ]
               return (
                 <div key={i} className="torneo-card-detailed">
-                  {/* Header del torneo */}
                   <div className="torneo-header">
                     <h3>{nombre}</h3>
                     {estado && (
-                      <span className={`torneo-status ${String(estado).toLowerCase()}`}>
+                      <span className="torneo-status activo">
                         {estado}
                       </span>
                     )}
                   </div>
-
+                  {imagen && (
+                    <div className="torneo-image">
+                      <img 
+                        src={imagen.startsWith('http') ? imagen : `/multimedia/torneos/${imagen}`}
+                        alt={nombre}
+                        loading="lazy"
+                        onError={(ev) => {ev.currentTarget.style.display='none'}}
+                      />
+                    </div>
+                  )}
                   <div className="torneo-content">
-                    {/* Imagen del torneo */}
-                    {imagen && (
-                      <div className="torneo-image">
-                        <img
-                          src={imagen.startsWith('http') ? imagen : `/multimedia/torneos/${imagen}`}
-                          alt={nombre}
-                          loading="lazy"
-                          onError={(ev) => {ev.currentTarget.style.display='none'}}
-                        />
-                      </div>
-                    )}
-                    
-                    {/* Grid de información detallada */}
                     <div className="details-grid">
                       {fecha && (
                         <div className="detail-item">
                           <span className="icon">📅</span>
-                          <div>
-                            <span className="label">Fecha </span>
+                          <div className="detail-content">
+                            <span className="label">Fecha</span>
                             <span className="value">{formatFecha(fecha) || fecha}</span>
                           </div>
                         </div>
                       )}
-                      
                       {hora && (
                         <div className="detail-item">
                           <span className="icon">🕐</span>
-                          <div>
-                            <span className="label">Hora de inicio </span>
+                          <div className="detail-content">
+                            <span className="label">Hora de inicio</span>
                             <span className="value">{hora}</span>
                           </div>
                         </div>
                       )}
-                      
-                      {garantia && (
+                      {(garantia || garantia === 0) && (
                         <div className="detail-item highlight">
                           <span className="icon">💰</span>
-                          <div>
-                            <span className="label">Premio garantizado </span>
-                            <span className="value">{garantia}</span>
+                          <div className="detail-content">
+                            <span className="label">Premio garantizado</span>
+                            <span className="value">
+                              {garantia && garantia !== '0' && garantia !== 0 
+                                ? (formatCurrency(garantia) || garantia)
+                                : <span className="no-info">Por confirmar</span>
+                              }
+                            </span>
                           </div>
                         </div>
                       )}
-                      
-                      {buyin && (
-                        <div className="detail-item">
+                      {(buyin || buyin === 0) && (
+                        <div className="detail-item highlight">
                           <span className="icon">💵</span>
-                          <div>
-                            <span className="label">Buy-in </span>
-                            <span className="value">{buyin}</span>
+                          <div className="detail-content">
+                            <span className="label">Buy-in</span>
+                            <span className="value">
+                              {buyin && buyin !== '0' && buyin !== 0
+                                ? (formatCurrency(buyin) || buyin)
+                                : <span className="no-info">Entrada libre</span>
+                              }
+                            </span>
                           </div>
                         </div>
                       )}
-                      
-                      {recompra && (
+                      {(recompra || recompra === 0) && (
                         <div className="detail-item">
                           <span className="icon">🔄</span>
-                          <div>
-                            <span className="label">Recompra </span>
-                            <span className="value">{recompra}</span>
+                          <div className="detail-content">
+                            <span className="label">Recompra</span>
+                            <span className="value">
+                              {recompra && recompra !== '0' && recompra !== 0
+                                ? (formatCurrency(recompra) || recompra)
+                                : <span className="no-info">No disponible</span>
+                              }
+                            </span>
                           </div>
                         </div>
                       )}
-                      
-                      {stack && (
+                      {(addon || addon === 0) && (
+                        <div className="detail-item">
+                          <span className="icon">➕</span>
+                          <div className="detail-content">
+                            <span className="label">Add-on</span>
+                            <span className="value">
+                              {addon && addon !== '0' && addon !== 0
+                                ? (formatCurrency(addon) || addon)
+                                : <span className="no-info">No disponible</span>
+                              }
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      {(stack || stack === 0) && (
                         <div className="detail-item">
                           <span className="icon">🎰</span>
-                          <div>
-                            <span className="label">Stack inicial </span>
-                            <span className="value">{stack}</span>
+                          <div className="detail-content">
+                            <span className="label">Stack inicial</span>
+                            <span className="value">
+                              {stack && stack !== '0' && stack !== 0
+                                ? (formatCurrency(stack) || stack)
+                                : <span className="no-info">Por confirmar</span>
+                              }
+                            </span>
                           </div>
                         </div>
                       )}
-                      
                       {niveles && (
                         <div className="detail-item">
                           <span className="icon">⏱️</span>
-                          <div>
-                            <span className="label">Duración niveles </span>
+                          <div className="detail-content">
+                            <span className="label">Duración niveles</span>
                             <span className="value">{niveles} min</span>
                           </div>
                         </div>
                       )}
-
-                      {/* Mostrar TODOS los demás campos del torneo automáticamente */}
                       {Object.keys(t).map(key => {
-                        // Saltar campos ya mostrados o internos
-                        const skipFields = [
-                          'Nombre', 'nombre', 'Titulo',
-                          'Fecha', 'fecha', 'FechaInicio',
-                          'Hora', 'hora', 'HoraInicio',
-                          'Garantia', 'garantia', 'PremioGarantizado',
-                          'Buyin', 'buyin', 'BuyIn', 'Entrada',
-                          'Recompra', 'recompra', 'Rebuys',
-                          'Stack', 'stack', 'StackInicial',
-                          'Niveles', 'niveles', 'DuracionNiveles',
-                          'Descripcion', 'descripcion', 'Detalles',
-                          'Imagen', 'imagen', 'Foto',
-                          'Estado', 'estado',
-                          'ID_Torneo', 'ID_Club', 'id', '_id'
+                        if (camposOcultos.includes(key) || !t[key]) return null
+                        const keyLower = key.toLowerCase()
+                        const camposMonetarios = [
+                          'entradaf', 'entrada_f', 'entrada', 
+                          'fichasini', 'fichas_ini', 'fichasinicial', 'fichas_inicial',
+                          'fichasrein', 'fichas_rein', 'fichasreintegro', 'fichas_reintegro',
+                          'fichasadd', 'fichas_add', 
+                          'rebuy', 're_buy', 'recompra',
+                          'garantizado', 'garantia', 'premio',
+                          'addon', 'add_on'
                         ]
-                        
-                        if (skipFields.includes(key) || !t[key]) return null
-                        
+                        const esMonetario = camposMonetarios.some(campo => 
+                          keyLower.includes(campo.replace('_', ''))
+                        )
+                        const valor = String(t[key]).trim()
+                        if ((valor === '0' || valor === '') && esMonetario) return null
+                        if (valor === '0' || valor === '') return null
+                        const labelMap = {
+                          'entradaf': 'Entrada final',
+                          'entrada_f': 'Entrada final',
+                          'fichasini': 'Fichas iniciales',
+                          'fichas_ini': 'Fichas iniciales',
+                          'fichasinicial': 'Fichas iniciales',
+                          'fichasrein': 'Fichas de reintegro',
+                          'fichas_rein': 'Fichas de reintegro',
+                          'fichasreintegro': 'Fichas de reintegro',
+                          'fichasadd': 'Fichas add-on',
+                          'fichas_add': 'Fichas add-on',
+                          'rebuy': 'Recompra',
+                          're_buy': 'Recompra',
+                          'garantizado': 'Premio garantizado'
+                        }
+                        const label = labelMap[keyLower] || key.replace(/_/g, ' ')
+                        const valorFormateado = esMonetario ? (formatCurrency(valor) || valor) : valor
                         return (
                           <div key={key} className="detail-item">
                             <span className="icon">📋</span>
-                            <div>
-                              <span className="label">{key.replace(/_/g, ' ')}</span>
-                              <span className="value">{String(t[key])}</span>
+                            <div className="detail-content">
+                              <span className="label">{label}</span>
+                              <span className="value">{valorFormateado}</span>
                             </div>
                           </div>
                         )
                       })}
                     </div>
-                    
-                    {/* Descripción */}
-                    {descripcion && (
-                      <div className="torneo-descripcion">
-                        <h4>📝 Descripción</h4>
-                        <p>{descripcion}</p>
-                      </div>
-                    )}
                   </div>
+                  {/* Descripción */}
+                  {descripcion && (
+                    <div className="torneo-descripcion">
+                      <h4>📝 Descripción</h4>
+                      <p>{descripcion}</p>
+                    </div>
+                  )}
                 </div>
               )
             })}
