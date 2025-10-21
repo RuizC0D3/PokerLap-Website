@@ -231,7 +231,7 @@ export function ClubDetail({ club = {}, torneos = [] }) {
                         <div className="detail-item">
                           <span className="icon">📅</span>
                           <div>
-                            <span className="label">Fecha</span>
+                            <span className="label">Fecha </span>
                             <span className="value">{formatFecha(fecha) || fecha}</span>
                           </div>
                         </div>
@@ -241,7 +241,7 @@ export function ClubDetail({ club = {}, torneos = [] }) {
                         <div className="detail-item">
                           <span className="icon">🕐</span>
                           <div>
-                            <span className="label">Hora de inicio</span>
+                            <span className="label">Hora de inicio </span>
                             <span className="value">{hora}</span>
                           </div>
                         </div>
@@ -251,7 +251,7 @@ export function ClubDetail({ club = {}, torneos = [] }) {
                         <div className="detail-item highlight">
                           <span className="icon">💰</span>
                           <div>
-                            <span className="label">Premio garantizado</span>
+                            <span className="label">Premio garantizado </span>
                             <span className="value">{garantia}</span>
                           </div>
                         </div>
@@ -261,7 +261,7 @@ export function ClubDetail({ club = {}, torneos = [] }) {
                         <div className="detail-item">
                           <span className="icon">💵</span>
                           <div>
-                            <span className="label">Buy-in</span>
+                            <span className="label">Buy-in </span>
                             <span className="value">{buyin}</span>
                           </div>
                         </div>
@@ -271,7 +271,7 @@ export function ClubDetail({ club = {}, torneos = [] }) {
                         <div className="detail-item">
                           <span className="icon">🔄</span>
                           <div>
-                            <span className="label">Recompra</span>
+                            <span className="label">Recompra </span>
                             <span className="value">{recompra}</span>
                           </div>
                         </div>
@@ -281,7 +281,7 @@ export function ClubDetail({ club = {}, torneos = [] }) {
                         <div className="detail-item">
                           <span className="icon">🎰</span>
                           <div>
-                            <span className="label">Stack inicial</span>
+                            <span className="label">Stack inicial </span>
                             <span className="value">{stack}</span>
                           </div>
                         </div>
@@ -291,7 +291,7 @@ export function ClubDetail({ club = {}, torneos = [] }) {
                         <div className="detail-item">
                           <span className="icon">⏱️</span>
                           <div>
-                            <span className="label">Duración niveles</span>
+                            <span className="label">Duración niveles </span>
                             <span className="value">{niveles} min</span>
                           </div>
                         </div>

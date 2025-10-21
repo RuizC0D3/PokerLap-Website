@@ -27,6 +27,12 @@ export default function Descargas() {
             <div key={i} className="descarga-card">
               <div className="descarga-icon">{f.icon}</div>
               <h3>{f.nombre}</h3>
+              <p className="descarga-descripcion">
+                {/* Ejemplo de descripción, edita según el archivo */}
+                {f.nombre === 'Caja' && 'Software de gestión de caja para clubes de poker.'}
+                {f.nombre === 'App Dealer' && 'Aplicación móvil para dealers, versión Android.'}
+                {f.nombre.startsWith('Impresora') && 'Driver o manual para impresoras compatibles.'}
+              </p>
               <button onClick={() => descargar(f.url,f.nombre)} className="btn-descargar">
                 ⬇️ Descargar
               </button>
