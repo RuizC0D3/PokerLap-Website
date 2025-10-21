@@ -1,4 +1,6 @@
-// src/app/descargas/page.js
+export const dynamic = 'force-dynamic'
+
+import { Suspense } from 'react'
 import '../../../estilos/styles.scss'
 import PageHead from '../../components/body/pageHead'
 import Descargas from '../../paginas/descargas/descargas'
@@ -16,10 +18,10 @@ export const metadata = {
 
 export default function DescargasPage() {
   return (
-    <>
+    <Suspense fallback={<div style={{ padding: '60px 20px', textAlign: 'center' }}>Cargando descargas...</div>}>
       <div style={{ marginTop: 80 }} />
       <PageHead lang="es" page="Descargas" />
       <Descargas />
-    </>
+    </Suspense>
   )
 }

@@ -1,4 +1,6 @@
-// src/app/torneos/page.js
+export const dynamic = 'force-dynamic'
+
+import { Suspense } from 'react'
 import '../../../estilos/styles.scss'
 import PageHead from '../../components/body/pageHead'
 import PreLanding from '../preLanding'
@@ -16,10 +18,10 @@ export const metadata = {
 
 export default function TorneosPage() {
   return (
-    <>
+    <Suspense fallback={<div style={{ padding: '60px 20px', textAlign: 'center' }}>Cargando torneos...</div>}>
       <div style={{ marginTop: 80 }} />
       <PageHead lang="es" page="Torneos" />
       <PreLanding seccion={2} />
-    </>
+    </Suspense>
   )
 }

@@ -1,4 +1,6 @@
-// src/app/clubs/page.js
+export const dynamic = 'force-dynamic'
+
+import { Suspense } from 'react'
 import '../../../estilos/styles.scss'
 import PageHead from '../../components/body/pageHead'
 import ClubsWithData from '../../paginas/clubs/ClubsWithData'
@@ -16,12 +18,12 @@ export const metadata = {
 
 export default function ClubsPage() {
   return (
-    <>
+    <Suspense fallback={<div style={{ padding: '60px 20px', textAlign: 'center' }}>Cargando clubs...</div>}>
       <div style={{ marginTop: 80 }} />
       <PageHead lang="es" page="Clubs" />
       <main className="clubs-wrapper">
         <ClubsWithData />
       </main>
-    </>
+    </Suspense>
   )
 }
