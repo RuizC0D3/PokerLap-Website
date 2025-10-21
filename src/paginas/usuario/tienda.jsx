@@ -2,7 +2,7 @@
 'use client'
 import '../../../estilos/styles.scss'
 import { useSearchParams, useRouter } from 'next/navigation'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState, Suspense } from 'react'
 import { createPortal } from 'react-dom'
 import { CATALOGO } from '../../lib/catalogo'
 import BotonBold from './BotonBold'
@@ -331,7 +331,7 @@ function PlansGrid({ items, onAdd }) {
 }
 
 // ============= COMPONENTE PRINCIPAL =============
-export default function TiendaVista({ lang = 'es', setOpt = () => {} }) {
+function TiendaVistaContent({ lang = 'es', setOpt = () => {} }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [txAlert, setTxAlert] = useState(null)
@@ -472,5 +472,19 @@ export default function TiendaVista({ lang = 'es', setOpt = () => {} }) {
         onRemove={remove}
       />
     </div>
+  )
+}
+
+export default function TiendaVista(props) {
+  return (
+    <Suspense
+      fallback={
+        <div style={{ padding: '60px 20px', textAlign: 'center' }}>
+          Cargando tienda...
+        </div>
+      }
+    >
+      <TiendaVistaContent {...props} />
+    </Suspense>
   )
 }
