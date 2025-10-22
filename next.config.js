@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // output: 'export',  // Comentar o eliminar esta línea
   images: {
     unoptimized: true,
     domains: ['img.pkti.me', 'pokerlap.s3.amazonaws.com'],
@@ -9,5 +9,4 @@ const nextConfig = {
     ignoreDuringBuilds: false,
   },
 }
-
 module.exports = nextConfig

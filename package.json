@@ -3,9 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build ; node postbuild.js",
-    "start": "next start"
+    "build": "next build"
   },
   "engines": { "node": ">=18" },
   "dependencies": {
