@@ -2,6 +2,11 @@ import '../../../../estilos/styles.scss'
 import PreLanding from '../../preLanding'
 let resArray = []
 import { headers } from 'next/headers';
+
+export async function generateStaticParams() {
+  return []
+}
+
 export async function generateMetadata({ params, searchParams }, parent) {
   const headersList = headers();
   const pathname = headersList.get("x-current-path");

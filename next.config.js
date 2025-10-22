@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'export',
   images: {
     unoptimized: true,
     domains: ['img.pkti.me', 'pokerlap.s3.amazonaws.com'],
