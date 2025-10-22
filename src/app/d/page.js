@@ -1,4 +1,3 @@
-export const dynamic = 'force-dynamic'
 import { Suspense } from 'react'
 import '../../../estilos/styles.scss'
 import Redirect from './redirect'
