@@ -1,8 +1,8 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { usePathname, useSearchParams, useRouter } from 'next/navigation'
 
-export default function BoldReturnShim() {
+function BoldReturnShimContent() {
   const sp = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
@@ -22,4 +22,12 @@ export default function BoldReturnShim() {
   }, [sp, pathname, router])
 
   return null
+}
+
+export default function BoldReturnShim() {
+  return (
+    <Suspense fallback={null}>
+      <BoldReturnShimContent />
+    </Suspense>
+  )
 }
