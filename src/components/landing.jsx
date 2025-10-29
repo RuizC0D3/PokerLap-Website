@@ -8,10 +8,7 @@ import { Languages } from "../modelos/languages"
 import Image from "next/image"
 import { FormatEnc } from "../funciones/formatEnc"
 
-// Si pones NEXT_PUBLIC_DEBUG=1 en .env.local verás logs
 const DEBUG = process.env.NEXT_PUBLIC_DEBUG === '1'
-
-let init = false
 
 const defUser = { codigo: '', idUser: false, usuario: "", email: "", passwordRepeat: "", password: "", machineId: "ABC", tipoDispositivo: "" }
 let actualUser = defUser
@@ -33,8 +30,7 @@ const LandingSelect = (props) => {
   const [routeReady, setRouteReady] = useState(false)
   const [isTienda, setIsTienda] = useState(false)
   useEffect(() => {
-    // se evalúa solo en cliente
-    const path = window.location.pathname
+    const path = typeof window !== 'undefined' ? window.location.pathname : '/'
     setIsTienda(path === '/tienda' || path.startsWith('/tienda'))
     setRouteReady(true)
   }, [])
@@ -136,18 +132,14 @@ const LandingSelect = (props) => {
   }
 
   // --------- Inicialización (evitar ejecutar en /tienda) ----------
+  // Inicialización (evitar ejecutar en /tienda)
   useEffect(() => {
-    if (!routeReady) return
-    if (init) return
-    init = true
+  if (!routeReady) return
+  if (isTienda) return
 
-    getLanguageAndApp()
-
-    // Solo la landing hace sus llamadas cuando **no** estamos en /tienda
-    if (!isTienda) {
-      makeTry()
-    }
-  }, [routeReady, isTienda]) // <- importante
+  getLanguageAndApp()
+  makeTry()
+}, [routeReady]) 
 
   // Mantener actualUser consistente con los cambios de usuario / dispositivo
   useEffect(() => {

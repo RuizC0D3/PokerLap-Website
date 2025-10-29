@@ -2,7 +2,7 @@
 import { Inter } from 'next/font/google'
 import './globals.css'
 import MenuBar from '../components/menuBar/menuBar'
-
+import { StrictMode } from 'react'
 import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 config.autoAddCss = false
@@ -26,23 +26,24 @@ export const metadata = {
 }
 
 export default function RootLayout({ children }) {
-  return (
+  const isProduction = process.env.NODE_ENV === 'production'
+
+  const content = (
     <html lang="es">
       <head>
-        <Script
-          id="bold-lib"
-          src="https://checkout.bold.co/library/boldPaymentButton.js"
-          strategy="afterInteractive"
-        />
+        <Script id="bold-lib" src="https://checkout.bold.co/library/boldPaymentButton.js" strategy="afterInteractive" />
       </head>
       <body className={inter.className}>
         <BoldReturnShim />
-        {/* --- Navbar visible en TODAS las páginas --- */}
         <MenuBar />
-
-        {/* --- Todo el contenido pagina --- */}
         {children}
       </body>
     </html>
+  )
+
+  return isProduction ? (
+    <StrictMode>{content}</StrictMode>
+  ) : (
+    content
   )
 }
