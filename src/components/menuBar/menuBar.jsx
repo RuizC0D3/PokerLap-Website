@@ -2,20 +2,30 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
 const MenuBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const router = useRouter();
-  const pathname = usePathname(); // Mejor que useRouter para detectar ruta
+  const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
 
+  // Marcar que el componente está montado
   useEffect(() => {
-    // Cerrar menú cuando cambia la ruta
-    setIsMenuOpen(false);
-    document.body.style.overflow = 'auto';
-  }, [pathname]);
+    setMounted(true);
+    
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, []);
+
+  // Cerrar menú cuando cambia la ruta
+  useEffect(() => {
+    if (mounted) {
+      setIsMenuOpen(false);
+      document.body.style.overflow = 'auto';
+    }
+  }, [pathname, mounted]);
 
   const toggleMenu = () => {
     const newState = !isMenuOpen;
@@ -97,7 +107,6 @@ const MenuBar = () => {
     ),
   };
 
-  // Items del menú - INCLUYE /tienda
   const menuItems = [
     { href: '/', label: 'Inicio', icon: icons.inicio },
     { href: '/clubs', label: 'Clubs', icon: icons.clubs },
@@ -107,6 +116,9 @@ const MenuBar = () => {
     { href: '/sobrenosotros', label: 'Sobre Nosotros', icon: icons.sobrenosotros },
     { href: '/descargas', label: 'Descargas', icon: icons.descargas },
   ];
+
+  // No renderizar hasta estar montado
+  if (!mounted) return null;
 
   return (
     <>

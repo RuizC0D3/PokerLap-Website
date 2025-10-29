@@ -53,15 +53,12 @@ const Footer = (props) => {
                         <Image src={'/multimedia/logo.png'} alt="logo" height={40} width={150} />
                     </div>
                     <div className="footer-container-secciones">
-                        {secciones.map((key, i) => {
-                            return (
-                                <><div className="footer-footer-secciones-hijo" key={`seccion-footer-${i}`} id={`seccion-footer-${i}`}>
-                                    {key}
-                                </div>
-                                    {i < secciones.length - 1 ? <><span>-</span> </> : <><span></span> </>}
-                                </>
-                            )
-                        })}
+                        {secciones.map((key, i) => (
+                            <div key={`seccion-footer-${i}`} className="footer-footer-secciones-hijo" id={`seccion-footer-${i}`}>
+                                {key}
+                                {i < secciones.length - 1 && <span>-</span>}
+                            </div>
+                        ))}
                     </div>
                     <div className="footer-container-redes">
                         <Image src={'/multimedia/facebook.png'} className="hover" onClick={(e) => { e.preventDefault(); window.open('https://www.facebook.com/pkrLAP/?ti=as') }} alt="idioma" height={20} width={20} />
