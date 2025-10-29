@@ -204,19 +204,6 @@ const LandingSelect = (props) => {
         </>
       }
 
-      {!delact && (
-        <MenuBar
-          user={user}
-          logOut={logOut}
-          setOptLogin={setOptLogin}
-          optLogin={optLogin}
-          setLanguageSelected={fsetLanguageSelected}
-          lang={languageSelected}
-          setOpt={setOpt}
-          opt={opt}
-        />
-      )}
-
       <Container
         torneoOpt={torneoOpt}
         // socketInitializer={socketInitializer} // si lo usas, actívalo solo cuando proceda

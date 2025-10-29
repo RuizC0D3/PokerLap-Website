@@ -15,7 +15,7 @@ export const metadata = {
 
 export default function InicioPage() {
   return (
-    <Suspense fallback={<div style={{ padding: '60px 20px', textAlign: 'center' }}>Cargando...</div>}>
+    <Suspense fallback={<div style={{ padding: '0px', margin: '0px', textAlign: 'center' }}>Cargando...</div>}>
       <PreLanding seccion={0} />
     </Suspense>
   )

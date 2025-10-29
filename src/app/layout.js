@@ -1,12 +1,9 @@
-// src/app/layout.js
 import { Inter } from 'next/font/google'
 import './globals.css'
 import MenuBar from '../components/menuBar/menuBar'
-import { StrictMode } from 'react'
 import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 config.autoAddCss = false
-
 import Script from 'next/script'
 import BoldReturnShim from './BoldReturnShim'
 
@@ -26,12 +23,14 @@ export const metadata = {
 }
 
 export default function RootLayout({ children }) {
-  const isProduction = process.env.NODE_ENV === 'production'
-
-  const content = (
+  return (
     <html lang="es">
       <head>
-        <Script id="bold-lib" src="https://checkout.bold.co/library/boldPaymentButton.js" strategy="afterInteractive" />
+        <Script
+          id="bold-lib"
+          src="https://checkout.bold.co/library/boldPaymentButton.js"
+          strategy="afterInteractive"
+        />
       </head>
       <body className={inter.className}>
         <BoldReturnShim />
@@ -39,11 +38,5 @@ export default function RootLayout({ children }) {
         {children}
       </body>
     </html>
-  )
-
-  return isProduction ? (
-    <StrictMode>{content}</StrictMode>
-  ) : (
-    content
   )
 }
