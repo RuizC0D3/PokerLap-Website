@@ -83,7 +83,7 @@ const Footer = (props) => {
                     </div>
                     <div className="footer-copyright">
                         © Copyright 2024 All Rights Reserved
-                        VERCEL BUILD
+                        ROCAS
 
                     </div>
                 </div>
