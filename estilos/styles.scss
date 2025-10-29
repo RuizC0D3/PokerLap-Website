@@ -1469,3 +1469,119 @@ body {
     }
   }
 }
+
+// ============================================
+// RESET GLOBAL - Elimina el hueco blanco
+// ============================================
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background-color: #f9fafb;
+}
+
+// ============================================
+// RESET GLOBAL - Elimina espacios en blanco
+// ============================================
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background-color: #f9fafb; // Tu color de fondo
+}
+
+// Importar estilos del menuBar
+@import './componentes/menuBar/menuBar.scss';
+
+// ============================================
+// CONTENIDO PRINCIPAL - CON PADDING CORRECTO
+// ============================================
+
+body.menu-open {
+  overflow: hidden;
+}
+
+main,
+.main-content {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#__next {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+
+  & > div:first-child {
+    padding-top: 70px;
+    margin: 0;
+    
+    @media (max-width: 768px) {
+      padding-top: 60px;
+    }
+  }
+}
+
+// ============================================
+// Z-INDEX HIERARCHY
+// ============================================
+
+.download-banner,
+.app-download-section {
+  z-index: 997 !important;
+}
+
+// ============================================
+// SCROLL PERSONALIZADO
+// ============================================
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #E4002B;
+  border-radius: 10px;
+
+  &:hover {
+    background: #c20026;
+  }
+}
+
+// ============================================
+// ELIMINAR ESPACIOS RESIDUALES
+// ============================================
+
+// Si tienes contenedores con margin-top que crean espacios
+section,
+article,
+div[class*="container"],
+div[class*="wrapper"] {
+  margin: 0;
+  padding: 0;
+}
