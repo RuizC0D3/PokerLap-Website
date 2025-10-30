@@ -1629,3 +1629,700 @@ body > div:first-child,
 }
 
 html,body{margin:0!important;padding:0!important;overflow-x:hidden!important}
+
+.menubar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100% !important;
+  margin: 0;
+  padding: 0;
+}
+
+.menubar-content {
+  width: 100% !important;
+  max-width: 100% !important;
+  display: flex;
+  justify-content: space-between; /* mantiene la distribución interna */
+  align-items: center;
+  margin: 0 auto;
+}
+
+/* Quita el hueco entre el navbar y el header */
+.page-head-container,
+.page-head-content {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Opcional: asegúrate de que no haya espacio oculto arriba */
+body, main, nav {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Si el header tenía un pseudo-elemento que creaba el hueco */
+.page-head-container::after,
+.page-head-content::after {
+  display: none !important;
+}
+
+/* === FIX NAVBAR WIDTH & HEADER GAP === */
+
+.menubar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100% !important;
+  margin: 0;
+  padding: 0;
+}
+
+.menubar-content {
+  width: 100% !important;
+  max-width: 100% !important;
+  display: flex;
+  justify-content: space-between; /* o center si prefieres */
+  align-items: center;
+  margin: 0 auto;
+}
+
+.page-head-container,
+.page-head-content {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+body, main, nav {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.page-head-container::after,
+.page-head-content::after {
+  display: none !important;
+}
+// ============================================
+// FIX FINAL - ELIMINAR MARGIN-TOP 80PX
+// ============================================
+
+// Eliminar TODOS los margin-top que causan espacios
+* {
+  &[style*="margin-top: 80px"] {
+    margin-top: 0 !important;
+  }
+}
+
+// Forzar que cualquier div hijo directo del body no tenga margin-top
+body > div,
+body > div > div,
+body > div > div > div {
+  margin-top: 0 !important;
+}
+
+// Específicamente el page-head y su contenedor
+.page-head-container,
+.page-head-wrapper,
+div[class*="page"] {
+  margin-top: 0 !important;
+}
+
+// Si el navbar tiene un hermano siguiente, eliminar su margin-top
+nav + *,
+header + *,
+.menubar-container + * {
+  margin-top: 0 !important;
+}
+
+// Para React/Next.js - eliminar margin del root
+#__next,
+#__next > div,
+#root,
+#root > div {
+  margin-top: 0 !important;
+}
+
+// ============================================
+// FIX NAVBAR - PADDING Y CENTRADO
+// ============================================
+.menubar-content {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 40px !important;  // ⬅️ MÁS PADDING A LOS LADOS
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+// ============================================
+// FIX CLUBS GRID - CENTRAR TARJETAS
+// ============================================
+.clubs-wrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  padding: 40px 20px !important;
+  box-sizing: border-box;
+}
+
+.clubs-container {
+  width: 100% !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  box-sizing: border-box;
+}
+
+.clubs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+  gap: 24px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+}
+
+// Asegurar que el contenedor de búsqueda también esté centrado
+.clubs-filters {
+  max-width: 1200px;
+  margin: 0 auto 30px !important;
+  width: 100% !important;
+}
+
+// ============================================
+// FIX TIENDA Y DESCARGAS - TAMBIÉN CENTRADAS
+// ============================================
+.tienda-container,
+.descargas-container,
+.aprende-container {
+  width: 100% !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  box-sizing: border-box;
+}
+
+.descargas-grid,
+.aprende-grid {
+  max-width: 1200px;
+  margin: 0 auto !important;
+}
+// ============================================
+// TORNEOS - CARTELES CONSISTENTES
+// ============================================
+// ============================================
+// TORNEOS - ESTILOS LIMPIOS DESDE 0
+// ============================================
+
+.torneos-lista-container {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 30px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  box-sizing: border-box;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+// MENÚ IZQUIERDO
+.torneos-lista-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 700px;
+  overflow-y: auto;
+  padding-right: 10px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+    &:hover { background: #999; }
+  }
+}
+
+.torneos-menu-item {
+  background: white;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border-left: 4px solid #e74c3c;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2c3e50;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
+  &:hover {
+    background: #f9fafb;
+    border-left-color: #c0392b;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.15);
+    transform: translateX(3px);
+  }
+}
+
+// GRID DE TARJETAS
+.torneos-lista-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  width: 100%;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// TARJETAS
+.torneos-card {
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  // PRIMERA TARJETA CON EFECTO ELÉCTRICO
+  &.torneos-card-featured {
+    border: 2px solid #e74c3c;
+    box-shadow: 
+      0 0 15px rgba(231, 76, 60, 0.4),
+      0 0 30px rgba(255, 0, 110, 0.2),
+      0 2px 8px rgba(0, 0, 0, 0.1);
+    animation: torneos-glow 2s ease-in-out infinite;
+  }
+}
+
+@keyframes torneos-glow {
+  0%, 100% {
+    box-shadow: 
+      0 0 15px rgba(231, 76, 60, 0.4),
+      0 0 30px rgba(255, 0, 110, 0.2),
+      0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 25px rgba(231, 76, 60, 0.6),
+      0 0 50px rgba(255, 0, 110, 0.3),
+      0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// HEADER DE LA TARJETA
+.torneos-card-header {
+  height: 140px;
+  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+
+  p {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+  }
+
+  img {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    transition: transform 0.3s;
+
+    &:hover { transform: scale(1.05); }
+  }
+}
+
+// BODY DE LA TARJETA
+.torneos-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  gap: 8px;
+  overflow-y: auto;
+
+  h5 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #2c3e50;
+  }
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ddd;
+    border-radius: 2px;
+  }
+}
+
+.torneos-garantizado {
+  margin: 0;
+  font-size: 12px;
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.torneos-info {
+  font-size: 11px;
+  color: #666;
+  font-weight: 500;
+}
+
+// DATOS
+.torneos-datos {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid #e0e0e0;
+  margin-top: auto;
+}
+
+.torneos-dato {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  align-items: center;
+  font-size: 10px;
+
+  span {
+    display: block;
+    margin: 0;
+
+    &:first-child {
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    &:nth-child(2) {
+      color: #666;
+      text-align: center;
+    }
+
+    &:last-child {
+      color: #2c3e50;
+      text-align: right;
+    }
+  }
+}
+
+.torneos-fichas {
+  color: #e74c3c !important;
+  font-weight: 700 !important;
+}
+// ============================================
+// TORNEO INDIVIDUAL - HEADER Y LAYOUT
+// ============================================
+
+.torneo-detail-page {
+  width: 100%;
+  background: white;
+}
+
+// HEADER CONSISTENTE - IGUAL AL GENERAL DE TORNEOS
+.header-pagina {
+  width: 100%;
+  background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+  padding: 24px 0 20px 0;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.header-breadcrumbs {
+  color: #bdc3c7;
+  font-size: 13px;
+  font-weight: 400;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.header-titulo {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.8rem;
+  letter-spacing: 0.02em;
+  margin: 0;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+// QUITAR EL CUADRO BLANCO - FONDO LIMPIO
+.torneo-detail-page {
+  width: 100%;
+  background: #fafbfc;
+}
+
+.torneo-container {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  background: transparent;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+
+// CONTENEDOR PRINCIPAL
+.torneo-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  background: white;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.clubs-valores-hijo.clubs-container-center-hijo-flex-row {
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  width: 100%;
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+// SECCIÓN IZQUIERDA - CASINO
+.torneo-casino {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 45%;
+  min-width: 300px;
+
+  @media (max-width: 1024px) {
+    width: 100%;
+  }
+}
+
+.torneoShare {
+  position: relative;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.abshare {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: white;
+  padding: 10px 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  font-size: 12px;
+  color: #666;
+
+  span {
+    cursor: pointer;
+    font-weight: bold;
+    color: #e74c3c;
+    transition: all 0.2s;
+
+    &:hover {
+      transform: scale(1.15);
+    }
+  }
+
+  img {
+    cursor: pointer;
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+}
+
+.torneo-casino-club {
+  width: 100%;
+  height: auto;
+  cursor: pointer;
+  transition: transform 0.3s;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+}
+
+.torneo-casino-mapa {
+  width: 100%;
+  height: 250px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+// SECCIÓN DERECHA - INFO
+.wrap {
+  display: flex;
+  flex-direction: column;
+  width: 55%;
+  gap: 20px;
+
+  @media (max-width: 1024px) {
+    width: 100%;
+  }
+}
+
+.torneofull {
+  width: 100%;
+}
+
+.tor {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.tor > div:first-child {
+  background: linear-gradient(135deg, #f9fafb 0%, #f2f3f5 100%);
+  padding: 20px;
+  border-bottom: 1px solid #e5e7eb;
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #2c3e50;
+  }
+}
+
+.torneo-torneo-xs.torneo-torneo {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ddd;
+    border-radius: 2px;
+  }
+}
+
+.datos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.font-size-20 {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.dato {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  align-items: center;
+  font-size: 11px;
+
+  span, p {
+    margin: 0;
+    display: block;
+
+    &:first-child {
+      font-weight: 600;
+      color: #2c3e50;
+      font-size: 10px;
+    }
+
+    &:nth-child(2) {
+      color: #666;
+      text-align: center;
+    }
+
+    &:last-child {
+      color: #e74c3c;
+      font-weight: 700;
+      text-align: right;
+    }
+  }
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+}
+
+.gap-10 { gap: 10px; }
+.gap-20 { gap: 20px; }
+
+.fontcolorInedit-black { color: #2c3e50 !important; }
+.fontcolorInedit-poker { color: #e74c3c !important; }
+.color-poker { color: #e74c3c !important; }
+.minW-100 { min-width: 100px; }
+.minW-150 { min-width: 150px; }
+.minw-30 { min-width: 30px; }
+.fts-xs { font-size: 11px !important; }
+.mb-10 { margin-bottom: 10px; }
+.mb-15 { margin-bottom: 15px; }
+.mb-30 { margin-bottom: 30px; }
+.mt-10 { margin-top: 10px; }
+.mt-30 { margin-top: 30px; }
+.pdl-30 { padding-left: 30px; }
+.text-center { text-align: center; }
+.align-center { align-items: center; }
+.just-center { justify-content: center; }
+.flex-row { display: flex; flex-direction: row; }
+.brdr10 { border-radius: 10px; }
+.hover { cursor: pointer; transition: all 0.2s; }
+
+.torin {
+  width: 100%;
+  margin-top: 40px;
+  padding-top: 40px;
+  border-top: 2px solid #e5e7eb;
+}

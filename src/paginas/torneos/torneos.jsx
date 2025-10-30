@@ -1,207 +1,156 @@
 'use client'
 
 import { useEffect, useState } from "react"
+import { useRouter } from 'next/navigation'
 import TorneoIndividual from "./torneoIndividual"
 import { SaldoFix } from "../../fixSlado"
-let windoewa = false
-let resss = false, imagenesCorrectasAux = []
+
+let imagenesCorrectasAux = []
 
 const Torneos = (props) => {
-    const { torneoOpt = false, club = false, torneos = [], clubs = [], setOpt = console.log, lang = 'es' } = props
-    const [inTorneo, setinTorneo] = useState({ state: false, torneo: -1 })
+    const { club = false, torneos = [], clubs = [] } = props
+    const router = useRouter()
     const [torneoExiste, setTorneoExiste] = useState({ state: false, torneo: {} })
     const [imagenesCorrectas, setImagenesCorrectas] = useState([])
 
-    const setInPage = () => {
-        club ? window.location.replace(`./`) : setinTorneo({ state: false, torneo: -1 })
-    }
     const ResgresarClubInfo = (clubIn) => {
         let res = { nombre: <></>, ID_Club: 0, logo: '' }
-        clubs.map((key, i) => {
-            if (key.Nombre && clubIn.ID_Club && key.ID_Club && clubIn.ID_Club === key.ID_Club) {
-                res.nombre = <>{key.Nombre}</>
-                res.ID_Club = key.ID_Club
-                res.logo = key.logo
-                return res
-
+        clubs.forEach((key) => {
+            if (key.Nombre && clubIn?.ID_Club && key.ID_Club === clubIn.ID_Club) {
+                res = { nombre: <>{key.Nombre}</>, ID_Club: key.ID_Club, logo: key.logo }
             }
         })
         return res
     }
-    const crearT = () => {
-        imagenesCorrectasAux = []
-        torneos.map((key, i) => {
-            imagenesCorrectasAux.push({ id: i, key: key, ok: false })
 
-        })
-        ResgresarImagenCorrect(0, imagenesCorrectasAux.length)
+    const cargarImagenes = () => {
+        imagenesCorrectasAux = torneos.map((key, i) => ({ id: i, key, ok: false }))
+        verificarImagenes(0)
     }
-    const ResgresarImagenCorrect = (pos, fin) => {
-        const posc = pos
-        if (posc < fin) {
-            let imagen = new Image
-            imagen.src = `https://img.pkti.me/club/${ResgresarClubInfo(imagenesCorrectasAux[posc].key).logo}`
-            imagen.onload = () => {
-                if (imagen.naturalHeight > 0) {
-                    imagenesCorrectasAux[posc].ok = true
 
-                } else {
-                    imagenesCorrectasAux[posc].ok = false
-                }
-                ResgresarImagenCorrect(posc + 1, fin)
-            }
-            imagen.onerror = () => {
-                imagenesCorrectasAux[posc].ok = false
-                ResgresarImagenCorrect(posc + 1, fin)
-
-            }
-        } else {
-            setTimeout(() => {
-                setImagenesCorrectas(imagenesCorrectasAux)
-            }, 1);
+    const verificarImagenes = (pos) => {
+        if (pos >= imagenesCorrectasAux.length) {
+            setImagenesCorrectas([...imagenesCorrectasAux])
+            return
         }
 
+        const imagen = new Image()
+        const clubInfo = ResgresarClubInfo(imagenesCorrectasAux[pos].key)
+        imagen.src = `https://img.pkti.me/club/${clubInfo.logo}`
+        
+        imagen.onload = () => {
+            imagenesCorrectasAux[pos].ok = imagen.naturalHeight > 0
+            verificarImagenes(pos + 1)
+        }
+        
+        imagen.onerror = () => {
+            imagenesCorrectasAux[pos].ok = false
+            verificarImagenes(pos + 1)
+        }
     }
+
     useEffect(() => {
         if (club) {
-            torneos.map((key, i) => {
-
-                if (key.ID_Torneo === parseInt(club)) {
-                    clubs.map((keyC, iC) => {
-                        if (key.ID_Club === keyC.ID_Club) {
-                            setTorneoExiste({ ...torneoExiste, state: true, torneo: { ...key, elClub: keyC } })
-
-                            return
-                        }
-                    })
-                }
-            })
+            const torneoEncontrado = torneos.find(t => t.ID_Torneo === parseInt(club))
+            if (torneoEncontrado) {
+                const clubEncontrado = clubs.find(c => c.ID_Club === torneoEncontrado.ID_Club)
+                setTorneoExiste({
+                    state: true,
+                    torneo: { ...torneoEncontrado, elClub: clubEncontrado }
+                })
+            }
+        } else {
+            cargarImagenes()
         }
-        crearT()
+    }, [club, torneos, clubs])
 
-        windoewa = true
-    }, [clubs, torneos])
+    // VISTA DETALLE
+    if (club && torneoExiste.state) {
+        return (
+            <div className="torneos-detalle">
+                <TorneoIndividual torneo={torneoExiste.torneo} clubs={clubs} torneos={torneos} />
+            </div>
+        )
+    }
 
+    if (club && !torneoExiste.state) {
+        return <div className="torneos-detalle"><h5>Torneo no encontrado</h5></div>
+    }
+
+    // VISTA LISTA
     return (
-        <>
-            <div className="clubs-container">
-                <>
-                    {club ? <>
-                        <div className="caontlist">
-                            <div className="clubs-container-center">
-                                {!torneoExiste.state ? <>
-                                    <h5 className="mb-10 mt-10">Página no encontrada</h5>
-                                </> : <TorneoIndividual lang={lang} torneoOpt={torneoOpt} torneos={torneos} clubs={clubs} torneo={torneoExiste.torneo} />}
+        <div className="torneos-lista-container">
+            <div className="torneos-lista-menu">
+                {torneos.map((key) => (
+                    <div
+                        key={key.ID_Torneo}
+                        className="torneos-menu-item"
+                        onClick={() => router.push(`/torneos/${key.ID_Torneo}`)}
+                    >
+                        {key.Club} - {key.Nombre}
+                    </div>
+                ))}
+            </div>
+
+            <div className="torneos-lista-grid">
+                {imagenesCorrectas.length > 0 && torneos.map((key, idx) => (
+                    <div
+                        key={key.ID_Torneo}
+                        className={`torneos-card ${idx === 0 ? 'torneos-card-featured' : ''}`}
+                        onClick={() => router.push(`/torneos/${key.ID_Torneo}`)}
+                    >
+                        <div className="torneos-card-header">
+                            <p>{ResgresarClubInfo(key).nombre}</p>
+                            {imagenesCorrectas[idx]?.ok ? (
+                                <img src={`https://img.pkti.me/club/${ResgresarClubInfo(key).logo}`} alt="club" />
+                            ) : (
+                                <img src="/multimedia/noimage.png" alt="club" />
+                            )}
+                        </div>
+
+                        <div className="torneos-card-body">
+                            <h5>{key.Nombre}</h5>
+                            {key.Garantizado !== 0 && <p className="torneos-garantizado">Garantizado {SaldoFix(key.Garantizado)}</p>}
+                            
+                            <div className="torneos-info">Inicio: {key.Inicio}</div>
+
+                            <div className="torneos-datos">
+                                <div className="torneos-dato">
+                                    <span>Entrada</span>
+                                    <span>{SaldoFix(key.Entrada)}</span>
+                                    <span className="torneos-fichas">{SaldoFix(key.FichasIni)}</span>
+                                </div>
+
+                                <div className="torneos-dato">
+                                    <span>Recompra</span>
+                                    <span>{SaldoFix(key.Rebuy)}</span>
+                                    <span className="torneos-fichas">{SaldoFix(key.FichasRein)}</span>
+                                </div>
+
+                                {key.Propina !== 0 && (
+                                    <div className="torneos-dato">
+                                        <span>Propina</span>
+                                        <span>{SaldoFix(key.Propina)}</span>
+                                        <span className="torneos-fichas">{SaldoFix(key.dtif)}</span>
+                                    </div>
+                                )}
+
+                                <div className="torneos-dato">
+                                    <span>Reservas</span>
+                                    <span colSpan="2">{key.Reservas}</span>
+                                </div>
+
+                                <div className="torneos-dato">
+                                    <span>Total</span>
+                                    <span colSpan="2">{key.Jugadores}</span>
+                                </div>
                             </div>
                         </div>
-                    </> :
-                        <>
-                            {inTorneo.state ?
-                                <div className="caontlist">
-                                    <div className="clubs-container-center">
-                                        <TorneoIndividual lang={lang} torneoOpt={torneoOpt} clubs={clubs} torneo={torneos[inTorneo.torneo]} />
-                                    </div>
-                                </div>
-                                : <div className="caontlist">
-                                    <div className="clubs-container-list">
-
-                                        {
-                                            torneos.map((key, i) => {
-                                                return (
-                                                    <>
-                                                        <div onClick={(e) => { e.preventDefault(); window.location.replace(`${process.env.NEXT_PUBLIC_FRONT_URL}/torneos/${key.ID_Torneo}`); setinTorneo({ ...inTorneo, state: true, torneo: i }) }} className={`hover clubs-valores-hijo${i} clubs-container-list-hijo`} key={`funciones-grid-${i}`} id={`funciones-grid-${i}`}>
-                                                            <li className="texto-titulo">
-                                                                {key.Club} - {key.Nombre}
-
-                                                            </li>
-                                                        </div>
-                                                    </>
-                                                )
-                                            })
-                                        }
-
-
-                                    </div>
-                                    <div className="clubs-container-center">
-                                    
-                                        {
-                                            imagenesCorrectas.length > 0 && torneos.map((key, i) => {
-                                                return (
-                                                    <div className="torContainer">
-                                                        <div className="clubinfo">
-                                                            <p>
-                                                                {ResgresarClubInfo(key).nombre}
-                                                            </p>
-
-                                                            {imagenesCorrectas[i] && imagenesCorrectas[i].ok ? <img onClick={(e) => { e.preventDefault(); window.location.replace(`${process.env.NEXT_PUBLIC_FRONT_URL}/clubs/${ResgresarClubInfo(key).ID_Club}`) }} src={`https://img.pkti.me/club/${ResgresarClubInfo(key).logo}`} alt="seccionesimg" className={"hover simg seccion-1-club"} /> : <img onClick={(e) => { e.preventDefault(); window.location.replace(`${process.env.NEXT_PUBLIC_FRONT_URL}/clubs/${ResgresarClubInfo(key).ID_Club}`) }} src={`/multimedia/noimage.png`} alt="seccionesimg" className={"hover simg seccion-1-club"} />}
-
-                                                        </div>   <div onClick={(e) => { e.preventDefault(); window.location.replace(`${process.env.NEXT_PUBLIC_FRONT_URL}/torneos/${key.ID_Torneo}`); /* setinTorneo({ ...inTorneo, state: true, torneo: i }) */ }} className="hover torneo-torneo-xs torneo-torneo">
-                                                            <h5 className="pdl-30 mb-15 mt-30 color-poker">{key.Nombre}</h5>
-                                                            {key.Garantizado !== 0 && <h5 className="mb-30 mt-10 color-poker">Garantizado {SaldoFix(key.Garantizado)}</h5>}
-                                                            <div className="datos fontcolorInedit-black">
-                                                                <div className="font-size-20 align-center text-center dato fontcolorInedit-black">
-                                                                    <span className="fts-xs  fontcolorInedit-black">Inicio: {key.Inicio}</span><><h6 className="color-poker minw-30">Fichas</h6></>
-
-                                                                </div>
-                                                                <div className="column gap-10">
-                                                                    <div className="dato fontcolorInedit-black" >
-                                                                        <span className="fontcolorInedit-black minW-100">Entrada</span><span className="fontcolorInedit-black minW-150">{SaldoFix(key.Entrada)}</span><span className="fontcolorInedit-poker minW-150 ">{SaldoFix(key.FichasIni)}</span>
-
-
-                                                                    </div>
-                                                                    <div className="dato fontcolorInedit-black">
-                                                                        <span className="fontcolorInedit-black minW-100">Recompra</span><span className="fontcolorInedit-black minW-150">{SaldoFix(key.Rebuy)}</span><span className="fontcolorInedit-poker minW-150 ">{SaldoFix(key.FichasRein)}</span>
-
-                                                                    </div>
-                                                                    <div className="dato fontcolorInedit-black" >
-                                                                        {key.Propina !== 0 && <> <span className="fontcolorInedit-black minW-100">Propina</span><span className="fontcolorInedit-black minW-150">{SaldoFix(key.Propina)}</span><span className="fontcolorInedit-poker minW-150 ">{SaldoFix(key.dtif)}</span></>}
-
-                                                                    </div>
-                                                                </div>
-                                                                <div className="column gap-20">
-                                                                    <div className="dato fontcolorInedit-black">
-                                                                        <span className="fontcolorInedit-black">Reservas</span><span className="fontcolorInedit-black">{key.Reservas}</span>
-
-                                                                    </div>
-                                                                    <div className="dato fontcolorInedit-black">
-                                                                        <p className="fontcolorInedit-black">Total Movimientos</p><span className="fontcolorInedit-black">{key.Jugadores}</span>
-
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                        </div>
-                                                    </div>
-                                                )
-                                            })
-                                        }
-
-                                    </div>
-                                </div>}
-                        </>}
-                </>
-
-            </div >
-        </>
-
+                    </div>
+                ))}
+            </div>
+        </div>
     )
 }
-export default Torneos
 
-export const Textos = {
-    es: {
-        suscribir: 'Suscribir'
-    },
-    en: {
-        suscribir: ''
-    },
-    ger: {
-        suscribir: ''
-    },
-    prt: {
-        suscribir: ''
-    },
-    fr: {
-        suscribir: ''
-    }
-}
+export default Torneos
