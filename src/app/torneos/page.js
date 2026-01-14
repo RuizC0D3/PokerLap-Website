@@ -1,3 +1,5 @@
+// src/app/torneos/page.js
+
 import { Suspense } from 'react'
 import '../../../estilos/styles.scss'
 import PageHead from '../../components/body/pageHead'

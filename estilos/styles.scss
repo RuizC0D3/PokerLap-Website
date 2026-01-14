@@ -127,6 +127,7 @@ body {
   position: relative;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 .flex-row {
@@ -2325,4 +2326,739 @@ header + *,
   margin-top: 40px;
   padding-top: 40px;
   border-top: 2px solid #e5e7eb;
+}
+// ============================================
+// FIX RESPONSIVE - CONTAINERS
+// ============================================
+
+.landing-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box;
+}
+
+.aprende-grid,
+.aprende-container .cards {
+  width: 100% !important;
+  max-width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+  gap: 20px !important;
+  padding: 0 16px !important;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+    gap: 12px !important;
+    padding: 0 12px !important;
+  }
+  
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    padding: 0 8px !important;
+  }
+}
+
+.descargas-grid,
+.descargas-container .tabla-descargas {
+  width: 100% !important;
+  max-width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+  gap: 20px !important;
+  padding: 40px 16px !important;
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+    gap: 12px !important;
+  }
+  
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr) !important;
+    padding: 20px 12px !important;
+  }
+  
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    padding: 15px 8px !important;
+  }
+}
+
+[class*="-container"],
+[class*="-grid"],
+main,
+.home,
+.page-head-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+.aprende-card,
+.descargas-card,
+.card-historia {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+body, html {
+  overflow-x: hidden !important;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap');
+
+// ==========================================
+// VARIABLES
+// ==========================================
+
+$primary: #e74c3c !default;
+$primary-dark: #c0392b !default;
+$text-dark: #2c3e50 !default;
+$text-light: #666 !default;
+$border: #e0e0e0 !default;
+$bg-light: #f9fafb !default;
+$white: #ffffff !default;
+$accent-orange: #ff6b00 !default;
+$header-dark: #1b2936 !default;
+
+// ==========================================
+// LISTA GENERAL - TORNEOS
+// ==========================================
+
+.torneos-lista-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)) !important;
+    gap: 24px !important;
+    width: 100% !important;
+    padding: 40px 20px !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+
+    @media (max-width: 1024px) {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+        gap: 20px !important;
+    }
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+        padding: 20px 16px !important;
+    }
+}
+
+// ==========================================
+// TARJETAS
+// ==========================================
+
+.torneos-card {
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    background: $white !important;
+    border: 2px solid $border !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+
+    &:hover {
+        transform: translateY(-8px) !important;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12) !important;
+        border-color: $primary !important;
+    }
+
+    &.torneos-card-first {
+        border: 3px solid $primary !important;
+        box-shadow: 0 0 20px rgba(231, 76, 60, 0.25), 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+        transform: scale(1.02) !important;
+
+        &:hover {
+            transform: scale(1.02) translateY(-8px) !important;
+            box-shadow: 0 0 30px rgba(231, 76, 60, 0.35), 0 12px 28px rgba(0, 0, 0, 0.12) !important;
+        }
+
+        .torneos-card-header {
+            background: linear-gradient(135deg, $primary 0%, rgba(231, 76, 60, 0.5) 100%) !important;
+
+            p {
+                color: $white !important;
+                font-weight: 800 !important;
+            }
+        }
+    }
+
+    &.torneos-card-featured {
+        border: 2px solid $accent-orange !important;
+        background: linear-gradient(135deg, rgba(255, 107, 0, 0.02) 0%, transparent 100%) !important;
+        box-shadow: 0 0 20px rgba(255, 107, 0, 0.3), 0 2px 12px rgba(0, 0, 0, 0.1) !important;
+        animation: torneos-glow 2s ease-in-out infinite;
+    }
+}
+
+@keyframes torneos-glow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(255, 107, 0, 0.3), 0 2px 12px rgba(0, 0, 0, 0.1);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(255, 107, 0, 0.5), 0 2px 12px rgba(0, 0, 0, 0.1);
+    }
+}
+
+.torneos-card-header {
+    height: 160px !important;
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    flex-shrink: 0 !important;
+    padding: 12px !important;
+    position: relative !important;
+
+    p {
+        margin: 0 !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        color: $text-dark !important;
+        text-align: center !important;
+        line-height: 1.2 !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+    }
+
+    img {
+        width: 100px !important;
+        height: 100px !important;
+        object-fit: contain !important;
+        transition: transform 0.3s ease !important;
+
+        &:hover {
+            transform: scale(1.08) !important;
+        }
+    }
+}
+
+.torneos-card-body {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 16px !important;
+    gap: 8px !important;
+    overflow-y: auto !important;
+    min-height: 120px !important;
+
+    h5 {
+        margin: 0 !important;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        color: $text-dark !important;
+        line-height: 1.3 !important;
+    }
+
+    .torneos-garantizado {
+        margin: 0 !important;
+        font-size: 13px !important;
+        color: $primary !important;
+        font-weight: 700 !important;
+    }
+
+    .torneos-entrada {
+        margin: 0 !important;
+        font-size: 13px !important;
+        color: #2196f3 !important;
+        font-weight: 700 !important;
+    }
+
+    .torneos-info {
+        font-size: 12px !important;
+        color: $text-light !important;
+        font-weight: 500 !important;
+        line-height: 1.4 !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+    }
+}
+
+.torneos-datos {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    padding: 12px !important;
+    border-top: 2px solid $border !important;
+    background: $bg-light !important;
+    flex-shrink: 0 !important;
+}
+
+.torneos-dato {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    align-items: center !important;
+    padding: 6px 8px !important;
+    border-radius: 4px !important;
+    font-size: 11px !important;
+
+    span {
+        display: block !important;
+        margin: 0 !important;
+
+        &:first-child {
+            font-weight: 700 !important;
+            color: $text-dark !important;
+            font-size: 10px !important;
+        }
+
+        &:last-child {
+            color: $primary !important;
+            font-weight: 700 !important;
+            text-align: right !important;
+        }
+    }
+}
+
+.torneos-card-badge {
+    position: absolute !important;
+    top: 8px !important;
+    right: 8px !important;
+    background: linear-gradient(135deg, $accent-orange 0%, #ff8c00 100%) !important;
+    color: $white !important;
+    padding: 6px 12px !important;
+    border-radius: 20px !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    animation: pulse-badge 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+// ==========================================
+// TORNEO INDIVIDUAL
+// ==========================================
+
+.torneo-detail-page {
+    width: 100%;
+    background: $white;
+}
+
+.btn-volver-torneos {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 12px 24px !important;
+    background: linear-gradient(135deg, $primary 0%, $primary-dark 100%) !important;
+    color: $white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 8px rgba(196, 30, 58, 0.3) !important;
+    margin: 20px !important;
+
+    &:hover {
+        background: linear-gradient(135deg, $primary-dark 0%, #7d0f24 100%) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 16px rgba(196, 30, 58, 0.4) !important;
+    }
+}
+
+.torneo-detail-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+    width: 100% !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 20px !important;
+    box-sizing: border-box !important;
+}
+
+.torneo-header-main {
+    display: flex !important;
+    align-items: center !important;
+    gap: 24px !important;
+    padding: 28px !important;
+    background: linear-gradient(135deg, $primary 0%, $primary-dark 100%) !important;
+    border-radius: 12px !important;
+    color: $white !important;
+
+    .header-logo {
+        flex: 0 0 120px !important;
+        width: 120px !important;
+        height: 120px !important;
+        background: $white !important;
+        border-radius: 10px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        overflow: hidden !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+
+        img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain !important;
+            padding: 8px !important;
+        }
+    }
+
+    .header-content {
+        flex: 1 !important;
+
+        h1 {
+            margin: 0 0 8px 0 !important;
+            font-size: 32px !important;
+            font-weight: 900 !important;
+            color: $white !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+        }
+
+        .header-club {
+            margin: 0 0 12px 0 !important;
+            font-size: 18px !important;
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500 !important;
+        }
+    }
+
+    .badge-destacado {
+        display: inline-block !important;
+        padding: 8px 16px !important;
+        background: rgba(255, 255, 255, 0.25) !important;
+        border: 2px solid rgba(255, 255, 255, 0.5) !important;
+        border-radius: 20px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        color: $white !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+}
+
+.torneo-garantizado-banner {
+    padding: 24px !important;
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.08) 0%, rgba(231, 76, 60, 0.02) 100%) !important;
+    border: 3px solid $primary !important;
+    border-radius: 10px !important;
+    animation: pulso-banner 2s ease-in-out infinite;
+
+    .garantizado-inner {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+
+        .garantizado-label {
+            font-size: 12px !important;
+            font-weight: 900 !important;
+            color: $primary !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+        }
+
+        .garantizado-monto {
+            font-size: 28px !important;
+            font-weight: 900 !important;
+            color: $primary !important;
+        }
+    }
+}
+
+@keyframes pulso-banner {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+    50% { box-shadow: 0 0 0 8px rgba(231, 76, 60, 0); }
+}
+
+.torneo-descripcion {
+    padding: 18px !important;
+    background: $bg-light !important;
+    border-left: 4px solid $primary !important;
+    border-radius: 6px !important;
+
+    p {
+        margin: 0 !important;
+        font-size: 14px !important;
+        color: $text-light !important;
+        line-height: 1.6 !important;
+    }
+}
+
+.torneo-info-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+    gap: 16px !important;
+}
+
+.info-card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 18px !important;
+    background: $white !important;
+    border: 2px solid $border !important;
+    border-radius: 10px !important;
+    text-align: center !important;
+    transition: all 0.3s ease !important;
+
+    &:hover {
+        border-color: $primary !important;
+        box-shadow: 0 6px 16px rgba(231, 76, 60, 0.12) !important;
+        transform: translateY(-4px) !important;
+    }
+
+    &.highlight {
+        background: linear-gradient(135deg, rgba(231, 76, 60, 0.05) 0%, transparent 100%) !important;
+        border-color: $primary !important;
+    }
+
+    .info-icon {
+        font-size: 24px !important;
+    }
+
+    .info-label {
+        font-size: 10px !important;
+        font-weight: 800 !important;
+        color: $text-light !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+
+    .info-value {
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        color: $text-dark !important;
+        word-break: break-word !important;
+    }
+}
+
+.torneo-mapa-section {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    h3 {
+        margin: 0 0 16px 20px !important;
+        font-size: 14px !important;
+        font-weight: 700 !important;
+        color: #2c3e50 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+}
+
+.torneo-mapa-container {
+    width: 100% !important;
+    height: 350px !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid #e0e0e0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    display: block !important;
+    position: relative !important;
+
+    @media (max-width: 768px) {
+        height: 300px !important;
+    }
+
+    @media (max-width: 480px) {
+        height: 250px !important;
+    }
+
+    > * {
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    iframe {
+        width: 100% !important;
+        height: 100% !important;
+        border: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important;
+    }
+}
+
+
+
+
+.torneo-contacto {
+    padding: 20px !important;
+    background: $bg-light !important;
+    border-left: 4px solid $primary !important;
+    border-radius: 10px !important;
+
+    h3 {
+        margin: 0 0 12px 0 !important;
+        font-size: 14px !important;
+        font-weight: 700 !important;
+        color: $text-dark !important;
+        text-transform: uppercase !important;
+    }
+
+    p {
+        margin: 0 0 8px 0 !important;
+        font-size: 14px !important;
+        color: $text-light !important;
+        line-height: 1.6 !important;
+
+        strong {
+            color: $text-dark !important;
+        }
+    }
+
+    .btn-maps {
+        display: inline-block !important;
+        margin-top: 12px !important;
+        padding: 10px 18px !important;
+        background: $primary !important;
+        color: $white !important;
+        border-radius: 6px !important;
+        text-decoration: none !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        transition: all 0.3s ease !important;
+
+        &:hover {
+            background: $primary-dark !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3) !important;
+        }
+    }
+}
+
+.torneos-relacionados {
+    padding: 20px !important;
+    background: $bg-light !important;
+    border-radius: 10px !important;
+
+    h3 {
+        margin: 0 0 16px 0 !important;
+        font-size: 14px !important;
+        font-weight: 700 !important;
+        color: $text-dark !important;
+        text-transform: uppercase !important;
+    }
+}
+
+.torneos-relacionados-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+    gap: 12px !important;
+}
+
+.torneo-relacionado {
+    padding: 14px !important;
+    background: $white !important;
+    border: 2px solid $border !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+
+    &:hover {
+        border-color: $primary !important;
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.15) !important;
+    }
+
+    &.destacado {
+        border-color: $accent-orange !important;
+        background: rgba(255, 107, 0, 0.05) !important;
+    }
+
+    h4 {
+        margin: 0 0 8px 0 !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        color: $text-dark !important;
+        line-height: 1.2 !important;
+    }
+
+    .precio {
+        margin: 0 0 6px 0 !important;
+        font-size: 11px !important;
+        color: $primary !important;
+        font-weight: 700 !important;
+    }
+
+    .fecha {
+        margin: 0 !important;
+        font-size: 10px !important;
+        color: $text-light !important;
+    }
+}
+
+.torneo-acciones {
+    display: flex !important;
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+}
+
+.btn-accion {
+    padding: 14px 28px !important;
+    background: linear-gradient(135deg, $primary 0%, $primary-dark 100%) !important;
+    color: $white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    box-shadow: 0 4px 12px rgba(196, 30, 58, 0.3) !important;
+
+    &:hover {
+        background: linear-gradient(135deg, $primary-dark 0%, #7d0f24 100%) !important;
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 20px rgba(196, 30, 58, 0.4) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .torneo-header-main {
+        flex-direction: column !important;
+        text-align: center !important;
+
+        .header-logo {
+            flex: 0 0 100px !important;
+            width: 100px !important;
+            height: 100px !important;
+        }
+
+        .header-content h1 {
+            font-size: 24px !important;
+        }
+    }
+
+    .torneo-info-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .torneos-relacionados-grid {
+        grid-template-columns: 1fr !important;
+    }
 }

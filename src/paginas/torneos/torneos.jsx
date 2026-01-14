@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import TorneoIndividual from "./torneoIndividual"
 import { SaldoFix } from "../../fixSlado"
 
@@ -10,6 +10,9 @@ let imagenesCorrectasAux = []
 const Torneos = (props) => {
     const { club = false, torneos = [], clubs = [] } = props
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const torneoId = searchParams.get('club')
+    
     const [torneoExiste, setTorneoExiste] = useState({ state: false, torneo: {} })
     const [imagenesCorrectas, setImagenesCorrectas] = useState([])
 
@@ -33,16 +36,13 @@ const Torneos = (props) => {
             setImagenesCorrectas([...imagenesCorrectasAux])
             return
         }
-
         const imagen = new Image()
         const clubInfo = ResgresarClubInfo(imagenesCorrectasAux[pos].key)
         imagen.src = `https://img.pkti.me/club/${clubInfo.logo}`
-        
         imagen.onload = () => {
             imagenesCorrectasAux[pos].ok = imagen.naturalHeight > 0
             verificarImagenes(pos + 1)
         }
-        
         imagen.onerror = () => {
             imagenesCorrectasAux[pos].ok = false
             verificarImagenes(pos + 1)
@@ -50,105 +50,121 @@ const Torneos = (props) => {
     }
 
     useEffect(() => {
-        if (club) {
-            const torneoEncontrado = torneos.find(t => t.ID_Torneo === parseInt(club))
+        if (torneoId) {
+            const torneoEncontrado = torneos.find(t => t.ID_Torneo === parseInt(torneoId))
             if (torneoEncontrado) {
                 const clubEncontrado = clubs.find(c => c.ID_Club === torneoEncontrado.ID_Club)
-                setTorneoExiste({
-                    state: true,
-                    torneo: { ...torneoEncontrado, elClub: clubEncontrado }
-                })
+                setTorneoExiste({ state: true, torneo: { ...torneoEncontrado, elClub: clubEncontrado } })
             }
         } else {
             cargarImagenes()
         }
-    }, [club, torneos, clubs])
+    }, [torneoId, torneos, clubs])
 
     // VISTA DETALLE
-    if (club && torneoExiste.state) {
+    if (torneoId && torneoExiste.state) {
         return (
-            <div className="torneos-detalle">
-                <TorneoIndividual torneo={torneoExiste.torneo} clubs={clubs} torneos={torneos} />
-            </div>
+            <TorneoIndividual
+                torneo={torneoExiste.torneo}
+                torneos={torneos}
+                clubs={clubs || []}
+                onClick={() => {
+                    setTorneoExiste({ state: false, torneo: {} })
+                    router.push('/torneos')
+                }}
+            />
         )
-    }
-
-    if (club && !torneoExiste.state) {
-        return <div className="torneos-detalle"><h5>Torneo no encontrado</h5></div>
     }
 
     // VISTA LISTA
     return (
-        <div className="torneos-lista-container">
-            <div className="torneos-lista-menu">
-                {torneos.map((key) => (
-                    <div
-                        key={key.ID_Torneo}
-                        className="torneos-menu-item"
-                        onClick={() => router.push(`/torneos/${key.ID_Torneo}`)}
-                    >
-                        {key.Club} - {key.Nombre}
+        <div className="torneos-lista-grid">
+            {torneos.map((key, idx) => (
+                <div
+                    key={idx}
+                    className={`torneos-card ${key.Destacado === 1 ? 'torneos-card-featured' : ''} ${idx === 0 ? 'torneos-card-first' : ''}`}
+                    onClick={() => {
+                        router.push(`/torneos?club=${key.ID_Torneo}`)
+                    }}
+                >
+                    {/* HEADER CON LOGO */}
+                    <div className="torneos-card-header">
+                        <p>{ResgresarClubInfo(key).nombre}</p>
+                        {imagenesCorrectas[idx]?.ok ? (
+                            <img 
+                                src={`https://img.pkti.me/club/${ResgresarClubInfo(key).logo}`} 
+                                alt={ResgresarClubInfo(key).nombre}
+                                onError={(e) => e.target.src = '/multimedia/noimage.png'}
+                            />
+                        ) : (
+                            <img 
+                                src="/multimedia/noimage.png"
+                                alt="Sin imagen"
+                            />
+                        )}
                     </div>
-                ))}
-            </div>
 
-            <div className="torneos-lista-grid">
-                {imagenesCorrectas.length > 0 && torneos.map((key, idx) => (
-                    <div
-                        key={key.ID_Torneo}
-                        className={`torneos-card ${idx === 0 ? 'torneos-card-featured' : ''}`}
-                        onClick={() => router.push(`/torneos/${key.ID_Torneo}`)}
-                    >
-                        <div className="torneos-card-header">
-                            <p>{ResgresarClubInfo(key).nombre}</p>
-                            {imagenesCorrectas[idx]?.ok ? (
-                                <img src={`https://img.pkti.me/club/${ResgresarClubInfo(key).logo}`} alt="club" />
-                            ) : (
-                                <img src="/multimedia/noimage.png" alt="club" />
-                            )}
+                    {/* CONTENIDO PRINCIPAL */}
+                    <div className="torneos-card-body">
+                        <h5>{key.Nombre}</h5>
+                        
+                        {/* GARANTIZADO */}
+                        {key.Garantizado > 0 && (
+                            <p className="torneos-garantizado">
+                                💰 Garantizado: {SaldoFix(key.Garantizado)}
+                            </p>
+                        )}
+
+                        {/* ENTRADA */}
+                        {key.Entrada > 0 && (
+                            <p className="torneos-entrada">
+                                🎟️ Entrada: {SaldoFix(key.Entrada)}
+                            </p>
+                        )}
+                        
+                        {/* DESCRIPCIÓN */}
+                        {key.Descripcion && (
+                            <p className="torneos-info">{key.Descripcion}</p>
+                        )}
+                    </div>
+
+                    {/* DATOS FINALES */}
+                    <div className="torneos-datos">
+                        {/* FILA 1 - INICIO */}
+                        <div className="torneos-dato">
+                            <span>📅 INICIO</span>
+                            <span>
+                                {key.FechaHora 
+                                    ? new Date(key.FechaHora).toLocaleDateString('es-ES')
+                                    : 'N/A'
+                                }
+                            </span>
                         </div>
 
-                        <div className="torneos-card-body">
-                            <h5>{key.Nombre}</h5>
-                            {key.Garantizado !== 0 && <p className="torneos-garantizado">Garantizado {SaldoFix(key.Garantizado)}</p>}
-                            
-                            <div className="torneos-info">Inicio: {key.Inicio}</div>
+                        {/* FILA 2 - HORA */}
+                        <div className="torneos-dato">
+                            <span>🕐 HORA</span>
+                            <span>
+                                {key.FechaHora 
+                                    ? new Date(key.FechaHora).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})
+                                    : 'N/A'
+                                }
+                            </span>
+                        </div>
 
-                            <div className="torneos-datos">
-                                <div className="torneos-dato">
-                                    <span>Entrada</span>
-                                    <span>{SaldoFix(key.Entrada)}</span>
-                                    <span className="torneos-fichas">{SaldoFix(key.FichasIni)}</span>
-                                </div>
-
-                                <div className="torneos-dato">
-                                    <span>Recompra</span>
-                                    <span>{SaldoFix(key.Rebuy)}</span>
-                                    <span className="torneos-fichas">{SaldoFix(key.FichasRein)}</span>
-                                </div>
-
-                                {key.Propina !== 0 && (
-                                    <div className="torneos-dato">
-                                        <span>Propina</span>
-                                        <span>{SaldoFix(key.Propina)}</span>
-                                        <span className="torneos-fichas">{SaldoFix(key.dtif)}</span>
-                                    </div>
-                                )}
-
-                                <div className="torneos-dato">
-                                    <span>Reservas</span>
-                                    <span colSpan="2">{key.Reservas}</span>
-                                </div>
-
-                                <div className="torneos-dato">
-                                    <span>Total</span>
-                                    <span colSpan="2">{key.Jugadores}</span>
-                                </div>
-                            </div>
+                        {/* FILA 3 - TIPO */}
+                        <div className="torneos-dato">
+                            <span>🎯 TIPO</span>
+                            <span>{key.Tipo || 'N/A'}</span>
                         </div>
                     </div>
-                ))}
-            </div>
+
+                    {/* BADGE DESTACADO */}
+                    {key.Destacado === 1 && (
+                        <div className="torneos-card-badge">⭐ DESTACADO</div>
+                    )}
+                </div>
+            ))}
         </div>
     )
 }

@@ -1,20 +1,21 @@
-// src/paginas/usuario/tienda.jsx
 'use client'
 import '../../../estilos/styles.scss'
 import { useSearchParams, useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useMemo, useState, Suspense } from 'react'
 import { createPortal } from 'react-dom'
-import { CATALOGO } from '../../lib/catalogo'
 import BotonBold from './BotonBold'
+
 
 // ============= CONFIG =============
 const API_TIENDA_URL = '/api/tienda'
+
 
 // ============= HELPERS =============
 const fmtCOP = (n) =>
   (n ?? 0).toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 })
 const fmtUSD = (n) =>
-  (n ?? 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
+  (n ?? 0).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 })
+
 
 function findArrayDeep(obj, seen = new Set()) {
   if (!obj || typeof obj !== 'object') return null
@@ -40,6 +41,7 @@ function findArrayDeep(obj, seen = new Set()) {
   return null
 }
 
+
 function toPlan(x, idx) {
   return {
     id: String(x.id ?? x.ID ?? x.codigo ?? `p-${idx}`),
@@ -51,9 +53,16 @@ function toPlan(x, idx) {
   }
 }
 
+
 async function fetchPlanesPorClub({ i, signal, textEncFromUrl }) {
-  if (!i) return []
-  const payload = textEncFromUrl ? { i: Number(i), textEnc: textEncFromUrl } : { i: Number(i) }
+  const payload = textEncFromUrl ? { textEnc: textEncFromUrl } : {}
+ 
+  if (i != null && i !== '' && !Number.isNaN(Number(i))) {
+    payload.i = Number(i)
+  } else {
+    payload.i = 0
+  }
+ 
   let res
   try {
     res = await fetch(API_TIENDA_URL, {
@@ -67,14 +76,17 @@ async function fetchPlanesPorClub({ i, signal, textEncFromUrl }) {
     console.error('[Tienda] fetch error:', e)
     return []
   }
+ 
   const raw = await res.clone().text()
   if (!res.ok) {
     console.error('[Tienda] status', res.status, raw)
     return []
   }
+ 
   let data
   try { data = JSON.parse(raw) } catch { data = raw }
   let arr = Array.isArray(data) ? data : (findArrayDeep(data) || [])
+ 
   if (Array.isArray(arr) && arr.length && typeof arr[0] === 'object' && 'Res' in arr[0]) {
     const collected = []
     for (const row of arr) {
@@ -90,18 +102,21 @@ async function fetchPlanesPorClub({ i, signal, textEncFromUrl }) {
     }
     if (collected.length) arr = collected
   }
+ 
   return arr.map(toPlan)
 }
 
-// ============= THEMES =============
+
+// ============= THEMES (PokerLap originales) =============
 const THEMES = {
-  navy: { bg:'#272b40', fg:'#fff', accent:'#ffffff', pill:'#ffffff' },
-  yellow:{ bg:'#f0d426', fg:'#111', accent:'#111111', pill:'#111111' },
-  teal: { bg:'#0c9e98', fg:'#111', accent:'#111111', pill:'#111111' },
-  soft: { bg:'#e9eee9', fg:'#111', accent:'#111111', pill:'#111111' },
+  navy:  { bg: '#111111', fg: '#ffffff', accent: '#cc272b', pill: '#ffffff' },
+  yellow:{ bg: '#cc272b', fg: '#ffffff', accent: '#ffffff', pill: '#ffffff' },
+  teal:  { bg: '#444444', fg: '#ffffff', accent: '#ffffff', pill: '#ffffff' },
+  soft:  { bg: '#d9d9d9', fg: '#111111', accent: '#111111', pill: '#111111' },
 }
 const THEME_ORDER = ['navy','yellow','teal','soft']
 const pickTheme = (idx, theme) => THEMES[theme] || THEMES[THEME_ORDER[idx % THEME_ORDER.length]]
+
 
 // ============= PORTAL MODAL =============
 function Portal({ children }) {
@@ -119,6 +134,7 @@ function Portal({ children }) {
   return createPortal(children, node)
 }
 
+
 // ============= MODAL CHECKOUT =============
 function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
   const [method, setMethod] = useState('bold')
@@ -126,12 +142,13 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
   const [orderId, setOrderId] = useState(null)
   const [signature, setSignature] = useState(null)
   const [prepError, setPrepError] = useState(null)
-  
+  const [prepLoading, setPrepLoading] = useState(false)
+ 
   const lines = useMemo(() => {
     const map = new Map(items.map(p => [p.id, p]))
     return cart.map(c => (map.get(c.id) ? { ...c, plan: map.get(c.id) } : null)).filter(Boolean)
   }, [cart, items])
-  
+ 
   useEffect(() => {
     if (!open) return
     const prev = document.body.style.overflow
@@ -139,67 +156,74 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
     if (!selected && lines.length) setSelected(lines[0].id)
     return () => { document.body.style.overflow = prev }
   }, [open, lines, selected])
-  
+ 
   const totalCop = useMemo(() => lines.reduce((a, it) => a + it.plan.amountCop * it.qty, 0), [lines])
   const totalUsd = useMemo(() => lines.reduce((a, it) => a + it.plan.amountUsd * it.qty, 0), [lines])
-  
+ 
+  // ✅ BOLD: Genera firma en USD (sin conversión COP)
   useEffect(() => {
     async function prepBold() {
       setPrepError(null)
       setSignature(null)
       setOrderId(null)
-      if (!open) return
-      if (method !== 'bold') return
-      if (!selected) return
+     
+      if (!open || method !== 'bold' || !selected) return
+     
       const plan = items.find(p => p.id === selected)
       if (!plan) return
-      const amount = Math.round(Number(plan.amountCop || 0))
-      if (!amount) { setPrepError('Este plan no tiene precio COP válido.'); return }
+     
+      const amountUsd = Number(plan.amountUsd || 0)
+      if (!amountUsd || amountUsd <= 0) {
+        setPrepError('Este plan no tiene precio USD válido.')
+        return
+      }
+     
       const oid = `plan-${String(plan.id).replace(/[^A-Za-z0-9_-]/g,'')}-${Date.now()}`
       setOrderId(oid)
+      setPrepLoading(true)
+     
       try {
         const r = await fetch('/api/bold/hash', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ orderId: oid, amount, currency: 'COP' })
+          body: JSON.stringify({ orderId: oid, amount: amountUsd, currency: 'USD' })
         })
         const d = await r.json()
+       
         if (!r.ok || !d?.signature) {
-          setPrepError(d?.error || 'No se pudo generar la firma de integridad.')
+          setPrepError(d?.error || 'No se pudo generar la firma.')
           return
         }
+       
         setSignature(d.signature)
+        console.log('✅ Firma Bold generada (USD):', amountUsd)
       } catch (e) {
-        setPrepError(e?.message || 'Error solicitando la firma.')
+        console.error('❌ Error Bold:', e)
+        setPrepError(e?.message || 'Error al generar la firma.')
+      } finally {
+        setPrepLoading(false)
       }
     }
+   
     prepBold()
   }, [open, method, selected, items])
-  
+ 
   if (!open) return null
-  
-  const apiKeyPublic =
-    process.env.NEXT_PUBLIC_BOLD_TEST_IDENTITY_KEY ||
-    process.env.NEXT_PUBLIC_BOLD_IDENTITY_KEY
+ 
+  const apiKeyPublic = process.env.NEXT_PUBLIC_BOLD_IDENTITY_KEY
   const selectedPlan = items.find(p => p.id === selected)
-  const amountForBold = selectedPlan ? Math.round(Number(selectedPlan.amountCop || 0)) : 0
-  
-  const redirectionUrl = (() => {
-    if (typeof window !== 'undefined') {
-      return `${window.location.origin}/tienda`
-    }
-    const base = (process.env.NEXT_PUBLIC_WEB_URL || 'http://localhost:3000').replace(/\/+$/, '')
-    return `${base}/tienda`
-  })()
-  
+  const amountForBold = Number(selectedPlan?.amountUsd || 0)
+  const webUrl = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_WEB_URL || 'http://localhost:3000')
+  const redirectionUrl = `${webUrl}/tienda/resultado`
+ 
   return (
     <Portal>
       <div className="modal-overlay" onClick={onClose}>
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
           <button className="modal-close" onClick={onClose}>✕</button>
-          
+         
           <h3 className="modal-title">Resumen del carrito</h3>
-          
+         
           {lines.length === 0 ? (
             <p className="cart-empty">Tu carrito está vacío.</p>
           ) : (
@@ -211,7 +235,12 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
                       type="radio"
                       name="toPay"
                       checked={selected === it.id}
-                      onChange={() => setSelected(it.id)}
+                      onChange={() => {
+                        setSelected(it.id)
+                        setSignature(null)
+                        setOrderId(null)  
+                        setPrepError(null)
+                      }}
                     />
                     <div className="cart-item-info">
                       <strong>{it.plan.name}</strong>
@@ -230,7 +259,7 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
                   </div>
                 ))}
               </div>
-              
+             
               <div className="cart-total">
                 <div className="total-row">
                   <span>Total (COP):</span>
@@ -241,47 +270,89 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
                   <strong>{fmtUSD(totalUsd)}</strong>
                 </div>
               </div>
-              
+             
               <div className="payment-methods">
                 <p className="payment-title">Método de pago:</p>
                 <label className="payment-option">
                   <input type="radio" checked={method === 'bold'} onChange={() => setMethod('bold')} />
-                  <span>Bold (Botón de pagos)</span>
+                  <span>💳 Bold (PSE, Nequi, TC)</span>
                 </label>
                 <label className="payment-option">
                   <input type="radio" checked={method === 'coinbase'} onChange={() => setMethod('coinbase')} />
-                  <span>Coinbase (Cripto)</span>
+                  <span>🪙 Coinbase (Cripto)</span>
                 </label>
               </div>
-              
-              {/* Botones de pago alineados a la izquierda */}
+             
               <div className="payment-button-container">
                 {method === 'bold' && (
                   <div className="bold-button-wrapper">
-                    {apiKeyPublic && orderId && signature && amountForBold > 0 ? (
+                    {prepLoading ? (
+                      <p className="preparing">Preparando pago Bold...</p>
+                    ) : apiKeyPublic && orderId && signature && amountForBold > 0 ? (
                       <BotonBold
                         apiKey={apiKeyPublic}
                         orderId={orderId}
                         amount={amountForBold}
-                        currency="COP"
+                        currency="USD"
                         description={selectedPlan?.description || selectedPlan?.name || 'Compra'}
                         redirectionUrl={redirectionUrl}
                         integritySignature={signature}
                         renderMode="embedded"
                         theme="light-L"
-                        environment="SANDBOX"
+                        environment="PRODUCTION"
                       />
                     ) : (
-                      <p className="preparing">Preparando pago...</p>
+                      <p className="preparing">Preparando...</p>
                     )}
-                    {prepError && <p className="error-msg">{prepError}</p>}
+                    {prepError && <p className="error-msg">⚠️ {prepError}</p>}
                   </div>
                 )}
-                
+               
                 {method === 'coinbase' && (
-                  <button className="btn-pagar-coinbase" onClick={() => alert('Implementar pago con Coinbase')}>
-                    Pagar con Coinbase
-                  </button>
+                  <div className="coinbase-button-wrapper">
+                    {selectedPlan && selected ? (
+                      <>
+                        <button
+                          className="btn-pagar-coinbase"
+                          onClick={async () => {
+                            console.log('🔥 CLICK COINBASE - planId:', selected, 'amountUsd:', selectedPlan?.amountUsd)
+                            try {
+                              setPrepError(null)
+                              const res = await fetch('/api/coinbase-charge', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ 
+                                  planId: selected,
+                                  amountUsd: Number(selectedPlan?.amountUsd || 0)  // ✅ DESDE CARRITO
+                                })
+                              })
+                              console.log('📡 Response status:', res.status)
+                              const data = await res.json()
+                              console.log('📡 Response data:', data)
+                              if (!res.ok) {
+                                setPrepError(data.error || `Error ${res.status}`)
+                                return
+                              }
+                              if (data.url) {
+                                console.log('🚀 Redirecting to Coinbase:', data.url)
+                                window.location.href = data.url
+                              } else {
+                                setPrepError('No se recibió URL de pago')
+                              }
+                            } catch (err) {
+                              console.error('💥 Coinbase error:', err)
+                              setPrepError(err?.message || 'Error procesando el pago')
+                            }
+                          }}
+                        >
+                          Pagar {fmtUSD(Number(selectedPlan?.amountUsd || 0) * 1.06)} (6% fee)
+                        </button>
+                      </>
+                    ) : (
+                      <p className="preparing">Selecciona un plan...</p>
+                    )}
+                    {prepError && <p className="error-msg">⚠️ {prepError}</p>}
+                  </div>
                 )}
               </div>
             </>
@@ -297,10 +368,14 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
 function PrettyPlanCard({ plan, idx, onAdd }) {
   const theme = pickTheme(idx, plan.theme)
   const isFree = (plan.amountUsd === 0 && plan.amountCop === 0)
-  const big = isFree ? 'FREE' : (plan.amountUsd > 0 ? `${plan.amountUsd}` : `${Math.round(plan.amountCop/1000)}`)
+  const big = isFree
+    ? 'FREE'
+    : (plan.amountUsd > 0 ? `${plan.amountUsd}` : `${Math.round(plan.amountCop / 1000)}`)
   const currency = isFree ? '' : (plan.amountUsd > 0 ? 'USD' : '')
-  const feats = Array.isArray(plan.features) && plan.features.length ? plan.features : (plan.description ? [plan.description] : [])
-  
+  const feats = Array.isArray(plan.features) && plan.features.length
+    ? plan.features
+    : (plan.description ? [plan.description] : [])
+ 
   return (
     <div className="plan-card" style={{ background: theme.bg, color: theme.fg }}>
       <div className="plan-badge">★{idx % 2 ? '★' : ''}</div>
@@ -320,6 +395,7 @@ function PrettyPlanCard({ plan, idx, onAdd }) {
   )
 }
 
+
 function PlansGrid({ items, onAdd }) {
   return (
     <div className="plans-grid">
@@ -330,19 +406,21 @@ function PlansGrid({ items, onAdd }) {
   )
 }
 
+
 // ============= COMPONENTE PRINCIPAL =============
 function TiendaVistaContent({ lang = 'es', setOpt = () => {} }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [txAlert, setTxAlert] = useState(null)
-  const [items, setItems] = useState(CATALOGO)
+  const [items, setItems] = useState([])
+ 
   const iParam = searchParams?.get('i') ?? process.env.NEXT_PUBLIC_TIENDA_CLUB_ID ?? null
   const textEncFromUrl = searchParams?.get('textEnc') ?? undefined
   const [loadingApi, setLoadingApi] = useState(false)
   const [errorApi, setErrorApi] = useState(null)
   const [cart, setCart] = useState([])
   const [open, setOpen] = useState(false)
-  
+ 
   // Lee resultado de Bold
   useEffect(() => {
     const status = (searchParams?.get('bold-tx-status') || '').toLowerCase()
@@ -355,35 +433,38 @@ function TiendaVistaContent({ lang = 'es', setOpt = () => {} }) {
     const qs = sp.toString()
     router.replace(qs ? `?${qs}` : '/tienda', { scroll: false })
   }, [searchParams, router])
-  
-  // Carga catálogo desde API
+ 
+  // Carga desde BD
   useEffect(() => {
-    if (!iParam) {
-      console.log('[Tienda] Sin iParam; usando CATALOGO.')
-      return
-    }
-    const ctrl = new AbortController()
     setLoadingApi(true)
     setErrorApi(null)
+   
+    const ctrl = new AbortController()
+   
     fetchPlanesPorClub({ i: iParam, signal: ctrl.signal, textEncFromUrl })
       .then((arr) => {
-        if (arr.length) {
+        if (arr && arr.length > 0) {
+          console.log('[Tienda] ✅ Planes cargados de API:', arr.length)
           setItems(arr)
           setErrorApi(null)
         } else {
-          setErrorApi('No se pudo cargar la tienda de este club')
+          console.warn('[Tienda] ⚠️ API retornó vacío')
+          setItems([])
+          setErrorApi('No hay planes disponibles.')
         }
       })
       .catch((err) => {
         if (err?.name !== 'AbortError') {
-          console.error('[Tienda] API error:', err)
-          setErrorApi('No se pudo cargar la tienda de este club')
+          console.error('[Tienda] ❌ Error en API:', err)
+          setItems([])
+          setErrorApi('Error cargando planes.')
         }
       })
       .finally(() => setLoadingApi(false))
+   
     return () => ctrl.abort()
   }, [iParam, textEncFromUrl])
-  
+ 
   // Carrito persistido
   useEffect(() => {
     try {
@@ -394,26 +475,48 @@ function TiendaVistaContent({ lang = 'es', setOpt = () => {} }) {
       }
     } catch {}
   }, [])
-  
-  useEffect(() => { 
-    try { localStorage.setItem('pokerlap_cart', JSON.stringify(cart)) } catch {} 
+ 
+  // Limpia ítems huérfanos
+  useEffect(() => {
+    setCart((prev) => prev.filter(c => items.some(p => p.id === c.id)))
+  }, [items])
+ 
+  useEffect(() => {
+    try { localStorage.setItem('pokerlap_cart', JSON.stringify(cart)) } catch {}
   }, [cart])
-  
+ 
   // Helpers carrito
-  const add = useCallback((id) => setCart((p)=>{ const i=p.findIndex(x=>x.id===id); if(i>=0){const n=[...p]; n[i]={...n[i],qty:n[i].qty+1}; return n} return [...p,{id,qty:1}] }), [])
-  const inc = useCallback((id) => setCart((p)=>p.map(x=>x.id===id?{...x,qty:x.qty+1}:x)), [])
-  const dec = useCallback((id) => setCart((p)=>p.map(x=>x.id===id?{...x,qty:Math.max(1,x.qty-1)}:x)), [])
-  const remove = useCallback((id) => setCart((p)=>p.filter(x=>x.id!=id)), [])
-  const clear = useCallback(() => setCart([]), [])
-  
+  const add = useCallback((id) =>
+    setCart((p) => {
+      const i = p.findIndex(x => x.id === id)
+      if (i >= 0) {
+        const n = [...p]
+        n[i] = { ...n[i], qty: n[i].qty + 1 }
+        return n
+      }
+      return [...p, { id, qty: 1 }]
+    }), []
+  )
+ 
+  const inc = useCallback((id) =>
+    setCart((p) => p.map(x => x.id === id ? { ...x, qty: x.qty + 1 } : x)), []
+  )
+ 
+  const dec = useCallback((id) =>
+    setCart((p) => p.map(x => x.id === id ? { ...x, qty: Math.max(1, x.qty - 1) } : x)), []
+  )
+ 
+  const remove = useCallback((id) =>
+    setCart((p) => p.filter(x => x.id != id)), []
+  )
+ 
   const mapItems = useMemo(() => new Map(items.map(p => [p.id, p])), [items])
-  const itemsCount= useMemo(() => cart.reduce((a,b)=>a+b.qty,0), [cart])
+  const itemsCount = useMemo(() => cart.reduce((a,b)=>a+b.qty,0), [cart])
   const totalCop = useMemo(() => cart.reduce((a,it)=>a + (mapItems.get(it.id)?.amountCop||0)*it.qty,0), [cart,mapItems])
   const totalUsd = useMemo(() => cart.reduce((a,it)=>a + (mapItems.get(it.id)?.amountUsd||0)*it.qty,0), [cart,mapItems])
-  
+ 
   return (
     <div className="tienda-container">
-      {/* Banner resultado Bold */}
       {txAlert && (
         <div
           className={`tienda-alert ${
@@ -442,26 +545,25 @@ function TiendaVistaContent({ lang = 'es', setOpt = () => {} }) {
           )}
         </div>
       )}
-      
+     
       <h1>Elige el plan que más te convenga</h1>
-      
-      {loadingApi && <p className="loading">Cargando planes del club…</p>}
+     
+      {loadingApi && <p className="loading">Cargando planes…</p>}
       {errorApi && <p className="error">{errorApi}</p>}
-      
+     
       <PlansGrid items={items} onAdd={add} />
-      
-      {/* Carrito flotante */}
+     
       {itemsCount > 0 && (
         <div className="cart-floating" onClick={() => setOpen(true)}>
           <div className="cart-badge">{itemsCount}</div>
           <div className="cart-icon">🛒</div>
           <div className="cart-info">
             <span className="cart-label">Carrito</span>
-            <span className="cart-total">{fmtCOP(totalCop)}</span>
+            <span className="cart-total">{fmtUSD(totalUsd)}</span>
           </div>
         </div>
       )}
-      
+     
       <CheckoutModal
         open={open}
         onClose={() => setOpen(false)}
@@ -474,6 +576,7 @@ function TiendaVistaContent({ lang = 'es', setOpt = () => {} }) {
     </div>
   )
 }
+
 
 export default function TiendaVista(props) {
   return (
