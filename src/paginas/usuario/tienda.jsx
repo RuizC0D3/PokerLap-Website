@@ -186,7 +186,7 @@ function CheckoutModal({ open, onClose, items, cart, onInc, onDec, onRemove }) {
         const r = await fetch('/api/bold/hash', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ orderId: oid, amount: amountUsd, currency: 'USD' })
+          body: JSON.stringify({ orderId: oid, amount: amountUsd, currency: 'USD', clubId: clubIdFromUrl})
         })
         const d = await r.json()
        
@@ -414,7 +414,7 @@ function TiendaVistaContent({ lang = 'es', setOpt = () => {} }) {
   const [txAlert, setTxAlert] = useState(null)
   const [items, setItems] = useState([])
  
-  const iParam = searchParams?.get('i') ?? process.env.NEXT_PUBLIC_TIENDA_CLUB_ID ?? null
+  const iParam = clubIdFromUrl ?? searchParams?.get('i') ?? process.env.NEXT_PUBLIC_TIENDA_CLUB_ID ?? null
   const textEncFromUrl = searchParams?.get('textEnc') ?? undefined
   const [loadingApi, setLoadingApi] = useState(false)
   const [errorApi, setErrorApi] = useState(null)

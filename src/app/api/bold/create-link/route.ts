@@ -94,7 +94,7 @@ function amountCOP(plan: any) {
 
 export async function POST(req: Request) {
   try {
-    const { planId } = await req.json().catch(() => ({}))
+    const { planId, clubId } = await req.json().catch(() => ({}))
 
     if (!planId)
       return NextResponse.json({ error: 'Falta planId' }, { status: 400 })
@@ -130,6 +130,10 @@ export async function POST(req: Request) {
       return_url: returnUrl,
       cancel_url: cancelUrl,
       payment_methods: ['CREDIT_CARD', 'PSE', 'NEQUI', 'BOTON_BANCOLOMBIA'],
+      metadata: {
+        clubId: clubId || null,
+        planId: planId
+      }
     }
 
     const res = await fetch(`${API_BASE_ENV}/online/link/v1`, {
